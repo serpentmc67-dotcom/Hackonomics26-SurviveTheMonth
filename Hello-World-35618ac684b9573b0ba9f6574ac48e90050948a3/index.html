@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Survive the Month</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content:"";
+    position:absolute; inset:0;
+    background-image: url('Survive The Month.png');
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+  }
+
+  #rainCanvas {
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:1;
+  }
+
+  #lightningCanvas {
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:2;
+  }
+
+  .right-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 44vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    z-index: 3;
+    padding: 20px;
+  }
+
+  .game-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(3rem, 6vw, 6rem);
+    color: #fff;
+    text-align: center;
+    line-height: 1;
+    text-shadow: 4px 4px 0 #c05a20, 2px 2px 0 #c05a20;
+    letter-spacing: 2px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .menu-btn {
+    display: block;
+    width: 80%;
+    max-width: 340px;
+    padding: 18px 0;
+    background: #f5c842;
+    border: 3px solid #2a2060;
+    border-radius: 60px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: #2a2060;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #2a2060;
+    transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+  }
+  .menu-btn:hover {
+    background: #ffd840;
+    transform: translate(-2px,-2px);
+    box-shadow: 6px 6px 0 #2a2060;
+  }
+  .menu-btn:active {
+    transform: translate(2px,2px);
+    box-shadow: 2px 2px 0 #2a2060;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="rainCanvas"></canvas>
+<canvas id="lightningCanvas"></canvas>
+
+<div class="right-panel">
+  <div class="game-title">SURVIVE THE<br>MONTH</div>
+  <div class="buttons">
+    <a class="menu-btn" href="start.html">Start</a>
+    <a class="menu-btn" href="credits.html">Credits</a>
+    <a class="menu-btn" href="settings.html">Settings</a>
+  </div>
+</div>
+
+<script>
+const rainCanvas = document.getElementById('rainCanvas');
+const rainCtx = rainCanvas.getContext('2d');
+const lightningCanvas = document.getElementById('lightningCanvas');
+const lightningCtx = lightningCanvas.getContext('2d');
+
+function resize() {
+    rainCanvas.width = lightningCanvas.width = window.innerWidth;
+    rainCanvas.height = lightningCanvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// --- RAIN ---
+const DROPS = 220;
+const drops = Array.from({length:DROPS}, ()=>({
+    x: Math.random() * rainCanvas.width * 1.5 - rainCanvas.width * 0.3,
+    y: Math.random() * rainCanvas.height,
+    len: 14 + Math.random()*18,
+    speed: 6 + Math.random()*8,
+    opacity: 0.55 + Math.random()*0.35,
+}));
+
+const ANGLE = Math.PI/5;
+const dx = Math.sin(ANGLE);
+const dy = Math.cos(ANGLE);
+
+function drawRain() {
+    rainCtx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
+    rainCtx.lineCap = 'round';
+    for(const d of drops){
+        rainCtx.beginPath();
+        rainCtx.moveTo(d.x,d.y);
+        rainCtx.lineTo(d.x - d.len*dx, d.y - d.len*dy);
+        rainCtx.strokeStyle = `rgba(80,130,200,${d.opacity})`;
+        rainCtx.lineWidth = 1.2;
+        rainCtx.stroke();
+        d.x += d.speed*dx;
+        d.y += d.speed*dy;
+        if(d.y>rainCanvas.height+20 || d.x>rainCanvas.width+20){
+            d.x=Math.random()*rainCanvas.width-100;
+            d.y=-20;
+        }
+    }
+    requestAnimationFrame(drawRain);
+}
+drawRain();
+
+// --- LIGHTNING ---
+function drawLightning() {
+    lightningCtx.clearRect(0,0,lightningCanvas.width, lightningCanvas.height);
+
+    // create bolt path
+    const startX = Math.random()*lightningCanvas.width*0.8 + lightningCanvas.width*0.1;
+    let x = startX, y = 0;
+    const points = [{x,y}];
+    while(y < lightningCanvas.height*0.8){
+        x += (Math.random()-0.5)*60;
+        y += Math.random()*30 + 20;
+        points.push({x,y});
+    }
+
+    // draw bold bolt
+    lightningCtx.save();
+    lightningCtx.lineWidth = 8;
+    lightningCtx.strokeStyle = 'white';
+    lightningCtx.shadowColor = 'white';
+    lightningCtx.shadowBlur = 40;
+    lightningCtx.beginPath();
+    lightningCtx.moveTo(points[0].x, points[0].y);
+    for(let i=1;i<points.length;i++){
+        lightningCtx.lineTo(points[i].x, points[i].y);
+    }
+    lightningCtx.stroke();
+    lightningCtx.restore();
+
+    // optional fast flash (0.2 sec)
+    lightningCtx.fillStyle = 'rgba(255,255,255,0.2)';
+    lightningCtx.fillRect(0,0,lightningCanvas.width, lightningCanvas.height);
+    setTimeout(()=>{ lightningCtx.clearRect(0,0,lightningCanvas.width, lightningCanvas.height); }, 200);
+    
+    // keep bolt for 0.5 seconds
+    setTimeout(()=>{ lightningCtx.clearRect(0,0,lightningCanvas.width, lightningCanvas.height); }, 500);
+}
+
+// high frequency loop
+function randomLightningLoop(){
+    drawLightning();
+    setTimeout(randomLightningLoop, Math.random()*2000 + 1000); // 1-3 sec frequency
+}
+
+setTimeout(randomLightningLoop, 1000);
+</script>
+
+</body>
+</html>

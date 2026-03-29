@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Survive the Month – Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #f7c97a 0%, #f5a95a 40%, #f07d4a 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      overflow: hidden;
+      position: relative;
+    }
+    canvas { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .card {
+      position: relative; z-index: 1;
+      background: rgba(255,255,255,0.18);
+      border: 3px solid #2a2060;
+      border-radius: 24px;
+      padding: 40px 52px;
+      text-align: left;
+      box-shadow: 6px 6px 0 #2a2060;
+      min-width: 380px;
+    }
+    h1 { font-family:'Fredoka One',cursive; font-size:2.8rem; color:#fff; text-shadow:3px 3px 0 #c05a20; margin-bottom:28px; text-align:center; }
+    .setting {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .setting label { font-family:'Fredoka One',cursive; font-size:1.2rem; color:#2a2060; }
+    .toggle { position:relative; width:54px; height:28px; }
+    .toggle input { opacity:0; width:0; height:0; }
+    .slider {
+      position:absolute; cursor:pointer; inset:0;
+      background:#c8b860; border-radius:28px;
+      border: 2px solid #2a2060;
+      transition:.3s;
+    }
+    .slider:before {
+      content:''; position:absolute;
+      height:20px; width:20px; left:3px; bottom:2px;
+      background:#fff; border-radius:50%;
+      border:2px solid #2a2060;
+      transition:.3s;
+    }
+    input:checked + .slider { background:#f5c842; }
+    input:checked + .slider:before { transform:translateX(25px); }
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width:130px; height:8px;
+      border-radius:8px; background:#c8b860; border:2px solid #2a2060; outline:none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width:20px; height:20px;
+      border-radius:50%; background:#f5c842; border:2px solid #2a2060; cursor:pointer;
+    }
+    .back-btn {
+      position:relative; z-index:1;
+      display:inline-block; padding:14px 40px;
+      background:#f5c842; border:3px solid #2a2060; border-radius:60px;
+      font-family:'Fredoka One',cursive; font-size:1.4rem; color:#2a2060;
+      text-decoration:none; box-shadow:4px 4px 0 #2a2060;
+      transition:transform .12s, box-shadow .12s;
+    }
+    .back-btn:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 #2a2060; }
+    .back-btn:active { transform:translate(2px,2px); box-shadow:2px 2px 0 #2a2060; }
+  </style>
+</head>
+<body>
+  <canvas id="rain"></canvas>
+  <div class="card">
+    <h1>Settings</h1>
+    <div class="setting">
+      <label>🔊 Music</label>
+      <label class="toggle"><input type="checkbox" checked/><span class="slider"></span></label>
+    </div>
+    <div class="setting">
+      <label>🔔 Sound FX</label>
+      <label class="toggle"><input type="checkbox" checked/><span class="slider"></span></label>
+    </div>
+    <div class="setting">
+      <label>🌧️ Rain FX</label>
+      <label class="toggle"><input type="checkbox" checked/><span class="slider"></span></label>
+    </div>
+    <div class="setting">
+      <label>🔈 Volume</label>
+      <input type="range" min="0" max="100" value="70"/>
+    </div>
+    <div class="setting">
+      <label>⚡ Difficulty</label>
+      <select style="font-family:'Fredoka One',cursive;font-size:1rem;background:#f5c842;border:2px solid #2a2060;border-radius:12px;padding:4px 10px;color:#2a2060;cursor:pointer;">
+        <option>Easy</option>
+        <option selected>Normal</option>
+        <option>Hard</option>
+      </select>
+    </div>
+  </div>
+  <a class="back-btn" href="index.html">← Back to Menu</a>
+  <script>
+    const c = document.getElementById('rain'), ctx = c.getContext('2d');
+    function resize(){ c.width=innerWidth; c.height=innerHeight; } resize();
+    window.addEventListener('resize', resize);
+    const drops = Array.from({length:180},()=>({x:Math.random()*innerWidth*1.4-100,y:Math.random()*innerHeight,len:12+Math.random()*16,speed:5+Math.random()*7,op:0.15+Math.random()*0.25}));
+    const dx=Math.sin(Math.PI/5),dy=Math.cos(Math.PI/5);
+    function draw(){ ctx.clearRect(0,0,c.width,c.height); for(const d of drops){ ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(d.x-d.len*dx,d.y-d.len*dy);ctx.strokeStyle=`rgba(180,220,255,${d.op})`;ctx.lineWidth=1.2;ctx.lineCap='round';ctx.stroke();d.x+=d.speed*dx;d.y+=d.speed*dy;if(d.y>c.height+20||d.x>c.width+20){d.x=Math.random()*c.width-100;d.y=-20;}} requestAnimationFrame(draw); }
+    draw();
+  </script>
+</body>
+</html>
