@@ -165,36 +165,43 @@
       display: none;
       position: fixed; inset: 0; z-index: 2900;
       background: radial-gradient(ellipse at 40% 50%, #0c0c28 0%, #000 100%);
-      justify-content: center; align-items: center;
-      overflow: hidden;
+      justify-content: center; align-items: flex-start;
+      overflow-y: auto;
       transition: opacity 0.7s ease;
+      padding: 16px 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--orange) transparent;
     }
+    #tutorial-screen::-webkit-scrollbar { width: 8px; }
+    #tutorial-screen::-webkit-scrollbar-track { background: transparent; }
+    #tutorial-screen::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 4px; }
     #tutorial-screen.open { display: flex; }
     #tutorial-screen.fade-out { opacity: 0; pointer-events: none; }
 
     .tut-wrapper {
-      max-width: 900px; width: 96vw;
-      padding: 0;
-      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      max-width: 1100px; width: 97vw;
+      padding: 16px 0;
+      margin: auto;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
     }
 
     .tut-title {
-      font-family: 'Fredoka One', cursive; font-size: 18px; color: var(--orange);
+      font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--orange);
       text-align: center;
       text-shadow: 0 0 40px rgba(255,120,0,0.35);
       animation: ssLogoIn 0.6s ease both;
       margin: 0;
     }
     .tut-sub {
-      font-family: 'Fredoka One', cursive; font-size: 9px;
+      font-family: 'Fredoka One', cursive; font-size: 12px;
       letter-spacing: 3px; text-transform: uppercase;
       color: rgba(255,154,66,0.4);
-      margin-top: -2px;
+      margin-top: -4px;
       animation: ssLogoIn 0.6s 0.1s ease both;
     }
 
     .tut-section-label {
-      font-family: 'Fredoka One', cursive; font-size: 9px; color: rgba(255,154,66,0.6);
+      font-family: 'Fredoka One', cursive; font-size: 12px; color: rgba(255,154,66,0.6);
       text-transform: uppercase; letter-spacing: 2px;
       align-self: flex-start;
       padding-left: 2px;
@@ -203,53 +210,54 @@
     .controls-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 5px; width: 100%;
+      gap: 10px; width: 100%;
       animation: ssCardIn 0.6s 0.15s ease both;
     }
 
     .ctrl-card {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,154,66,0.15);
-      border-radius: 8px; padding: 6px 6px;
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      border-radius: 12px; padding: 16px 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
       text-align: center;
     }
     .ctrl-keys {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
       flex-shrink: 0;
     }
-    .ctrl-key-row { display: flex; gap: 2px; }
+    .ctrl-key-row { display: flex; gap: 4px; }
     .key {
-      min-width: 20px; height: 20px;
+      min-width: 28px; height: 28px;
       background: rgba(255,154,66,0.14);
       border: 1.5px solid rgba(255,154,66,0.4);
-      border-bottom: 2px solid rgba(255,154,66,0.7);
-      border-radius: 4px;
-      font-family: 'Fredoka One', cursive; font-size: 9px;
+      border-bottom: 3px solid rgba(255,154,66,0.7);
+      border-radius: 6px;
+      font-family: 'Fredoka One', cursive; font-size: 13px;
       color: var(--orange);
       display: flex; align-items: center; justify-content: center;
-      padding: 0 3px;
+      padding: 0 4px;
       box-shadow: 0 1px 0 rgba(255,120,0,0.3);
     }
-    .key.wide { min-width: 52px; font-size: 9px; }
-    .key.arrow { font-size: 11px; }
+    .key.wide { min-width: 70px; font-size: 12px; }
+    .key.arrow { font-size: 14px; }
     .ctrl-info { width: 100%; }
-    .ctrl-info strong {
-      font-family: 'Fredoka One', cursive; font-size: 10px; color: #fff;
-      display: block; margin-bottom: 0;
+    .ctrl-info > strong {
+      font-family: 'Fredoka One', cursive; font-size: 14px; color: #fff;
+      display: block; margin-bottom: 2px;
     }
-    .ctrl-info span { font-size: 9px; color: rgba(255,255,255,0.4); line-height: 1.2; }
+    .ctrl-info span { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.3; }
+    .ctrl-info span strong { display: inline; font-family: 'Fredoka One', cursive; }
 
     .mechanics-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 5px; width: 100%;
+      gap: 10px; width: 100%;
       animation: ssCardIn 0.6s 0.25s ease both;
     }
     .mech-card {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px; padding: 5px 4px;
+      border-radius: 12px; padding: 16px 10px;
       text-align: center;
       transition: border-color 0.2s, background 0.2s;
     }
@@ -257,27 +265,27 @@
       background: rgba(255,154,66,0.06);
       border-color: rgba(255,154,66,0.25);
     }
-    .mech-icon { font-size: 14px; margin-bottom: 1px; display: block; }
+    .mech-icon { font-size: 26px; margin-bottom: 6px; display: block; }
     .mech-title {
-      font-family: 'Fredoka One', cursive; font-size: 9px; color: var(--orange);
-      margin-bottom: 1px;
+      font-family: 'Fredoka One', cursive; font-size: 13px; color: var(--orange);
+      margin-bottom: 4px;
     }
-    .mech-desc { font-size: 8.5px; color: rgba(255,255,255,0.4); line-height: 1.2; }
+    .mech-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.35; }
 
     .tut-info-callout {
       width: 100%;
       background: linear-gradient(135deg, rgba(255,154,66,0.08), rgba(255,100,0,0.04));
       border: 1px solid rgba(255,154,66,0.3);
-      border-radius: 8px; padding: 5px 10px;
-      display: flex; align-items: center; gap: 8px;
+      border-radius: 12px; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px;
       animation: ssCardIn 0.6s 0.3s ease both;
     }
     .tut-i-demo {
-      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
       background: rgba(255,154,66,0.18);
       border: 1.5px solid rgba(255,154,66,0.5);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Fredoka One', cursive; font-size: 12px; color: var(--orange);
+      font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--orange);
       animation: iGlow 2s ease infinite;
     }
     @keyframes iGlow {
@@ -285,21 +293,21 @@
       50%      { box-shadow: 0 0 16px rgba(255,120,0,0.55); }
     }
     .tut-i-text strong {
-      font-family: 'Fredoka One', cursive; font-size: 10px; color: var(--orange);
-      display: block; margin-bottom: 0;
+      font-family: 'Fredoka One', cursive; font-size: 13px; color: var(--orange);
+      display: inline;
     }
-    .tut-i-text span { font-size: 9px; color: rgba(255,255,255,0.5); line-height: 1.2; }
+    .tut-i-text span { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.4; display: inline; }
 
     #tut-continue-btn {
-      padding: 8px 44px;
+      padding: 14px 56px;
       background: linear-gradient(90deg, var(--orange), var(--orange-dark));
-      border: none; border-radius: 10px;
-      font-family: 'Fredoka One', cursive; font-size: 15px; color: #fff;
+      border: none; border-radius: 14px;
+      font-family: 'Fredoka One', cursive; font-size: 20px; color: #fff;
       cursor: pointer;
       box-shadow: 0 6px 24px rgba(255,120,0,0.4);
       transition: transform 0.18s;
       animation: ssCardIn 0.6s 0.4s ease both;
-      margin-top: 2px;
+      margin-top: 4px;
     }
     #tut-continue-btn:hover { transform: scale(1.05); }
 
@@ -533,7 +541,7 @@
       scrollbar-width: thin; scrollbar-color: #ff9a42 transparent;
     }
     #game-container { flex: 1; height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    #game-container canvas { display: block; margin: 0 auto; }
+    #game-container canvas { display: block; margin: 0 auto; image-rendering: auto; -webkit-backface-visibility: hidden; }
     #right-sidebar {
       width: 280px; min-width: 260px; height: 100vh;
       background: var(--sidebar-bg);
@@ -644,9 +652,10 @@
     #interact-prompt {
       display: none;
       position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 24px;
+      right: calc(280px + 22px);
+      left: auto;
+      transform: none;
       z-index: 300;
       background: rgba(3,3,75,0.92); backdrop-filter: blur(10px);
       border: 2px solid var(--orange); border-radius: 18px; padding: 12px 22px;
@@ -655,7 +664,7 @@
       pointer-events: none;
     }
     @keyframes promptPop {
-      from { transform: scale(0.8) translateY(10px); opacity: 0; }
+      from { transform: scale(0.85) translateY(10px); opacity: 0; }
       to   { transform: scale(1) translateY(0); opacity: 1; }
     }
     #interact-prompt .prompt-title { font-family: 'Fredoka One', cursive; font-size: 17px; color: #fff; margin-bottom: 2px; }
@@ -761,6 +770,7 @@
       border: 2px solid rgba(255,154,66,0.3);
       border-radius: 24px; padding: 28px 36px;
       width: 560px; max-width: 96vw;
+      max-height: 88vh; overflow-y: auto;
       animation: billsIn 0.35s cubic-bezier(.4,2,.6,1) both;
     }
     @keyframes billsIn { from { transform: scale(0.88) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -774,6 +784,14 @@
       gap: 10px;
       margin-bottom: 16px;
     }
+/* Targets the bills image, resizes it properly, and centers it */
+img[src*="bills.png"] {
+  display: block;        /* Necessary for centering with margin auto */
+  width: 50% !important;  /* Physical resize to 50% of its container */
+  height: auto;
+  margin: 10px auto;     /* Auto margins on left/right center the image */
+}
+
     .bill-card {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.09);
@@ -810,6 +828,28 @@
     .bn-val.negative { color: #ef9a9a; }
     .bills-close { width: 100%; padding: 13px; background: linear-gradient(90deg, var(--orange), var(--orange-dark)); border: none; border-radius: 12px; font-family: 'Fredoka One', cursive; font-size: 17px; color: #fff; cursor: pointer; transition: transform 0.15s; margin-top: 16px; }
     .bills-close:hover { transform: scale(1.02); }
+        .bill-pay-btn {
+      width: 100%; padding: 7px 0; margin-top: 6px;
+      background: linear-gradient(90deg, #4caf50, #2e7d32);
+      border: none; border-radius: 8px;
+      font-family: 'Fredoka One', cursive; font-size: 13px; color: #fff;
+      cursor: pointer; transition: transform 0.15s, opacity 0.15s;
+    }
+    .bill-pay-btn:hover { transform: scale(1.04); }
+    .bill-pay-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; background: rgba(255,255,255,0.1); }
+    .bill-countdown-badge {
+      display: inline-block;
+      background: rgba(229,57,53,0.25); border: 1px solid rgba(229,57,53,0.5);
+      border-radius: 8px; padding: 2px 8px; margin-top: 2px;
+      font-family: 'Fredoka One', cursive; font-size: 11px; color: #ef9a9a;
+    }
+    .bill-card.paid-card { opacity: 0.4; filter: grayscale(0.6); }
+    .bill-paid-stamp {
+      font-family: 'Fredoka One', cursive; font-size: 13px; color: #81c784; margin-top: 4px;
+    }
+    .bills-pay { width: 100%; padding: 13px; background: linear-gradient(90deg, #4caf50, #2e7d32); border: none; border-radius: 12px; font-family: 'Fredoka One', cursive; font-size: 17px; color: #fff; cursor: pointer; transition: transform 0.15s; margin-top: 8px; }
+    .bills-pay:hover { transform: scale(1.02); }
+    .bills-pay:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     /* phone */
     #phone-overlay { display: none; position: fixed; inset: 0; z-index: 850; background: rgba(0,0,0,0.88); justify-content: center; align-items: center; backdrop-filter: blur(8px); }
@@ -896,12 +936,13 @@
     #endgame-box .eg-title { font-family: 'Fredoka One', cursive; font-size: 48px; margin-bottom: 8px; }
     #endgame-box .eg-title.win  { color: #a5d6a7; }
     #endgame-box .eg-title.lose { color: #ef9a9a; }
+    #endgame-box .eg-title.quit { color: #ffd54f; }
     #endgame-box .eg-reason { font-size: 18px; color: rgba(255,255,255,0.6); margin-bottom: 28px; }
     .eg-stats { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
     .eg-stat { background: rgba(255,255,255,0.06); border-radius: 14px; padding: 16px 24px; border: 1px solid rgba(255,255,255,0.1); }
     .eg-stat .es-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
     .eg-stat .es-val   { font-family: 'Fredoka One', cursive; font-size: 24px; color: #fff; margin-top: 4px; }
-    #restart-btn { padding: 16px 48px; background: linear-gradient(90deg, var(--orange), var(--orange-dark)); border: none; border-radius: 18px; font-family: 'Fredoka One', cursive; font-size: 22px; color: #fff; cursor: pointer; box-shadow: 0 8px 32px rgba(255,120,0,0.4); transition: transform 0.15s; }
+    #restart-btn { padding: 16px 48px; background: linear-gradient(90deg, #e53935, #b71c1c); border: none; border-radius: 18px; font-family: 'Fredoka One', cursive; font-size: 22px; color: #fff; cursor: pointer; box-shadow: 0 8px 32px rgba(229,57,53,0.4); transition: transform 0.15s; }
     #restart-btn:hover { transform: scale(1.05); }
 
     /* modal */
@@ -952,7 +993,7 @@
   <!-- Ambient floating particles -->
   <div class="ss-particles" id="ss-particles"></div>
 
-  <div class="ss-logo">🏠 Survive the Month</div>
+  <div class="ss-logo">Survive the Month</div>
   <div class="ss-subtitle">A Financial Literacy Game</div>
 
   <div class="ss-card">
@@ -961,7 +1002,7 @@
     <!-- i-button awareness note — shown after typing completes -->
     <div class="ss-info-note" id="ss-info-note">
       <div class="ss-info-dot">i</div>
-      <span>Look for the <strong style="color:var(--orange)">ⓘ</strong> buttons throughout the game — they explain real financial concepts like budgeting, bills, and credit!</span>
+      <span>Look for the <strong style="color:var(--orange)">ⓘ</strong> buttons throughout the game, they explain real financial concepts like budgeting, bills, and credit!</span>
     </div>
 
     <div style="text-align:center;">
@@ -1077,17 +1118,15 @@
 
     <!-- i-button callout -->
     <div class="tut-info-callout">
-      <div class="tut-i-demo">i</div>
       <div class="tut-i-text">
-        <strong>💡 Learn As You Play</strong>
-        <span>Every panel in the game has a small <strong style="color:var(--orange)">ⓘ</strong> button. Tap it to learn a real financial concept — budgeting, utility bills, net income, mental health costs, and more. Your future self will thank you!</span>
+        <strong>💡 Learn As You Play —</strong> <span>Every panel has a small <strong style="color:var(--orange)">ⓘ</strong> button. Tap it to learn a real financial concept — budgeting, bills, net income, and more.</span>
       </div>
     </div>
 
     <!-- Lose conditions reminder -->
-    <div style="background:rgba(229,57,53,0.07);border:1px solid rgba(229,57,53,0.2);border-radius:8px;padding:5px 12px;width:100%;animation:ssCardIn 0.6s 0.35s ease both;display:flex;align-items:center;gap:10px;">
-      <div style="font-family:'Fredoka One',cursive;font-size:10px;color:#ef9a9a;flex-shrink:0;">⚠️ Game Over:</div>
-      <div style="font-size:9px;color:rgba(255,255,255,0.5);line-height:1.3;">
+    <div style="background:rgba(229,57,53,0.07);border:1px solid rgba(229,57,53,0.2);border-radius:10px;padding:10px 16px;width:100%;animation:ssCardIn 0.6s 0.35s ease both;display:flex;align-items:center;gap:12px;">
+      <div style="font-family:'Fredoka One',cursive;font-size:14px;color:#ef9a9a;flex-shrink:0;">⚠️ Game Over if:</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.4;">
         Food hits 0% &nbsp;•&nbsp; Sanity hits 0% &nbsp;•&nbsp; Debt exceeds $500 &nbsp;•&nbsp; Quit after Week 1
       </div>
     </div>
@@ -1143,11 +1182,11 @@
       </div>
       <div class="budget-chip">
         <div class="bc-label">Weekly Bills</div>
-        <div class="bc-val expense" id="bills-chip">-$420</div>
-      </div>
+        <div class="bc-val expense" id="bills-chip">-$565</div>
+    </div>
       <div class="budget-chip">
         <div class="bc-label">Net</div>
-        <div class="bc-val income" id="net-chip">+$180</div>
+        <div class="bc-val income" id="net-chip">+$35</div>
       </div>
     </div>
     <button class="info-btn" onclick="showInfo('budget')">i</button>
@@ -1356,11 +1395,11 @@
 <!-- Bills Overlay — visual card-based layout -->
 <div id="bills-overlay">
   <div id="bills-box">
-    <div class="bb-title">📋 Weekly Statement</div>
-    <div class="bb-sub" id="bills-sub">End of Week 1</div>
+    <div class="bb-title">📋 Weekly Bills</div>
+    <div class="bb-sub" id="bills-sub">Week 1</div>
     <div class="bill-grid" id="bill-list"></div>
-    <div class="bills-net"><span class="bn-label">Net Change</span><span class="bn-val" id="bills-net-val">+$0</span></div>
-    <button class="bills-close" onclick="closeBills()">Got it</button>
+    <div class="bills-net"><span class="bn-label">Still Owed</span><span class="bn-val" id="bills-net-val">$0</span></div>
+    <button class="bills-close" id="bills-close-btn" onclick="closeBills()">Close</button>
   </div>
 </div>
 
@@ -1439,7 +1478,7 @@
     <div class="eg-title" id="eg-title">YOU SURVIVED!</div>
     <div class="eg-reason" id="eg-reason">30 days. Respect.</div>
     <div class="eg-stats" id="eg-stats"></div>
-    <button id="restart-btn" onclick="restartGame()">Play Again 🔄</button>
+    <button id="restart-btn" onclick="goToHomepage()">Quit Game 🚪</button>
   </div>
 </div>
 
@@ -1521,18 +1560,64 @@ function runTyping() {
 }
 runTyping();
 
+// Skip intro: show persistent hint after a short delay, listen for Enter key
+(function() {
+  var skipShown = false;
+  var skipActivated = false;
+  var skipEl = null;
+
+  function dismissSkipHint() {
+    skipActivated = true;
+    if (skipEl) {
+      skipEl.style.opacity = '0';
+      setTimeout(function() { if (skipEl && skipEl.parentNode) skipEl.parentNode.removeChild(skipEl); }, 420);
+    }
+  }
+
+  function showSkipHint() {
+    if (skipShown || skipActivated) return;
+    skipShown = true;
+    skipEl = document.createElement('div');
+    skipEl.id = 'skip-hint';
+    skipEl.innerHTML = 'Press <strong>Enter</strong> to skip';
+    skipEl.style.cssText = [
+      'position:fixed','bottom:24px','right:24px','z-index:4000',
+      'background:rgba(0,0,0,0.7)','border:1px solid rgba(255,154,66,0.4)',
+      'color:rgba(255,255,255,0.7)','font-size:13px','padding:9px 16px',
+      'border-radius:10px','backdrop-filter:blur(6px)',
+      'pointer-events:none','transition:opacity 0.4s ease','opacity:0'
+    ].join(';');
+    document.body.appendChild(skipEl);
+    requestAnimationFrame(function() { requestAnimationFrame(function() {
+      if (!skipActivated) skipEl.style.opacity = '1';
+    }); });
+  }
+  setTimeout(showSkipHint, 1800);
+
+  document.addEventListener('keydown', function onEnterSkip(e) {
+    if (e.key === 'Enter') {
+      var ss = document.getElementById('start-screen');
+      if (ss && ss.style.display !== 'none' && !ss.classList.contains('fade-out')) {
+        document.removeEventListener('keydown', onEnterSkip);
+        dismissSkipHint();
+        showTutorial();
+      }
+    }
+  });
+})();
+
 function showTutorial() {
   const ss  = document.getElementById('start-screen');
   const tut = document.getElementById('tutorial-screen');
-  // Show tutorial BEFORE fading start screen, so game canvas never shows
   tut.classList.add('open');
   tut.style.opacity = '0';
+  tut.style.transition = 'none';
   ss.classList.add('fade-out');
   setTimeout(() => {
     ss.style.display = 'none';
-    tut.style.transition = 'opacity 0.5s ease';
+    tut.style.transition = 'opacity 0.45s ease';
     tut.style.opacity = '1';
-  }, 850);
+  }, 500);
 }
 
 function startGameplay() {
@@ -1623,13 +1708,12 @@ document.getElementById('info-overlay').addEventListener('click', function(e) { 
 //  BILL VISUAL DATA
 // ══════════════════════════════════════════════
 const BILL_VISUALS = {
-  'Rent (weekly share)':  { emoji: '🏠', color: '#ef9a9a', bg: 'rgba(229,57,53,0.12)',  border: 'rgba(229,57,53,0.25)'  },
-  'Utilities':            { emoji: '💡', color: '#fff176', bg: 'rgba(255,193,7,0.10)',  border: 'rgba(255,193,7,0.25)'  },
+  'Rent':                 { emoji: '🏠', color: '#ef9a9a', bg: 'rgba(229,57,53,0.12)',  border: 'rgba(229,57,53,0.25)'  },  'Electricity':          { emoji: '⚡', color: '#fff176', bg: 'rgba(255,193,7,0.10)',  border: 'rgba(255,193,7,0.25)'  },  
+  'Water':                { emoji: '💧', color: '#90caf9', bg: 'rgba(66,165,245,0.10)', border: 'rgba(66,165,245,0.25)' },
   'Phone Bill':           { emoji: '📱', color: '#90caf9', bg: 'rgba(66,165,245,0.10)', border: 'rgba(66,165,245,0.25)' },
   'Streaming Services':   { emoji: '🎬', color: '#ce93d8', bg: 'rgba(156,39,176,0.10)', border: 'rgba(156,39,176,0.25)' },
+  'Renters Insurance':    { emoji: '🛡️', color: '#a5d6a7', bg: 'rgba(76,175,80,0.10)',  border: 'rgba(76,175,80,0.25)'  },
   'Internet':             { emoji: '🌐', color: '#80cbc4', bg: 'rgba(0,188,212,0.10)',  border: 'rgba(0,188,212,0.25)'  },
-  'Gym Membership':       { emoji: '🏋️', color: '#a5d6a7', bg: 'rgba(76,175,80,0.10)',  border: 'rgba(76,175,80,0.25)'  },
-  'Groceries Budget':     { emoji: '🛒', color: '#ffcc80', bg: 'rgba(255,152,0,0.10)',  border: 'rgba(255,152,0,0.25)'  },
   'Weekly Salary':        { emoji: '💵', color: '#81c784', bg: 'rgba(76,175,80,0.12)',  border: 'rgba(76,175,80,0.3)'   },
   // Random fines
   'Parking Ticket':       { emoji: '🚗', color: '#ff8a65', bg: 'rgba(255,87,34,0.10)',  border: 'rgba(255,87,34,0.25)'  },
@@ -1652,17 +1736,25 @@ const DAYS_IN_MONTH   = 30;
 const WEEK_DAYS       = 7;
 const DAY_DURATION_MS = 105000; // 1:45 for every day (was 150000)
 const SALARY_WEEKLY   = 600;
-const FIXED_BILLS = [
-  { name: 'Rent (weekly share)',  amount: -300, type: 'expense' },
-  { name: 'Utilities',           amount: -45,  type: 'expense' },
-  { name: 'Phone Bill',          amount: -35,  type: 'expense' },
-  { name: 'Streaming Services',  amount: -25,  type: 'expense' },
-  { name: 'Internet',            amount: -30,  type: 'expense' },
-  { name: 'Gym Membership',      amount: -20,  type: 'expense' },
-  { name: 'Groceries Budget',    amount: -90,  type: 'expense' },
+const BILLS_DAY1 = [
+  { name: 'Phone Bill',         amount: -35,  type: 'expense' },
+  { name: 'Streaming Services', amount: -15,  type: 'expense' },
+  { name: 'Internet',           amount: -50,  type: 'expense' },
 ];
+const BILLS_DAY4 = [
+  { name: 'Electricity',        amount: -60,  type: 'expense' },
+  { name: 'Water',              amount: -30,  type: 'expense' },
+  { name: 'Renters Insurance',  amount: -25,  type: 'expense' },
+  { name: 'Rent',               amount: -350, type: 'expense' },
+];
+const BILLS_DAY8  = BILLS_DAY1;
+const BILLS_DAY11 = BILLS_DAY4;
+const BILLS_DAY15 = BILLS_DAY1;
+const BILLS_DAY18 = BILLS_DAY4;
+const BILLS_DAY22 = BILLS_DAY1;
+const BILLS_DAY25 = BILLS_DAY4;
 
-const STARTING_MONEY  = 1200;
+const STARTING_MONEY  = 750;
 const STARTING_FOOD   = 100;
 const STARTING_SANITY = 100;
 const FOOD_DECAY_PER_DAY   = 12;
@@ -1762,7 +1854,11 @@ function initState() {
     totalEarned: 0, totalSpent: 0, parkVisits: 0, workTasksDone: [],
     weekStartFood: STARTING_FOOD, weekStartSanity: STARTING_SANITY, weekStartMoney: STARTING_MONEY,
     lastFineWeek: 0, dailyWorkTasks: [], dayTimer: null, phoneCallTimer: null,
+    leftHouseToday: false, consecutiveDaysHome: 0,
     _foodDecayAccum: 0, _lastTick: Date.now(),
+    pendingBills: BILLS_DAY1.map(b => ({ ...b, paid: false, countdown: 3 })),
+    billsGroup1IssuedWeek: 1,
+    billsGroup2IssuedWeek: 0,
   };
 }
 
@@ -1849,6 +1945,47 @@ function toggleGameLog() {
 function showToast(icon, msg, type = '', duration = 3000) {
   showNotif(icon, msg, type, duration);
 }
+
+function showIsolationWarning(days, penalty) {
+  var existing = document.getElementById('isolation-popup');
+  if (existing) existing.remove();
+  var isWarning = !penalty;
+  var popup = document.createElement('div');
+  popup.id = 'isolation-popup';
+  popup.style.cssText = [
+    'position:fixed','inset:0','z-index:2000',
+    'display:flex','align-items:center','justify-content:center',
+    'background:rgba(0,0,0,0.72)','backdrop-filter:blur(8px)',
+    'animation:isolFadeIn 0.35s ease both'
+  ].join(';');
+  popup.innerHTML = `
+    <style>@keyframes isolFadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes isolBounce { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
+    #isolation-box { background: linear-gradient(135deg,#1a0a0a,#2d1212); border: 2px solid rgba(229,57,53,0.5);
+      border-radius:24px; padding:40px 50px; text-align:center; max-width:420px; width:92vw;
+      animation:isolBounce 0.4s cubic-bezier(.4,2,.6,1) both; }
+    #isolation-box .isol-emoji { font-size:64px; display:block; margin-bottom:12px; }
+    #isolation-box .isol-title { font-family:'Fredoka One',cursive; font-size:30px; color:#ef9a9a; margin-bottom:8px; }
+    #isolation-box .isol-body  { font-size:14px; color:rgba(255,255,255,0.7); line-height:1.6; margin-bottom:20px; }
+    #isolation-box .isol-stat  { font-family:'Fredoka One',cursive; font-size:18px; color:#ff5252; margin-bottom:24px; }
+    #isolation-ok { padding:13px 36px; background:linear-gradient(90deg,#e53935,#b71c1c); border:none;
+      border-radius:14px; font-family:'Fredoka One',cursive; font-size:18px; color:#fff; cursor:pointer; transition:transform 0.15s; }
+    #isolation-ok:hover { transform:scale(1.05); }
+    </style>
+    <div id="isolation-box">
+      <span class="isol-emoji">${isWarning ? '😰' : '🫠'}</span>
+      <div class="isol-title">${isWarning ? 'Cabin Fever Setting In' : 'Isolation Taking Its Toll'}</div>
+      <div class="isol-body">${isWarning
+        ? `You've been cooped up indoors for <strong>${days} consecutive days</strong>. Your mind is starting to crack.<br><br>Go outside — visit the park or grocery store — before your sanity starts suffering!`
+        : `<strong>${days} days</strong> without leaving home. The walls are closing in. Your mental health is deteriorating.`
+      }</div>
+      ${penalty ? `<div class="isol-stat">🧠 Sanity −${penalty}%</div>` : ''}
+      <button id="isolation-ok" onclick="document.getElementById('isolation-popup').remove()">Got It</button>
+    </div>`;
+  document.body.appendChild(popup);
+  addLog('😰', `Day ${state.day}: ${days} days without going outside!`, 'warning');
+}
+
 function showNotif(icon, msg, type = '', duration = 4000) {
   const bar = document.getElementById('notif-bar');
   if (!bar) return;
@@ -1867,19 +2004,26 @@ const promptData = {
   fridge:  () => ({ title: 'Open The Fridge',   sub: state.mealsToday >= 3 ? 'Max meals for today!' : `Meals: ${state.mealsToday}/3 today`,  key: 'Press E or Click' }),
   bed:     () => ({ title: 'Rest In Bed',        sub: state.sleepsToday >= 1 ? 'Already slept today!' : 'Restore sanity (once/day)',           key: 'Press E or Click' }),
   door:    () => ({ title: 'Front Door',         sub: 'Head outside?',                                                                         key: 'Press E or Click' }),
-  table:   () => ({ title: 'Check The Table',    sub: state.tableChecked ? 'Nothing new' : '📬 Mail waiting!',                                 key: 'Press E or Click' }),
-  laptop:  () => ({ title: 'Work From Home',     sub: state.workToday >= 3 ? 'Max tasks today!' : `Tasks done: ${state.workToday}/3`,          key: 'Press R or Click' }),
+  table:   () => ({ title: 'Check The Table',    sub: state.pendingBills && state.pendingBills.some(b => !b.paid) ? '⚠️ Unpaid bills!' : '📬 View bills',  key: 'Press E or Click' }),  laptop:  () => ({ title: 'Work From Home',     sub: state.workToday >= 3 ? 'Max tasks today!' : `Tasks done: ${state.workToday}/3`,          key: 'Press R or Click' }),
   console: () => ({ title: 'Play Console',       sub: state.gamingToday >= 2 ? 'Enough gaming today!' : `Sessions: ${state.gamingToday}/2`,    key: 'Press T or Click' }),
   broom:   () => ({ title: 'Do Chores',          sub: state.choresToday >= 1 ? 'Place is clean enough!' : `Dirt: ${Math.round(state.dirt)}%`,  key: 'Press Y or Click' }),
 };
+const _promptEl     = () => document.getElementById('interact-prompt');
+const _promptTitle  = () => document.getElementById('prompt-title');
+const _promptSub    = () => document.getElementById('prompt-sub');
+
 function showPrompt(name) {
   const d = (promptData[name] || (() => ({ title: name, sub: '', key: 'Press E or Click' })))();
-  document.getElementById('prompt-title').textContent = d.title;
-  document.getElementById('prompt-sub').textContent   = d.sub;
-  document.getElementById('interact-prompt').querySelector('.prompt-key').textContent = d.key || 'Press E or Click';
-  document.getElementById('interact-prompt').style.display = 'block';
+  _promptTitle().textContent = d.title;
+  _promptSub().textContent   = d.sub;
+  _promptEl().querySelector('.prompt-key').textContent = d.key || 'Press E or Click';
+  _promptEl().style.display = 'block';
 }
-function hidePrompt() { document.getElementById('interact-prompt').style.display = 'none'; }
+function updatePromptSub(name) {
+  const d = (promptData[name] || (() => ({ sub: '' })))();
+  _promptSub().textContent = d.sub;
+}
+function hidePrompt() { _promptEl().style.display = 'none'; }
 
 // ══════════════════════════════════════════════
 //  DOOR / PARK
@@ -1938,10 +2082,10 @@ const parkEvents = [
 
 function chooseDoor(dest) {
   closeDoor();
-  if (dest === 'store') { openStore(); return; }
+  if (dest === 'store') { state.leftHouseToday = true; openStore(); return; }
   if (dest === 'park') {
     if (state.parkToday >= 2) { showToast('🚫', 'You\'ve been to the park enough today', 'warning'); return; }
-    state.parkToday++; state.parkVisits++; updateLimits();
+    state.parkToday++; state.parkVisits++; state.leftHouseToday = true; updateLimits();
     const ev = parkEvents[Math.floor(Math.random() * parkEvents.length)];
     document.getElementById('ep-icon').textContent  = ev.icon;
     document.getElementById('ep-title').textContent = ev.title;
@@ -2083,66 +2227,111 @@ function openChores() {
 function closeChores() { document.getElementById('chores-overlay').classList.remove('open'); }
 
 // ══════════════════════════════════════════════
-//  TABLE / BILLS  — visual card layout
-// ══════════════════════════════════════════════
 function openTable() {
-  // On Day 1, always show bills immediately (never block)
-  if (state.tableChecked && state.day !== 1) {
-    showToast('📬', 'Nothing new in the mail today', 'warning'); return;
-  }
-  state.tableChecked = true;
+  renderBillsOverlay();
+  document.getElementById('bills-overlay').classList.add('open');
+}
 
+function renderBillsOverlay() {
   const billGrid = document.getElementById('bill-list');
   billGrid.innerHTML = '';
+
+  if (state.pendingBills.length === 0) {
+    const daysUntilFriday = 7 - ((state.day - 1) % 7);
+    billGrid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:24px 0;">
+        <div style="font-size:36px;margin-bottom:10px;">📬</div>
+               <div style="font-family:'Fredoka One',cursive;font-size:14px;color:rgba(255,255,255,0.55);">
+          All caught up — no pending bills!
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px;">
+          Your first payday is in ${daysUntilFriday} day${daysUntilFriday !== 1 ? 's' : ''} (Friday)
+        </div>
+      </div>
+    `;
+    document.getElementById('bills-sub').textContent = 'Mailbox is empty';
+    const netEl = document.getElementById('bills-net-val');
+    netEl.textContent = '$0 owed';
+    netEl.className = 'bn-val positive';
+    document.getElementById('bills-close-btn').textContent = 'Close';
+    return;
+  }
+
   let net = 0;
-  const items = [];
 
-  // Salary
-  items.push({ name: 'Weekly Salary', amount: SALARY_WEEKLY, type: 'income' });
-  net += SALARY_WEEKLY;
-
-  // Fixed bills
-  FIXED_BILLS.forEach(b => { items.push({ name: b.name, amount: b.amount, type: 'expense' }); net += b.amount; });
-
-  // Build visual cards
-  items.forEach(item => {
+  state.pendingBills.forEach((item, idx) => {
     const vis = getBillVisual(item.name);
+    net += item.paid ? 0 : item.amount;
+
     const card = document.createElement('div');
-    card.className = 'bill-card' + (item.type === 'income' ? ' income-card' : item.type === 'fine' ? ' fine-card' : '');
+    card.className = 'bill-card' + (item.paid ? ' paid-card' : '');
     card.style.borderColor = vis.border;
     card.style.background  = vis.bg;
+
+    const countdownBadge = (!item.paid && item.countdown > 0)
+      ? `<div class="bill-countdown-badge">⏳ ${item.countdown} day${item.countdown !== 1 ? 's' : ''} left</div>`
+      : '';
+
+    const actionArea = item.paid
+      ? `<div class="bill-paid-stamp">✅ Paid</div>`
+      : `${countdownBadge}
+         <button class="bill-pay-btn" onclick="payOneBill(${idx})">💸 Pay $${Math.abs(item.amount)}</button>`;
+
     card.innerHTML = `
       <div class="bill-icon-circle" style="background:${vis.bg};border:2px solid ${vis.border};">
         <span style="font-size:22px;">${vis.emoji}</span>
       </div>
       <div class="bill-card-name">${item.name}</div>
-      <div class="bill-card-amount ${item.type}" style="color:${vis.color};">
-        ${item.amount >= 0 ? '+' : ''}$${Math.abs(item.amount)}
+      <div class="bill-card-amount expense" style="color:${vis.color};">
+        -$${Math.abs(item.amount)}
       </div>
+      ${actionArea}
     `;
     billGrid.appendChild(card);
   });
 
-  document.getElementById('bills-sub').textContent = `Week ${state.week} Statement`;
-  const netEl = document.getElementById('bills-net-val');
-  netEl.textContent = (net >= 0 ? '+' : '') + '$' + Math.abs(net);
-  netEl.className = 'bn-val ' + (net >= 0 ? 'positive' : 'negative');
+  const allPaid = state.pendingBills.every(b => b.paid);
+  document.getElementById('bills-sub').textContent = allPaid
+    ? `Week ${state.week} — All Paid ✅`
+    : `Week ${state.week} — pay before Friday!`;
 
-  window._pendingBillsNet = net;
-  window._pendingBillItems = items;
-  document.getElementById('bills-overlay').classList.add('open');
+  const remaining = state.pendingBills.filter(b => !b.paid).reduce((s, b) => s + Math.abs(b.amount), 0);
+  const netEl = document.getElementById('bills-net-val');
+  netEl.textContent = `-$${remaining}`;
+  netEl.className = 'bn-val ' + (remaining === 0 ? 'positive' : 'negative');
+
+  document.getElementById('bills-close-btn').textContent = allPaid ? 'All Done! ✅' : 'Close';
+}
+
+function payOneBill(idx) {
+  const bill = state.pendingBills[idx];
+  if (!bill || bill.paid) return;
+
+  if (state.money < Math.abs(bill.amount)) {
+    showToast('😰', `Can't afford ${bill.name}! Need $${Math.abs(bill.amount)}`, 'loss', 3000);
+    return;
+  }
+
+  state.money += bill.amount; // bill.amount is negative for expenses
+  state.totalSpent += Math.abs(bill.amount);
+  bill.paid = true;
+
+  addLog('💸', `Paid ${bill.name}: -$${Math.abs(bill.amount)}`, 'loss');
+  showToast('✅', `${bill.name} paid!`, 'gain');
+  updateMoney();
+
+  // If all bills now paid, clear the countdown
+  if (state.pendingBills.every(b => b.paid)) {
+    state.billsDueCountdown = 0;
+    showToast('🎉', 'All bills paid! Great job!', 'gain', 3500);
+  }
+
+  renderBillsOverlay();
+  checkGameOver();
 }
 
 function closeBills() {
   document.getElementById('bills-overlay').classList.remove('open');
-  const net = window._pendingBillsNet || 0;
-  const items = window._pendingBillItems || [];
-  window._pendingBillsNet = null; window._pendingBillItems = null;
-  const salary = items.find(i => i.type === 'income');
-  if (salary) { state.money += salary.amount; state.totalEarned += salary.amount; showPayday(salary.amount); }
-  items.filter(i => i.type !== 'income').forEach(i => { state.money += i.amount; state.totalSpent += Math.abs(i.amount); });
-  addLog('📋', `Week ${state.week} statement: net ${net >= 0 ? '+' : ''}$${net}`, net >= 0 ? 'gain' : 'loss');
-  updateMoney(); checkGameOver();
 }
 
 function showPayday(amount) {
@@ -2159,8 +2348,7 @@ function playDayTransition(fromDay, toDay, onComplete) {
   const textCurrent = document.getElementById('day-text-current');
   const textNext    = document.getElementById('day-text-next');
   textCurrent.textContent = `Day ${fromDay} of 30`;
-  textNext.textContent    = toDay > 30 ? `The End 🏆` : `Day ${toDay} of 30`;
-  textCurrent.style.opacity   = '0';
+  textNext.textContent    = toDay > 30 ? `The End 🏆` : fromDay === 7 ? `End of Demo ✨` : `Day ${toDay} of 30`;  textCurrent.style.opacity   = '0';
   textCurrent.style.transform = 'translateY(0px)';
   textNext.style.opacity      = '0';
   textNext.style.transform    = 'translateY(60px)';
@@ -2218,6 +2406,23 @@ function startDayTimer() {
 function advanceDay() {
   clearInterval(state.dayTimer);
   if (state.phoneCallTimer) { clearTimeout(state.phoneCallTimer); state.phoneCallTimer = null; }
+    // Decrement bills countdown if there are unpaid bills
+  // Tick down each unpaid bill's countdown
+  if (state.pendingBills) {
+    state.pendingBills.forEach(b => {
+      if (!b.paid) b.countdown = Math.max(0, b.countdown - 1);
+    });
+    const overdue = state.pendingBills.filter(b => !b.paid && b.countdown === 0);
+    if (overdue.length > 0) {
+      triggerLose(`You didn't pay the bills in time! 📋 ${overdue[0].name} is overdue.`);
+      return;
+    }
+    const unpaid = state.pendingBills.filter(b => !b.paid);
+    if (unpaid.length > 0) {
+      const minDays = Math.min(...unpaid.map(b => b.countdown));
+      showToast('⚠️', `You have ${minDays} day${minDays !== 1 ? 's' : ''} left to pay your bills! Check the table.`, 'warning', 5000);
+    }
+  }
   state.dirt = Math.min(MAX_DIRT, state.dirt + DIRT_PER_DAY);
   state.sanityCap = Math.max(30, 100 - Math.floor(state.dirt / 10) * 5);
   if (state.sanity > state.sanityCap) state.sanity = state.sanityCap;
@@ -2226,7 +2431,11 @@ function advanceDay() {
   if (state.dirt >= 80) showToast('🧹', 'The apartment is filthy! Sanity cap dropping!', 'warning', 4000);
   addLog('🌙', `Day ${state.day} ended`, 'event');
   if (state.day >= DAYS_IN_MONTH) { triggerWin(); return; }
-  if (state.day % WEEK_DAYS === 0) { showWeekSummary(); return; }
+  if (state.day % WEEK_DAYS === 0) {
+    // End of payday — salary already granted this morning; show week summary
+    setTimeout(() => showWeekSummary(), 800);
+    return;
+  }
   nextDay();
 }
 
@@ -2247,10 +2456,54 @@ function closeAllOverlays() {
 }
 
 function nextDay() {
+  // Isolation tracking: did the player leave the house yesterday?
+  if (!state.leftHouseToday) {
+    state.consecutiveDaysHome = (state.consecutiveDaysHome || 0) + 1;
+  } else {
+    state.consecutiveDaysHome = 0;
+  }
+  state.leftHouseToday = false;
+
+  // Trigger isolation warnings / penalties
+  if (state.consecutiveDaysHome === 4) {
+    setTimeout(() => {
+      showIsolationWarning(state.consecutiveDaysHome);
+    }, 1200);
+  } else if (state.consecutiveDaysHome >= 5) {
+    const penalty = Math.min(50, state.consecutiveDaysHome * 8);
+    state.sanity = Math.max(0, state.sanity - penalty);
+    updateBars();
+    setTimeout(() => {
+      showIsolationWarning(state.consecutiveDaysHome, penalty);
+    }, 1200);
+  }
+
   state.day++; state.week = Math.ceil(state.day / WEEK_DAYS);
   state.mealsToday = 0; state.sleepsToday = 0; state.parkToday = 0;
   state.workToday = 0; state.gamingToday = 0; state.choresToday = 0;
   state.tableChecked = false; state.dailyWorkTasks = [];
+    // Start of new week (day 8, 15, 22): clear old paid bills, issue group 1
+  if (state.day % 7 === 1) {
+    state.pendingBills = [];
+    state.billsGroup1IssuedWeek = state.week;
+    state.billsGroup2IssuedWeek = 0;
+    const group1 = [BILLS_DAY1, BILLS_DAY8, BILLS_DAY15, BILLS_DAY22][state.week - 1] || BILLS_DAY1;
+    group1.forEach(b => state.pendingBills.push({ ...b, paid: false, countdown: 3 }));
+    setTimeout(() => showToast('📬', 'New bills arrived! Check the table.', 'warning', 4500), 3500);
+  }
+  if (state.day % 7 === 4 && state.billsGroup2IssuedWeek !== state.week) {
+    state.billsGroup2IssuedWeek = state.week;
+    const group2 = [BILLS_DAY4, BILLS_DAY11, BILLS_DAY18, BILLS_DAY25][state.week - 1] || BILLS_DAY4;
+    group2.forEach(b => state.pendingBills.push({ ...b, paid: false, countdown: 3 }));
+    setTimeout(() => showToast('📬', 'Bigger bills arrived! Check the table.', 'warning', 4500), 3500);
+  }
+  // Payday: grant salary and show popup on the morning of payday
+  if (state.day % WEEK_DAYS === 0) {
+    state.money += SALARY_WEEKLY; state.totalEarned += SALARY_WEEKLY;
+    addLog('💵', `Payday! +$${SALARY_WEEKLY} deposited`, 'gain');
+    updateMoney();
+    setTimeout(() => showPayday(SALARY_WEEKLY), 1200);
+  }
   closeAllOverlays();
   updateDayLabel(); buildCalendar(); startDayTimer();
   updateBars(); updateMoney(); updateLimits();
@@ -2264,9 +2517,10 @@ function nextDay() {
 // ══════════════════════════════════════════════
 function showWeekSummary() {
   const moneyDiff = parseFloat((state.money - state.weekStartMoney).toFixed(2));
-  document.getElementById('wk-title').textContent = `Week ${state.week} Complete!`;
-  document.getElementById('wk-emoji').textContent = state.money < 0 ? '😰' : state.food < 20 ? '😟' : state.sanity < 20 ? '🤯' : '🎉';
-  document.getElementById('wk-sub').textContent = `Day ${state.day} done — ${DAYS_IN_MONTH - state.day} to go`;
+  const isDemo = (state.week === 1);
+  document.getElementById('wk-emoji').textContent = isDemo ? '🏆' : (state.money < 0 ? '😰' : state.food < 20 ? '😟' : state.sanity < 20 ? '🤯' : '🎉');
+  document.getElementById('wk-title').textContent = isDemo ? 'End of Demo' : `Week ${state.week} Complete!`;
+  document.getElementById('wk-sub').textContent   = isDemo ? 'You survived Week 1 — thanks for playing!' : `Day ${state.day} done — ${DAYS_IN_MONTH - state.day} to go`;
   document.getElementById('wk-stats').innerHTML = `
     <div class="wk-stat"><div class="ws-label">Balance</div><div class="ws-val">$${state.money.toFixed(0)}</div></div>
     <div class="wk-stat"><div class="ws-label">Money Change</div><div class="ws-val" style="color:${moneyDiff>=0?'#81c784':'#ef9a9a'}">${moneyDiff>=0?'+':''}$${moneyDiff}</div></div>
@@ -2275,12 +2529,14 @@ function showWeekSummary() {
     <div class="wk-stat"><div class="ws-label">Dirt Level</div><div class="ws-val">${Math.round(state.dirt)}%</div></div>
     <div class="wk-stat"><div class="ws-label">Sanity Cap</div><div class="ws-val">${Math.round(state.sanityCap)}%</div></div>
   `;
+  document.querySelector('#week-overlay .wk-btn.primary').textContent   = isDemo ? 'Keep Playing 🎮' : 'Keep Going 💪';
+  document.querySelector('#week-overlay .wk-btn.secondary').textContent = isDemo ? "That's Enough 🚪" : 'Call It Quits 🚪';
   state.weekStartFood = state.food; state.weekStartSanity = state.sanity; state.weekStartMoney = state.money;
   document.getElementById('week-overlay').classList.add('open');
 }
 function continueGame() { document.getElementById('week-overlay').classList.remove('open'); nextDay(); }
-function quitGame()     { document.getElementById('week-overlay').classList.remove('open'); triggerLose('You chose to call it quits after Week ' + state.week + '. No shame in that.'); }
-
+function quitGame()     { document.getElementById('week-overlay').classList.remove('open'); goToHomepage(); }
+function goToHomepage() { window.location.href = 'index.html'; }
 // ══════════════════════════════════════════════
 //  GAME OVER / WIN
 // ══════════════════════════════════════════════
@@ -2290,6 +2546,17 @@ function checkGameOver() {
   if (state.sanity <= 0)  { triggerLose('Your sanity hit zero. 🧠 The walls were closing in.'); return; }
   if (state.money < -500) { triggerLose('You went $500 into debt. 💸 The bank called. It wasn\'t good.'); return; }
 }
+
+function triggerQuit() {
+  if (state.gameOver) return; state.gameOver = true; clearInterval(state.dayTimer);
+  if (state.phoneCallTimer) clearTimeout(state.phoneCallTimer); hidePrompt();
+  document.getElementById('eg-emoji').textContent  = '🥇';
+  document.getElementById('eg-title').textContent  = 'YOU QUIT';
+  document.getElementById('eg-title').className    = 'eg-title quit';
+  document.getElementById('eg-reason').textContent = 'You chose to walk away. That takes guts too.';
+  showEndStats(); document.getElementById('endgame-overlay').classList.add('open');
+}
+
 function triggerLose(reason) {
   if (state.gameOver) return; state.gameOver = true; clearInterval(state.dayTimer);
   if (state.phoneCallTimer) clearTimeout(state.phoneCallTimer); hidePrompt();
@@ -2318,15 +2585,7 @@ function showEndStats() {
     <div class="eg-stat"><div class="es-label">Total Earned</div><div class="es-val">$${state.totalEarned.toFixed(0)}</div></div>
   `;
 }
-function restartGame() {
-  closeAllOverlays();
-  document.getElementById('endgame-overlay').classList.remove('open');
-  _gameLog.length = 0;
-  initState(); buildCalendar(); updateBars(); updateMoney(); updateLimits(); updateDayLabel();
-  addLog('🌅', 'Day 1 begins — survive the month!', 'event'); startDayTimer();
-  const scene = window.game && game.scene.scenes[0];
-  if (scene && scene.resetPlayerPosition) scene.resetPlayerPosition();
-}
+function restartGame() { goToHomepage(); }
 
 // ══════════════════════════════════════════════
 //  MODAL
@@ -2366,20 +2625,22 @@ function bootGame() {
   const rightW = document.getElementById('right-sidebar').offsetWidth;
   const canvasW = Math.max(300, window.innerWidth - leftW - rightW);
   const config = {
-    type: Phaser.CANVAS,
+    type: Phaser.AUTO,
     width:  canvasW,
     height: window.innerHeight,
     backgroundColor: '#1a1a2e',
     parent: 'game-container',
+    antialias: true,
+    pixelArt: false,
+    powerPreference: 'high-performance',
+    fps: { target: 30, forceSetTimeOut: false },
+    render: { antialias: true, antialiasGL: true, pixelArt: false },
     scale: { mode: Phaser.Scale.NONE },
-    physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
+    physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false, fps: 30 } },
     scene: GameScene
   };
   window.game = new Phaser.Game(config);
 
-  const prompt = document.getElementById('interact-prompt');
-  const midX = leftW + canvasW / 2;
-  prompt.style.left = midX + 'px';
 }
 
 // Periodic bill reminder
@@ -2556,10 +2817,11 @@ function leaveStore() {
 class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
 
-  preload() {
+preload() {
     this.load.tilemapTiledJSON('map', 'SurviveTheMonthV3.json');
     this.load.image('tiles', 'tilesheet_complete_2X.png');
     this.load.image('character', 'CharacterSpriteModel.png');
+    this.load.image('bills', 'bills.png');
     this.load.on('loaderror', (file) => console.error('Failed to load:', file.src));
   }
 
@@ -2644,11 +2906,14 @@ class GameScene extends Phaser.Scene {
       manualZones.forEach(z => {
         const zone = this.add.zone(z.x, z.y, z.w, z.h).setOrigin(0, 0);
         this.physics.world.enable(zone, Phaser.Physics.Arcade.STATIC_BODY);
-        zone.setInteractive();
-        zone.on('pointerdown', () => { this.handleInteraction(z.name); });
         this.interactionZones.push({ zone, name: z.name });
       });
 
+// Bills image on table — shown when tableChecked is false (bills are waiting)
+      this.billsImage = this.add.image(514, 620, 'bills').setOrigin(0.5, 0.5);
+      this.billsImage.setScale(0.18);
+      this.billsImage.setDepth(10);
+      this.billsImage.setAlpha((state.pendingBills && state.pendingBills.some(b => !b.paid)) ? 1 : 0);
       const stations = [
         { name: 'laptop',  emoji: '💻', label: 'Work\nFrom Home', color: 0x1a3a1a, border: 0x4caf50, ex: 0x81c784, x: 930, y: 920, w: 140, h: 110 },
         { name: 'console', emoji: '🎮', label: 'Gaming\nSetup',   color: 0x1a0a2e, border: 0x9c27b0, ex: 0xce93d8, x: 1080, y: 920, w: 140, h: 110 },
@@ -2716,15 +2981,19 @@ class GameScene extends Phaser.Scene {
     this._glowTick = (this._glowTick || 0) + 0.05;
     let nearZone = null;
     const px = this.player.x, py = this.player.y;
-    this.interactionZones.forEach(({ zone, name, glow }) => {
-      const zb = zone.getBounds();
+    this.interactionZones.forEach(({ zone, name, glow, _bounds }) => {
+      if (!zone._cachedBounds) zone._cachedBounds = zone.getBounds();
+      const zb = zone._cachedBounds;
       const isNear = px >= zb.left && px <= zb.right && py >= zb.top && py <= zb.bottom;
       if (isNear) nearZone = name;
       if (glow) { glow.setAlpha(isNear ? 0.55 + 0.35 * Math.sin(this._glowTick * 3) : 0.2); }
     });
+    if (this.billsImage) this.billsImage.setAlpha((state.pendingBills && state.pendingBills.some(b => !b.paid)) ? 1 : 0);
     if (nearZone !== this._lastNearZone) {
       this._lastNearZone = nearZone;
       if (nearZone) showPrompt(nearZone); else hidePrompt();
+    } else if (nearZone) {
+      updatePromptSub(nearZone);
     }
     if (Phaser.Input.Keyboard.JustDown(this.eKey) && nearZone) this.handleInteraction(nearZone);
     if (Phaser.Input.Keyboard.JustDown(this.rKey)) this.handleInteraction('laptop');
@@ -2734,18 +3003,20 @@ class GameScene extends Phaser.Scene {
 
   handleInteraction(name) {
     if (state && state.gameOver) return;
-    const stationNames = ['laptop', 'console', 'broom'];
-    if (stationNames.includes(name)) {
-      const blocked = ['store-overlay','park-scene','door-overlay','day-transition','fridge-overlay','gaming-overlay','work-overlay','chores-overlay'];
-      const isBlocked = blocked.some(id => {
-        const el = document.getElementById(id);
-        return el && (el.classList.contains('open') || el.style.display === 'flex');
-      });
-      if (isBlocked) return;
-    }
+    // Block ALL game interactions whenever any overlay/panel is visible
+    const anyOverlayOpen = [
+      'store-overlay','park-scene','door-overlay','day-transition',
+      'fridge-overlay','gaming-overlay','work-overlay','chores-overlay',
+      'bills-overlay','week-overlay','payday-flash','phone-overlay'
+    ].some(id => {
+      const el = document.getElementById(id);
+      return el && (el.classList.contains('open') || el.style.display === 'flex');
+    });
+
+    if (anyOverlayOpen) return;
     switch(name) {
       case 'fridge':  openFridge(); break;
-      case 'bed':
+      case 'bed': {
         if (state.sleepsToday >= 1) { showToast('🚫', 'You already slept today!', 'warning'); return; }
         const elapsed = Date.now() - state.dayStartTime;
         if (elapsed < DAY_DURATION_MS - 60000) { showToast('🌙', 'It\'s not nighttime yet!', 'warning'); return; }
@@ -2760,6 +3031,7 @@ class GameScene extends Phaser.Scene {
         hidePrompt();
         playDayTransition(fromDay, toDay, () => { advanceDay(); });
         return;
+      }
       case 'door':    openDoor();   break;
       case 'table':   openTable();  break;
       case 'laptop':  openWork();   break;
@@ -2771,5 +3043,5 @@ class GameScene extends Phaser.Scene {
 }
 </script>
 
-</body>
+<script src="https://replit-cdn.com/replit-pill/replit-pill.global.js" data-repl-id="982077d3-b07a-4f28-9b9d-ea53ca973252"></script></body>
 </html> 
