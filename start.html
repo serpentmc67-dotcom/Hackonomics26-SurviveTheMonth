@@ -785,7 +785,7 @@
       margin-bottom: 16px;
     }
 /* Targets the bills image, resizes it properly, and centers it */
-img[src*="bills.png"] {
+img[src*="Bills.png"] {
   display: block;        /* Necessary for centering with margin auto */
   width: 50% !important;  /* Physical resize to 50% of its container */
   height: auto;
@@ -2821,7 +2821,7 @@ preload() {
     this.load.tilemapTiledJSON('map', 'SurviveTheMonthV3.json');
     this.load.image('tiles', 'tilesheet_complete_2X.png');
     this.load.image('character', 'CharacterSpriteModel.png');
-    this.load.image('bills', 'bills.png');
+    this.load.image('bills', 'Bills.png');
     this.load.on('loaderror', (file) => console.error('Failed to load:', file.src));
   }
 
