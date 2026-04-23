@@ -30,6 +30,151 @@
       100% { opacity: 0; transform: translateY(-20vh) scale(1.3); }
     }
 
+    /* ── FULLSCREEN BUTTON ── */
+    #fs-btn {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+      /* slide in from right */
+      animation: slideInRight 0.9s 1.2s cubic-bezier(.4,2,.6,1) both;
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateY(-50%) translateX(60px); }
+      to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+    }
+
+    .fs-pill {
+      background: linear-gradient(135deg, #ff9a42, #ff5500);
+      border-radius: 18px 0 0 18px;
+      padding: 20px 18px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      box-shadow:
+        -6px 0 40px rgba(255, 120, 0, 0.55),
+        inset 1px 0 0 rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+      transition: padding 0.2s, box-shadow 0.2s;
+    }
+
+    /* shimmer sweep */
+    .fs-pill::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+      transform: translateX(-100%);
+      animation: shimmer 2.8s ease infinite;
+    }
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      60%  { transform: translateX(200%); }
+      100% { transform: translateX(200%); }
+    }
+
+    /* outer glow pulse ring */
+    .fs-pill::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 22px 0 0 22px;
+      border: 2px solid rgba(255, 154, 66, 0.5);
+      animation: ringPulse 2s ease infinite;
+      pointer-events: none;
+    }
+    @keyframes ringPulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.04); }
+    }
+
+    #fs-btn:hover .fs-pill {
+      padding-right: 22px;
+      box-shadow:
+        -10px 0 60px rgba(255, 120, 0, 0.8),
+        inset 1px 0 0 rgba(255,255,255,0.2);
+    }
+
+    .fs-icon {
+      font-size: 28px;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
+      animation: iconBounce 2s ease infinite;
+    }
+    @keyframes iconBounce {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.15); }
+    }
+
+    .fs-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 11px;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      line-height: 1.3;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .fs-arrow {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* "BEST EXPERIENCE" tag above the pill */
+    .fs-tag {
+      background: rgba(255,193,7,0.92);
+      color: #1a0a00;
+      font-family: 'Fredoka One', cursive;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 8px 0 0 0;
+      white-space: nowrap;
+      box-shadow: -3px -2px 12px rgba(255,193,7,0.4);
+      margin-bottom: -2px;
+      align-self: flex-end;
+      animation: tagPulse 2s ease infinite;
+    }
+    @keyframes tagPulse {
+      0%, 100% { opacity: 0.85; }
+      50%       { opacity: 1; }
+    }
+
+    /* "TAP ME" nudge dot */
+    .fs-dot {
+      width: 10px; height: 10px;
+      background: #ffe082;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #ffe082, 0 0 20px rgba(255,224,130,0.6);
+      animation: dotBlink 1.4s ease infinite;
+      margin-top: 8px;
+      align-self: center;
+    }
+    @keyframes dotBlink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.3; transform: scale(0.6); }
+    }
+
+    /* Fullscreen-mode: hide the button if truly fullscreen */
+    :fullscreen #fs-btn,
+    :-webkit-full-screen #fs-btn { display: none; }
+
     /* Layout */
     .container {
       position: relative; z-index: 10;
@@ -218,12 +363,27 @@
     @media (max-width: 480px) {
       .card { padding: 26px 20px 30px; }
       .field-row { flex-direction: column; gap: 0; }
+      #fs-btn { top: auto; bottom: 24px; right: 50%; transform: translateX(50%); writing-mode: horizontal-tb; }
+      .fs-pill { flex-direction: row; border-radius: 14px; padding: 14px 20px; }
+      .fs-label { writing-mode: horizontal-tb; transform: none; }
+      .fs-tag { border-radius: 8px; align-self: auto; margin-bottom: 0; margin-right: -4px; }
     }
   </style>
 </head>
 <body>
 
 <div class="particles" id="particles"></div>
+
+<!-- ── FULLSCREEN BUTTON ── -->
+<button id="fs-btn" onclick="toggleFullscreen()" title="Go Fullscreen for Best Experience">
+  <div class="fs-tag">⚡ Best Experience</div>
+  <div class="fs-pill">
+    <div class="fs-icon" id="fs-icon">⛶</div>
+    <div class="fs-label" id="fs-label">GO FULLSCREEN</div>
+    <div class="fs-arrow">◀</div>
+  </div>
+  <div class="fs-dot"></div>
+</button>
 
 <div class="container">
   <div class="logo">Survive the Month</div>
@@ -308,6 +468,30 @@
 
   const ADMIN_PASSWORD = "Hharis3569611795";
 
+  /* ── Fullscreen ── */
+  function toggleFullscreen() {
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+    if (!isFS) {
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+    }
+  }
+
+  function updateFsBtn() {
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+    document.getElementById('fs-icon').textContent  = isFS ? '✕' : '⛶';
+    document.getElementById('fs-label').textContent = isFS ? 'EXIT FULLSCREEN' : 'GO FULLSCREEN';
+  }
+  document.addEventListener('fullscreenchange', updateFsBtn);
+  document.addEventListener('webkitfullscreenchange', updateFsBtn);
+  document.addEventListener('mozfullscreenchange', updateFsBtn);
+
   /* ── Player registration ── */
   async function handleSubmit() {
     const msg   = document.getElementById('player-msg');
@@ -347,7 +531,6 @@
         btn.disabled = false; btn.innerHTML = "Let's Play →";
       }
     } catch {
-      // Offline fallback — still let player through
       sessionStorage.setItem('player_name',  fn + ' ' + ln);
       sessionStorage.setItem('player_email', email);
       showSuccess(fn + ' ' + ln, null);
