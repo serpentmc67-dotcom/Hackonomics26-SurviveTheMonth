@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Survive the Month — Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --orange: #ff9a42; --orange-dark: #ff6b00; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 40%, #0a0a22 0%, #000 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Nunito', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Particles */
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle { position: absolute; border-radius: 50%; opacity: 0; animation: floatUp linear infinite; }
+    @keyframes floatUp {
+      0%   { opacity: 0; transform: translateY(110vh) scale(0.5); }
+      15%  { opacity: 0.18; }
+      85%  { opacity: 0.08; }
+      100% { opacity: 0; transform: translateY(-20vh) scale(1.3); }
+    }
+
+    /* Layout */
+    .container {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; width: 100%; padding: 24px 16px;
+    }
+
+    .logo {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(32px, 6vw, 54px);
+      color: var(--orange);
+      text-shadow: 0 0 60px rgba(255,120,0,0.5);
+      letter-spacing: 2px; text-align: center;
+      animation: fadeDown 0.9s 0.2s cubic-bezier(.4,2,.6,1) both;
+    }
+    .subtitle {
+      font-family: 'Fredoka One', cursive; font-size: 13px;
+      letter-spacing: 5px; text-transform: uppercase;
+      color: rgba(255,154,66,0.45); margin-bottom: 12px;
+      animation: fadeDown 0.9s 0.45s ease both;
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Warning Banner ── */
+    .warning-banner {
+      max-width: 500px; width: 95vw;
+      background: linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,120,0,0.1));
+      border: 2px solid rgba(255,193,7,0.6);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+      animation: fadeDown 0.9s 0.6s ease both;
+      box-shadow: 0 0 24px rgba(255,193,7,0.15), inset 0 1px 0 rgba(255,193,7,0.1);
+    }
+    .warning-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 2px;
+      filter: drop-shadow(0 0 6px rgba(255,193,7,0.6));
+    }
+    .warning-text { display: flex; flex-direction: column; gap: 3px; }
+    .warning-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 15px;
+      color: #ffe082;
+      letter-spacing: 0.5px;
+    }
+    .warning-body {
+      font-size: 12.5px;
+      color: rgba(255,224,130,0.8);
+      line-height: 1.55;
+    }
+    .warning-body strong { color: #ffe082; }
+
+    /* Card */
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,154,66,0.2);
+      border-radius: 22px; padding: 36px 44px 40px;
+      max-width: 500px; width: 95vw; position: relative;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,154,66,0.08);
+      animation: cardUp 0.8s 0.7s ease both;
+    }
+    @keyframes cardUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card::before {
+      content: ''; position: absolute;
+      top: -1px; left: 40px; right: 40px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--orange), transparent);
+    }
+
+    .card-title { font-family: 'Fredoka One', cursive; font-size: 19px; color: #fff; margin-bottom: 4px; }
+    .card-sub   { font-size: 13px; color: rgba(255,255,255,0.38); margin-bottom: 24px; line-height: 1.5; }
+
+    /* Fields */
+    .field-row { display: flex; gap: 12px; margin-bottom: 14px; }
+    .field-row .field { flex: 1; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+
+    label {
+      font-family: 'Fredoka One', cursive; font-size: 11px;
+      color: rgba(255,154,66,0.7); text-transform: uppercase; letter-spacing: 1.5px;
+    }
+    input {
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,154,66,0.18);
+      border-radius: 12px; padding: 12px 15px;
+      font-family: 'Nunito', sans-serif; font-size: 15px; color: #fff;
+      outline: none; width: 100%;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    input::placeholder { color: rgba(255,255,255,0.2); }
+    input:focus { border-color: var(--orange); background: rgba(255,154,66,0.06); box-shadow: 0 0 0 3px rgba(255,154,66,0.12); }
+    input.err   { border-color: #e53935 !important; background: rgba(229,57,53,0.06) !important; }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 18px 0 16px;
+    }
+    .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .divider-text {
+      font-family: 'Fredoka One', cursive; font-size: 11px;
+      color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
+    /* Admin row */
+    .admin-row {
+      display: flex; gap: 10px; align-items: flex-end;
+    }
+    .admin-row .field { flex: 1; margin-bottom: 0; }
+    .admin-btn {
+      height: 42px; padding: 0 18px; flex-shrink: 0;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      font-family: 'Fredoka One', cursive; font-size: 14px;
+      color: rgba(255,255,255,0.5); cursor: pointer;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .admin-btn:hover { background: rgba(255,154,66,0.12); border-color: var(--orange); color: var(--orange); }
+
+    /* Messages */
+    .msg {
+      display: none; border-radius: 10px; padding: 9px 14px;
+      font-size: 13px; margin-top: 12px; line-height: 1.5; text-align: center;
+    }
+    .msg.err  { background: rgba(229,57,53,0.1);  border: 1px solid rgba(229,57,53,0.3);  color: #ef9a9a; display: block; }
+    .msg.ok   { background: rgba(76,175,80,0.1);  border: 1px solid rgba(76,175,80,0.3);  color: #a5d6a7; display: block; }
+    .msg.warn { background: rgba(255,193,7,0.1);  border: 1px solid rgba(255,193,7,0.3);  color: #fff176; display: block; }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%; margin-top: 22px; padding: 14px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-dark));
+      border: none; border-radius: 14px;
+      font-family: 'Fredoka One', cursive; font-size: 20px; color: #fff;
+      cursor: pointer; transition: transform 0.18s, box-shadow 0.18s;
+      box-shadow: 0 8px 32px rgba(255,120,0,0.4);
+    }
+    .submit-btn:hover:not(:disabled) { transform: scale(1.03); box-shadow: 0 10px 40px rgba(255,120,0,0.55); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success screen */
+    #success-screen {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: radial-gradient(ellipse at 50% 50%, #0a1a0a, #000);
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px;
+    }
+    #success-screen.show { display: flex; animation: fadeIn 0.6s ease both; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .s-emoji { font-size: 72px; margin-bottom: 14px; animation: pop 0.6s 0.3s cubic-bezier(.4,2,.6,1) both; }
+    @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .s-title { font-family: 'Fredoka One', cursive; font-size: 40px; color: #a5d6a7; text-shadow: 0 0 40px rgba(76,175,80,0.5); margin-bottom: 6px; }
+    .s-name  { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--orange); margin-bottom: 12px; }
+    .s-sub   { font-size: 14px; color: rgba(255,255,255,0.45); max-width: 360px; line-height: 1.65; margin-bottom: 28px; }
+    .play-btn {
+      padding: 15px 56px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-dark));
+      border: none; border-radius: 16px;
+      font-family: 'Fredoka One', cursive; font-size: 22px; color: #fff;
+      cursor: pointer; box-shadow: 0 8px 32px rgba(255,120,0,0.5);
+      transition: transform 0.18s; animation: btnPulse 2s ease infinite;
+    }
+    @keyframes btnPulse { 0%,100% { box-shadow: 0 8px 32px rgba(255,120,0,0.4); } 50% { box-shadow: 0 8px 48px rgba(255,120,0,0.7); } }
+    .play-btn:hover { transform: scale(1.05); }
+    .s-count { font-size: 12px; color: rgba(255,255,255,0.28); margin-top: 12px; }
+
+    @media (max-width: 480px) {
+      .card { padding: 26px 20px 30px; }
+      .field-row { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div class="container">
+  <div class="logo">Survive the Month</div>
+  <div class="subtitle">A Financial Literacy Game</div>
+
+  <!-- ── Warning Banner ── -->
+  <div class="warning-banner">
+    <div class="warning-icon">⚠️</div>
+    <div class="warning-text">
+      <div class="warning-title">Use Your Real Name & Email</div>
+      <div class="warning-body">
+        <strong>Monthly game updates will be sent to your email.</strong> Your name will also be used for validation purposes. Fake or incorrect information may result in you being removed from the leaderboard.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👤 Player Registration</div>
+    <div class="card-sub">Enter your info below to start playing.</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="first-name">First Name</label>
+        <input id="first-name" type="text" placeholder="Jane" maxlength="64" autocomplete="given-name"/>
+      </div>
+      <div class="field">
+        <label for="last-name">Last Name</label>
+        <input id="last-name"  type="text" placeholder="Smith" maxlength="64" autocomplete="family-name"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="email">Email Address</label>
+      <input id="email" type="email" placeholder="jane@school.edu" maxlength="128" autocomplete="email"/>
+    </div>
+
+    <div id="player-msg" class="msg"></div>
+
+    <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Let's Play →</button>
+
+    <!-- ── Admin divider ── -->
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">Admin Access</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="admin-row">
+      <div class="field">
+        <label for="admin-code">Admin Code</label>
+        <input id="admin-code" type="password" placeholder="Enter admin code…" maxlength="64"/>
+      </div>
+      <button class="admin-btn" onclick="handleAdmin()">Enter →</button>
+    </div>
+
+    <div id="admin-msg" class="msg"></div>
+  </div>
+</div>
+
+<!-- Success screen -->
+<div id="success-screen">
+  <div class="s-emoji">🎉</div>
+  <div class="s-title">You're In!</div>
+  <div class="s-name" id="s-name">Jane Smith</div>
+  <div class="s-sub">Welcome to Survive the Month. 30 days. One budget. Good luck.</div>
+  <button class="play-btn" onclick="goToGame()">Start the Game →</button>
+  <div class="s-count" id="s-count"></div>
+</div>
+
+<script>
+  /* Particles */
+  (function() {
+    const c = document.getElementById('particles');
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const sz = 4 + Math.random() * 9;
+      p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;animation-duration:${10+Math.random()*18}s;animation-delay:${Math.random()*14}s;background:${Math.random()>.5?'#ff9a42':'#ff6b00'};`;
+      c.appendChild(p);
+    }
+  })();
+
+  const ADMIN_PASSWORD = "Hharis3569611795";
+
+  /* ── Player registration ── */
+  async function handleSubmit() {
+    const msg   = document.getElementById('player-msg');
+    msg.className = 'msg';
+    const fn    = document.getElementById('first-name').value.trim();
+    const ln    = document.getElementById('last-name').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    let valid = true;
+    document.getElementById('first-name').classList.toggle('err', !fn);
+    document.getElementById('last-name').classList.toggle('err', !ln);
+    if (!fn || !ln) { msg.textContent = 'Please enter your first and last name.'; msg.className = 'msg err'; valid = false; }
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    document.getElementById('email').classList.toggle('err', !emailOk);
+    if (!emailOk) { msg.textContent = 'Please enter a valid email address.'; msg.className = 'msg err'; valid = false; }
+    if (!valid) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Saving…';
+
+    try {
+      const res  = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first_name: fn, last_name: ln, email })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        sessionStorage.setItem('player_name',  fn + ' ' + ln);
+        sessionStorage.setItem('player_email', email);
+        sessionStorage.setItem('player_id',    data.id);
+        showSuccess(fn + ' ' + ln, data.total);
+      } else {
+        msg.textContent = data.error || 'Something went wrong.';
+        msg.className = 'msg err';
+        btn.disabled = false; btn.innerHTML = "Let's Play →";
+      }
+    } catch {
+      // Offline fallback — still let player through
+      sessionStorage.setItem('player_name',  fn + ' ' + ln);
+      sessionStorage.setItem('player_email', email);
+      showSuccess(fn + ' ' + ln, null);
+    }
+  }
+
+  /* ── Admin login ── */
+  function handleAdmin() {
+    const code    = document.getElementById('admin-code').value;
+    const admMsg  = document.getElementById('admin-msg');
+    admMsg.className = 'msg';
+
+    if (!code) {
+      admMsg.textContent = 'Please enter the admin code.';
+      admMsg.className = 'msg warn';
+      return;
+    }
+    if (code === ADMIN_PASSWORD) {
+      admMsg.textContent = '✅ Access granted — redirecting…';
+      admMsg.className = 'msg ok';
+      sessionStorage.setItem('admin_auth', '1');
+      setTimeout(() => { window.location.href = 'admin.html'; }, 700);
+    } else {
+      admMsg.textContent = '❌ Incorrect code. Try again.';
+      admMsg.className = 'msg err';
+      document.getElementById('admin-code').value = '';
+      document.getElementById('admin-code').focus();
+    }
+  }
+
+  /* Enter key support */
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.activeElement === document.getElementById('admin-code')) {
+      handleAdmin();
+    } else if (!document.getElementById('success-screen').classList.contains('show')) {
+      handleSubmit();
+    }
+  });
+
+  /* ── Success screen ── */
+  let _cd;
+  function showSuccess(name, total) {
+    document.getElementById('s-name').textContent = name;
+    if (total) document.getElementById('s-count').textContent = `Player #${total} — thanks for playing!`;
+    document.getElementById('success-screen').classList.add('show');
+    let s = 5;
+    document.getElementById('s-count').textContent += (total ? '  •  ' : '') + `Auto-starting in ${s}s…`;
+    _cd = setInterval(() => {
+      s--;
+      if (s <= 0) { clearInterval(_cd); goToGame(); }
+    }, 1000);
+  }
+
+  function goToGame() { clearInterval(_cd); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>
