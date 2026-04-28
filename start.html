@@ -2016,7 +2016,11 @@ function runTyping() {
     }, 28); // ~28ms per char ≈ comfortable reading pace
   }, 1400);
 }
-runTyping();
+if (document.fonts) {
+  document.fonts.ready.then(runTyping);
+} else {
+  window.addEventListener('load', runTyping);
+}
 
 // Skip intro: Enter key skips to mode select
 (function() {
@@ -3591,6 +3595,28 @@ function closeMiniGame() {
 }
 
 
+// ══════════════════════════════════════════════
+//  GAMING DATA
+// ══════════════════════════════════════════════
+const GAMING_SESSIONS = [
+  { name: '⚡ Quick Game',    desc: '20 min session',  sanity: 12, cost: -2,  label: '+12 sanity', costLabel: '-$2 electricity' },
+  { name: '🎮 Normal Session',desc: '1 hour session',  sanity: 22, cost: -5,  label: '+22 sanity', costLabel: '-$5 electricity' },
+  { name: '🌙 Late Night',    desc: '3 hour session',  sanity: 35, cost: -10, label: '+35 sanity', costLabel: '-$10 electricity' },
+];
+
+const CHORES_LIST = [
+  { name: '🧹 Sweep the Floor',   desc: 'Quick 10 min sweep',       dirtReduction: 15, sanityCap: 5  },
+  { name: '🧺 Do the Laundry',    desc: 'Wash and fold clothes',     dirtReduction: 20, sanityCap: 8  },
+  { name: '🍽️ Wash the Dishes',   desc: 'Clean up the kitchen sink', dirtReduction: 18, sanityCap: 7  },
+  { name: '🪣 Mop the Kitchen',   desc: 'Deep clean the floors',     dirtReduction: 25, sanityCap: 10 },
+  { name: '🛁 Clean the Bathroom',desc: 'Scrub sink, toilet, tub',   dirtReduction: 22, sanityCap: 9  },
+  { name: '🗑️ Take Out Trash',    desc: 'Empty all the bins',        dirtReduction: 12, sanityCap: 4  },
+];
+
+// ══════════════════════════════════════════════
+//  GAMING
+// ══════════════════════════════════════════════
+function openGaming() {
   if (state.gamingToday >= 2) { showToast('🚫', 'You\'ve gamed enough today!', 'warning'); return; }
   const optionsEl = document.getElementById('game-options'); optionsEl.innerHTML = '';
   GAMING_SESSIONS.forEach(session => {
