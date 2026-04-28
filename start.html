@@ -1792,6 +1792,24 @@ img[src*="Bills.png"] {
   </div>
 </div>
 
+<!-- Mini Game (T key) -->
+<div id="minigame-overlay" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.92);justify-content:center;align-items:center;backdrop-filter:blur(10px);">
+  <div id="minigame-box" style="background:linear-gradient(135deg,#0a0a20,#1a0a2e);border:2px solid rgba(156,39,176,0.5);border-radius:24px;padding:28px 36px;width:480px;max-width:96vw;text-align:center;animation:gamingIn 0.35s cubic-bezier(.4,2,.6,1) both;">
+    <div id="mg-title" style="font-family:'Fredoka One',cursive;font-size:26px;color:#ce93d8;margin-bottom:4px;">🎮 Color Match</div>
+    <div id="mg-desc" style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;">Match the color shown! +10 sanity per correct match.</div>
+    <div id="mg-score-row" style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">
+      <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 20px;"><div style="font-family:'Fredoka One',cursive;font-size:22px;color:#ffd700;" id="mg-score">0</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">SCORE</div></div>
+      <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 20px;"><div style="font-family:'Fredoka One',cursive;font-size:22px;color:#42a5f5;" id="mg-timer">15</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">SECONDS</div></div>
+      <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 20px;"><div style="font-family:'Fredoka One',cursive;font-size:22px;color:#81c784;" id="mg-streak">0🔥</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">STREAK</div></div>
+    </div>
+    <div id="mg-target" style="width:100px;height:100px;border-radius:50%;margin:0 auto 20px;border:4px solid rgba(255,255,255,0.3);transition:background 0.2s;"></div>
+    <div id="mg-label" style="font-family:'Fredoka One',cursive;font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:16px;">Match this color:</div>
+    <div id="mg-options" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;"></div>
+    <div id="mg-feedback" style="font-family:'Fredoka One',cursive;font-size:18px;min-height:28px;margin-bottom:12px;"></div>
+    <button onclick="closeMiniGame()" style="padding:12px 36px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;font-family:'Fredoka One',cursive;font-size:16px;color:rgba(255,255,255,0.6);cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">Put the Controller Down</button>
+  </div>
+</div>
+
 <!-- Gaming -->
 <div id="gaming-overlay">
   <div id="gaming-box">
@@ -3478,9 +3496,101 @@ const _origNextDay = typeof nextDay === 'function' ? nextDay : null;
  
 
 // ══════════════════════════════════════════════
-//  GAMING
+//  MINI GAME — Color Match (T key)
 // ══════════════════════════════════════════════
-function openGaming() {
+const MG_COLORS = [
+  { name: 'Red',    hex: '#e53935' },
+  { name: 'Blue',   hex: '#1e88e5' },
+  { name: 'Green',  hex: '#43a047' },
+  { name: 'Yellow', hex: '#fdd835' },
+  { name: 'Purple', hex: '#8e24aa' },
+  { name: 'Orange', hex: '#fb8c00' },
+];
+let _mgState = null;
+
+function openMiniGame() {
+  if (state.gamingToday >= 2) { showToast('🚫', 'You\'ve gamed enough today!', 'warning'); return; }
+  _mgState = { score: 0, streak: 0, timeLeft: 15, target: null, interval: null, timerInterval: null, active: true };
+  document.getElementById('minigame-overlay').style.display = 'flex';
+  _mgNextRound();
+  _mgState.timerInterval = setInterval(() => {
+    if (!_mgState || !_mgState.active) return;
+    _mgState.timeLeft--;
+    document.getElementById('mg-timer').textContent = _mgState.timeLeft;
+    if (_mgState.timeLeft <= 0) _mgEndGame();
+  }, 1000);
+}
+
+function _mgNextRound() {
+  if (!_mgState || !_mgState.active) return;
+  const target = MG_COLORS[Math.floor(Math.random() * MG_COLORS.length)];
+  _mgState.target = target;
+  document.getElementById('mg-target').style.background = target.hex;
+  document.getElementById('mg-feedback').textContent = '';
+  document.getElementById('mg-feedback').style.color = '#fff';
+
+  // Pick 3 wrong + 1 correct, shuffle
+  const wrong = MG_COLORS.filter(c => c.name !== target.name).sort(() => Math.random()-0.5).slice(0,3);
+  const opts = [...wrong, target].sort(() => Math.random()-0.5);
+
+  const grid = document.getElementById('mg-options');
+  grid.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.style.cssText = `padding:14px;border-radius:14px;border:3px solid ${opt.hex}55;background:${opt.hex}22;font-family:'Fredoka One',cursive;font-size:15px;color:#fff;cursor:pointer;transition:all 0.15s;`;
+    btn.textContent = opt.name;
+    btn.onmouseover = () => btn.style.background = opt.hex + '55';
+    btn.onmouseout  = () => btn.style.background = opt.hex + '22';
+    btn.onclick = () => _mgPick(opt.name === target.name);
+    grid.appendChild(btn);
+  });
+}
+
+function _mgPick(correct) {
+  if (!_mgState || !_mgState.active) return;
+  const fb = document.getElementById('mg-feedback');
+  if (correct) {
+    _mgState.score += 10 + (_mgState.streak * 5);
+    _mgState.streak++;
+    fb.textContent = _mgState.streak >= 3 ? `🔥 ${_mgState.streak} streak! +${10 + (_mgState.streak-1)*5}` : '✅ Correct!';
+    fb.style.color = '#81c784';
+    _SFX.correct();
+  } else {
+    _mgState.streak = 0;
+    fb.textContent = '❌ Wrong!';
+    fb.style.color = '#ef9a9a';
+    _SFX.wrong();
+  }
+  document.getElementById('mg-score').textContent  = _mgState.score;
+  document.getElementById('mg-streak').textContent = _mgState.streak + (_mgState.streak >= 3 ? '🔥' : '');
+  setTimeout(() => { if (_mgState && _mgState.active) _mgNextRound(); }, 600);
+}
+
+function _mgEndGame() {
+  if (!_mgState) return;
+  _mgState.active = false;
+  clearInterval(_mgState.timerInterval);
+  const sanityGain = Math.min(30, Math.floor(_mgState.score / 5));
+  state.gamingToday++;
+  state.sanity = Math.min(state.sanityCap, state.sanity + sanityGain);
+  updateBars(); updateLimits();
+  addLog('🎮', `Color Match game: score ${_mgState.score}, +${sanityGain} sanity`, 'gain');
+  showToast('🎮', `Game over! Score: ${_mgState.score} | +${sanityGain} sanity`, 'gain', 4000);
+  document.getElementById('mg-options').innerHTML = '';
+  document.getElementById('mg-target').style.background = 'rgba(255,255,255,0.1)';
+  document.getElementById('mg-feedback').textContent = `🏁 Final Score: ${_mgState.score} | +${sanityGain} sanity!`;
+  document.getElementById('mg-feedback').style.color = '#ffd700';
+  document.getElementById('mg-title').textContent = '🏆 Time\'s Up!';
+  checkGameOver();
+}
+
+function closeMiniGame() {
+  if (_mgState) { _mgState.active = false; clearInterval(_mgState.timerInterval); _mgState = null; }
+  document.getElementById('minigame-overlay').style.display = 'none';
+  if (window.game) window.game.input.keyboard.enabled = true;
+}
+
+
   if (state.gamingToday >= 2) { showToast('🚫', 'You\'ve gamed enough today!', 'warning'); return; }
   const optionsEl = document.getElementById('game-options'); optionsEl.innerHTML = '';
   GAMING_SESSIONS.forEach(session => {
@@ -3807,6 +3917,8 @@ function nextDay() {
   state.mealsToday = 0; state.sleepsToday = 0; state.parkToday = 0;
   state.workToday = 0; state.gamingToday = 0; state.choresToday = 0;
   state.tableChecked = false; state.dailyWorkTasks = [];
+  // Reset work board at start of each new week so questions refresh
+  if (state.day % 7 === 1) { _jpState = null; }
     // Start of new week (day 8, 15, 22): clear old paid bills, issue group 1
   if (state.day % 7 === 1) {
     state.pendingBills = [];
@@ -4489,7 +4601,7 @@ function processLoans() {
     addLog('🏦', `${loan.name} interest: +$${interest} owed (now $${Math.round(loan.balance)})`, 'loss');
     showToast('🏦', `${loan.name}: +$${interest} interest today — balance $${Math.round(loan.balance)}`, 'loss', 5000);
 
-    // Overdue — auto-deduct or penalise
+    // Overdue — auto-deduct or cops
     if (state.day >= loan.dueDay) {
       if (state.money >= loan.balance) {
         state.money -= loan.balance;
@@ -4498,11 +4610,12 @@ function processLoans() {
         showToast('🚨', `${loan.name} was due! Auto-collected $${Math.round(loan.balance)}.`, 'loss', 6000);
         state.activeLoans.splice(idx, 1);
       } else {
-        // Can't pay — take what they have and apply sanity penalty
-        const penalty = 15;
-        state.sanity = Math.max(0, state.sanity - penalty);
-        addLog('🏦', `Couldn't repay ${loan.name}! Stress -${penalty} sanity`, 'loss');
-        showToast('🚨', `Can't repay ${loan.name}! -${penalty} sanity from stress.`, 'loss', 6000);
+        // Can't pay — COPS called, game over
+        state.activeLoans.splice(idx, 1);
+        setTimeout(() => {
+          triggerLose(`👮 The cops showed up! You couldn't repay ${loan.name} ($${Math.round(loan.balance)} owed). Arrested for unpaid debt.`);
+        }, 500);
+        return;
       }
     }
   });
@@ -4945,7 +5058,7 @@ preload() {
     }
     if (Phaser.Input.Keyboard.JustDown(this.eKey) && nearZone) this.handleInteraction(nearZone);
     if (Phaser.Input.Keyboard.JustDown(this.rKey)) this.handleInteraction('laptop');
-    if (Phaser.Input.Keyboard.JustDown(this.tKey)) this.handleInteraction('console');
+    if (Phaser.Input.Keyboard.JustDown(this.tKey)) this.handleInteraction('minigame');
     if (Phaser.Input.Keyboard.JustDown(this.yKey)) this.handleInteraction('broom');
   }
 
@@ -4955,7 +5068,7 @@ preload() {
     const anyOverlayOpen = [
       'store-overlay','park-scene','door-overlay','day-transition',
       'fridge-overlay','gaming-overlay','work-overlay','chores-overlay',
-      'bills-overlay','week-overlay','payday-flash','phone-overlay'
+      'bills-overlay','week-overlay','payday-flash','phone-overlay','minigame-overlay'
     ].some(id => {
       const el = document.getElementById(id);
       return el && (el.classList.contains('open') || el.style.display === 'flex');
@@ -4983,9 +5096,10 @@ preload() {
       }
       case 'door':    openDoor();   break;
       case 'table':   openTable();  break;
-      case 'laptop':  openWork();   break;
-      case 'console': openGaming(); break;
-      case 'broom':   openChores(); break;
+      case 'laptop':  openWork();    break;
+      case 'console': openGaming();  break;
+      case 'minigame': openMiniGame(); break;
+      case 'broom':   openChores();  break;
     }
     if (state) checkGameOver();
   }
