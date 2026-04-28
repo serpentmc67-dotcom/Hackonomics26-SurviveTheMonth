@@ -205,6 +205,8 @@
   </div>
   <div class="topbar-right">
     <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="export-btn" onclick="document.getElementById('import-input').click()">⬆ Import CSV</button>
+    <input type="file" id="import-input" accept=".csv" style="display:none" onchange="importCSV(event)"/>
     <button class="top-btn" onclick="loadPlayers()">🔄 Refresh</button>
     <button class="top-btn danger" onclick="logout()">🔒 Log Out</button>
   </div>
@@ -464,6 +466,57 @@
     if (h > 0) return `${h}h ${m}m`;
     if (m > 0) return `${m}m ${s}s`;
     return `${s}s`;
+  }
+
+  // ── Import CSV ────────────────────────────────────────────
+  async function importCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim().toLowerCase());
+    const rows = lines.slice(1).map(line => {
+      const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = (vals[i] || '').replace(/"/g,'').trim());
+      return obj;
+    });
+
+    if (!confirm(`Import ${rows.length} players? This will add them to the database.`)) return;
+
+    let success = 0, failed = 0;
+    for (const row of rows) {
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: row['first name'] || row['first_name'],
+            last_name:  row['last name']  || row['last_name'],
+            email:      row['email']
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          // Now set the score and play_seconds
+          const pid = data.id;
+          const score = parseInt(row['score']) || 0;
+          const playSecs = parseInt(row['play seconds'] || row['play_seconds']) || 0;
+          if (score > 0) {
+            await fetch('/api/score/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ player_id: pid, delta: score, reason: 'CSV import' })
+            });
+          }
+          success++;
+        } else { failed++; }
+      } catch(e) { failed++; }
+    }
+
+    alert(`Import complete!\n✅ ${success} players imported\n❌ ${failed} failed`);
+    event.target.value = '';
+    loadPlayers();
   }
 
   // ── Auto-refresh every 30s ────────────────────────────────
