@@ -8,8 +8,7 @@ from http.server import SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn, TCPServer
 from urllib.parse import urlparse
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "players.db")
-
+DB_PATH = os.environ.get("DB_PATH", "/data/players.db")
 class ThreadedHTTPServer(ThreadingMixIn, TCPServer):
     allow_reuse_address = True
 
