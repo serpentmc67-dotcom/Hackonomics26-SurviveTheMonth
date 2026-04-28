@@ -9,6 +9,7 @@ from socketserver import ThreadingMixIn, TCPServer
 from urllib.parse import urlparse
 
 DB_PATH = os.environ.get("DB_PATH", "/data/players.db")
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 class ThreadedHTTPServer(ThreadingMixIn, TCPServer):
     allow_reuse_address = True
 
