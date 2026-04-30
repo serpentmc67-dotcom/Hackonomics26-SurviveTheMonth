@@ -127,7 +127,7 @@ resize();
 window.addEventListener('resize', resize);
 
 // --- RAIN ---
-const DROPS = 220;
+const DROPS = 120;
 const drops = Array.from({length:DROPS}, ()=>({
     x: Math.random() * rainCanvas.width * 1.5 - rainCanvas.width * 0.3,
     y: Math.random() * rainCanvas.height,
@@ -140,7 +140,11 @@ const ANGLE = Math.PI/5;
 const dx = Math.sin(ANGLE);
 const dy = Math.cos(ANGLE);
 
+let _rainPaused = false;
+document.addEventListener('visibilitychange', () => { _rainPaused = document.hidden; });
+
 function drawRain() {
+    if (!_rainPaused) {
     rainCtx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
     rainCtx.lineCap = 'round';
     for(const d of drops){
@@ -156,6 +160,7 @@ function drawRain() {
             d.x=Math.random()*rainCanvas.width-100;
             d.y=-20;
         }
+    }
     }
     requestAnimationFrame(drawRain);
 }
