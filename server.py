@@ -7,14 +7,22 @@ from datetime import datetime, timezone, timedelta
 from http.server import SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn, TCPServer
 from urllib.parse import urlparse
+from functools import lru_cache
 
 DB_PATH = os.environ.get("DB_PATH", "/data/players.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
+def get_conn():
+    conn = sqlite3.connect(DB_PATH, timeout=15, check_same_thread=False)
+    conn.execute("PRAGMA journal_mode=WAL")   # allows concurrent reads + writes
+    conn.execute("PRAGMA synchronous=NORMAL") # faster writes, still safe
+    conn.execute("PRAGMA cache_size=10000")
+    return conn
 class ThreadedHTTPServer(ThreadingMixIn, TCPServer):
     allow_reuse_address = True
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = get_conn()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS players (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,7 +77,7 @@ def register_player(first_name, last_name, email):
     if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
         return {"ok": False, "error": "Please enter a valid email address."}
     ts = get_et()
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = get_conn()
     try:
         cur = conn.execute(
             "INSERT INTO players (first_name, last_name, email, registered, score, play_seconds) VALUES (?,?,?,?,0,0)",
@@ -87,7 +95,7 @@ def register_player(first_name, last_name, email):
         conn.close()
 
 def list_players():
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = get_conn()
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         "SELECT id, first_name, last_name, email, registered, score, play_seconds, last_played FROM players ORDER BY score DESC, id DESC"
@@ -97,7 +105,7 @@ def list_players():
 
 def start_session(player_id):
     ts = get_et()
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = get_conn()
     try:
         conn.execute(
             "UPDATE play_sessions SET ended_at=?, seconds=CAST((julianday(?) - julianday(started_at))*86400 AS INTEGER) WHERE player_id=? AND ended_at IS NULL",
@@ -117,7 +125,7 @@ def start_session(player_id):
 
 def end_session(player_id, session_id, seconds):
     ts = get_et()
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = get_conn()
     try:
         conn.execute(
             "UPDATE play_sessions SET ended_at=?, seconds=? WHERE id=? AND player_id=?",
@@ -142,7 +150,7 @@ def end_session(player_id, session_id, seconds):
 
 def add_score(player_id, delta, reason):
     ts = get_et()
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = get_conn()
     try:
         conn.execute(
             "UPDATE players SET score = MAX(0, score + ?), last_played=? WHERE id=?",
@@ -162,7 +170,7 @@ def add_score(player_id, delta, reason):
         conn.close()
 
 def get_player_score(player_id):
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = get_conn()
     conn.row_factory = sqlite3.Row
     row = conn.execute(
         "SELECT score, play_seconds FROM players WHERE id=?", (player_id,)
@@ -246,6 +254,13 @@ class GameHandler(SimpleHTTPRequestHandler):
             self.send_header("Location", "/register.html")
             self.end_headers()
         else:
+            # Cache static assets aggressively — images/fonts don't change
+            if path.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico')):
+                self.send_response(200)
+                self.send_header("Cache-Control", "public, max-age=86400")
+                self.end_headers()
+                super().do_GET()
+                return
             super().do_GET()
 
 if __name__ == "__main__":
