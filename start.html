@@ -1272,7 +1272,7 @@ img[src*="Bills.png"] {
     <div id="typing-text"><span class="typing-cursor"></span></div>
 
     <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:24px;">
-      <button id="start-continue-btn" onclick="showModeSelect()">Continue →</button>
+      <button id="start-continue-btn" onclick="handleContinueBtn()">Continue →</button>
       <a href="settings.html" id="settings-link" style="display:inline-block;padding:10px 32px;background:rgba(255,154,66,0.12);border:2px solid rgba(255,154,66,0.4);border-radius:60px;font-family:'Fredoka One',cursive;font-size:1rem;color:var(--orange);text-decoration:none;transition:all 0.18s;opacity:0;" onmouseover="this.style.background='rgba(255,154,66,0.22)'" onmouseout="this.style.background='rgba(255,154,66,0.12)'">⚙️ Go to Settings for Character Archetype</a>
     </div>
   </div>
@@ -1992,28 +1992,67 @@ Check the Mail Table for weekly bills and pay them before the countdown hits zer
 Good luck. The bills don't care how tired you are.`;
 
 let _typingDone = false;
+let _typingInterval = null;
+
+function showContinueBtn() {
+  const btn = document.getElementById('start-continue-btn');
+  btn.textContent = 'Continue →';
+  btn.classList.add('show');
+  const sl = document.getElementById('settings-link');
+  if (sl) sl.style.opacity = '1';
+}
+
+function handleContinueBtn() {
+  if (!_typingDone) {
+    skipTyping();
+  } else {
+    showModeSelect();
+  }
+}
+
+function skipTyping() {
+  if (_typingInterval) clearInterval(_typingInterval);
+  const el = document.getElementById('typing-text');
+  el.innerHTML = STORY_TEXT.replace(/\n/g, '<br>');
+  _typingDone = true;
+  showContinueBtn();
+}
+
 function runTyping() {
   const el = document.getElementById('typing-text');
   let i = 0;
   const chars = STORY_TEXT.split('');
   const cursor = '<span class="typing-cursor"></span>';
+  const returning = localStorage.getItem('stm_visited') === '1';
 
-  // Start after card fade-in (1s delay on card)
+  // Mark as visited
+  localStorage.setItem('stm_visited', '1');
+
+  // If returning player: show skip button after 2s so they can click to finish typing instantly
+  if (returning) {
+    setTimeout(() => {
+      if (!_typingDone) {
+        const btn = document.getElementById('start-continue-btn');
+        btn.textContent = 'Skip Intro →';
+        btn.classList.add('show');
+        const sl = document.getElementById('settings-link');
+        if (sl) sl.style.opacity = '1';
+      }
+    }, 2000);
+  }
+
   setTimeout(() => {
-    const interval = setInterval(() => {
+    _typingInterval = setInterval(() => {
       el.innerHTML = STORY_TEXT.slice(0, i).replace(/\n/g, '<br>') + cursor;
       i++;
       if (i > chars.length) {
-        clearInterval(interval);
-        el.innerHTML = STORY_TEXT.replace(/\n/g, '<br>'); // no cursor at end
+        clearInterval(_typingInterval);
+        _typingInterval = null;
+        el.innerHTML = STORY_TEXT.replace(/\n/g, '<br>');
         _typingDone = true;
-        setTimeout(() => {
-          document.getElementById('start-continue-btn').classList.add('show');
-          const sl = document.getElementById('settings-link');
-          if (sl) sl.style.opacity = '1';
-        }, 400);
+        setTimeout(showContinueBtn, 400);
       }
-    }, 28); // ~28ms per char ≈ comfortable reading pace
+    }, 28);
   }, 1400);
 }
 if (document.fonts) {
@@ -2022,14 +2061,20 @@ if (document.fonts) {
   window.addEventListener('load', runTyping);
 }
 
-// Skip intro: Enter key skips to mode select
+// Enter key OR clicking anywhere on the start screen skips typing → then goes to mode select
 (function() {
   document.addEventListener('keydown', function onEnterSkip(e) {
     if (e.key === 'Enter') {
       var ss = document.getElementById('start-screen');
       if (ss && ss.style.display !== 'none' && !ss.classList.contains('fade-out')) {
-        document.removeEventListener('keydown', onEnterSkip);
-        showModeSelect();
+        if (!_typingDone) {
+          // First Enter: skip typing, show button
+          skipTyping();
+        } else {
+          // Second Enter (or already done): go to mode select
+          document.removeEventListener('keydown', onEnterSkip);
+          showModeSelect();
+        }
       }
     }
   });
