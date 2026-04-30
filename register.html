@@ -360,6 +360,50 @@
     .play-btn:hover { transform: scale(1.05); }
     .s-count { font-size: 12px; color: rgba(255,255,255,0.28); margin-top: 12px; }
 
+    /* ── Social Login Buttons ── */
+    .social-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 0 0 16px;
+    }
+    .social-divider .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .social-divider .divider-text {
+      font-family: 'Fredoka One', cursive; font-size: 11px;
+      color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
+    .social-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+    .social-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 12px 16px;
+      border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      font-family: 'Fredoka One', cursive; font-size: 16px; color: #fff;
+      cursor: pointer; transition: background 0.18s, border-color 0.18s, transform 0.15s;
+    }
+    .social-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+    .social-btn:active { transform: translateY(0); }
+    .social-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .social-btn.google { border-color: rgba(66,133,244,0.4); }
+    .social-btn.google:hover { background: rgba(66,133,244,0.1); border-color: rgba(66,133,244,0.6); }
+    .social-btn.microsoft { border-color: rgba(0,164,239,0.4); }
+    .social-btn.microsoft:hover { background: rgba(0,164,239,0.1); border-color: rgba(0,164,239,0.6); }
+
+    .social-btn svg { flex-shrink: 0; }
+
+    .manual-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 4px 0 18px;
+    }
+    .manual-divider .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .manual-divider .divider-text {
+      font-family: 'Fredoka One', cursive; font-size: 11px;
+      color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
     @media (max-width: 480px) {
       .card { padding: 26px 20px 30px; }
       .field-row { flex-direction: column; gap: 0; }
@@ -369,6 +413,11 @@
       .fs-tag { border-radius: 8px; align-self: auto; margin-bottom: 0; margin-right: -4px; }
     }
   </style>
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Microsoft MSAL -->
+  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
 </head>
 <body>
 
@@ -402,7 +451,35 @@
 
   <div class="card">
     <div class="card-title">👤 Player Registration</div>
-    <div class="card-sub">Enter your info below to start playing.</div>
+    <div class="card-sub">Sign in quickly or fill in your info below.</div>
+
+    <!-- ── Social Login ── -->
+    <div class="social-btns">
+      <button class="social-btn google" id="google-btn" onclick="signInWithGoogle()">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <button class="social-btn microsoft" id="microsoft-btn" onclick="signInWithMicrosoft()">
+        <svg width="20" height="20" viewBox="0 0 21 21">
+          <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+          <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+          <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+          <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+        </svg>
+        Sign in with Microsoft
+      </button>
+    </div>
+
+    <div class="manual-divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">or enter manually</div>
+      <div class="divider-line"></div>
+    </div>
 
     <div class="field-row">
       <div class="field">
@@ -454,6 +531,158 @@
 </div>
 
 <script>
+  // ═══════════════════════════════════════════════
+  //  SOCIAL LOGIN — Google & Microsoft
+  //  ⚠️  Replace the placeholder IDs below with
+  //      your real Client IDs before deploying.
+  // ═══════════════════════════════════════════════
+
+  // ── GOOGLE ──
+  // Get yours free at: https://console.cloud.google.com
+  // Create a project → APIs & Services → Credentials → OAuth 2.0 Client ID (Web)
+  // Add your domain to "Authorized JavaScript origins"
+  const GOOGLE_CLIENT_ID = '1003822131398-h0v9427prbnm3jljbbsre5t3dn9jakbp.apps.googleusercontent.com';
+
+  function signInWithGoogle() {
+    const btn = document.getElementById('google-btn');
+    btn.disabled = true;
+    btn.innerHTML = btn.innerHTML.replace('Sign in with Google', '<span class="spinner"></span>Connecting…');
+
+    if (typeof google === 'undefined') {
+      showSocialMsg('Google sign-in failed to load. Please fill in the form manually.', 'err');
+      resetSocialBtn('google-btn', 'google');
+      return;
+    }
+
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'openid email profile',
+      callback: async (tokenResponse) => {
+        if (tokenResponse.error) {
+          showSocialMsg('Google sign-in was cancelled or failed.', 'err');
+          resetSocialBtn('google-btn', 'google');
+          return;
+        }
+        try {
+          const res  = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+          });
+          const info = await res.json();
+          const fn   = info.given_name  || info.name?.split(' ')[0] || '';
+          const ln   = info.family_name || info.name?.split(' ').slice(1).join(' ') || '';
+          const em   = info.email || '';
+          fillAndSubmit(fn, ln, em, 'google-btn', 'google');
+        } catch {
+          showSocialMsg('Could not fetch your Google profile. Try the manual form.', 'err');
+          resetSocialBtn('google-btn', 'google');
+        }
+      }
+    });
+    client.requestAccessToken();
+  }
+
+  // ── MICROSOFT ──
+  // Get yours free at: https://portal.azure.com
+  // Azure Active Directory → App registrations → New registration
+  // Set "Supported account types" to "Personal Microsoft accounts" (or both)
+  // Add a Redirect URI: Single-page application → your domain or http://localhost:8080
+  const MICROSOFT_CLIENT_ID = 'YOUR_MICROSOFT_CLIENT_ID';
+
+  let _msalApp = null;
+  function getMsalApp() {
+    if (!_msalApp) {
+      _msalApp = new msal.PublicClientApplication({
+        auth: {
+          clientId: MICROSOFT_CLIENT_ID,
+          authority: 'https://login.microsoftonline.com/common',
+          redirectUri: window.location.origin + '/register.html',
+        },
+        cache: { cacheLocation: 'sessionStorage' }
+      });
+    }
+    return _msalApp;
+  }
+
+  async function signInWithMicrosoft() {
+    const btn = document.getElementById('microsoft-btn');
+    btn.disabled = true;
+    btn.innerHTML = btn.innerHTML.replace('Sign in with Microsoft', '<span class="spinner"></span>Connecting…');
+
+    if (typeof msal === 'undefined') {
+      showSocialMsg('Microsoft sign-in failed to load. Please fill in the form manually.', 'err');
+      resetSocialBtn('microsoft-btn', 'microsoft');
+      return;
+    }
+
+    try {
+      const app    = getMsalApp();
+      const result = await app.loginPopup({ scopes: ['openid', 'profile', 'email', 'User.Read'] });
+      const acc    = result.account;
+      const name   = acc.name || '';
+      const parts  = name.trim().split(' ');
+      const fn     = parts[0] || '';
+      const ln     = parts.slice(1).join(' ') || '';
+      const em     = acc.username || '';
+      fillAndSubmit(fn, ln, em, 'microsoft-btn', 'microsoft');
+    } catch (err) {
+      if (err.errorCode !== 'user_cancelled') {
+        showSocialMsg('Microsoft sign-in failed. Try the manual form.', 'err');
+      }
+      resetSocialBtn('microsoft-btn', 'microsoft');
+    }
+  }
+
+  // ── Shared: fill form + auto-submit to /api/register ──
+  async function fillAndSubmit(fn, ln, em, btnId, provider) {
+    document.getElementById('first-name').value = fn;
+    document.getElementById('last-name').value  = ln;
+    document.getElementById('email').value       = em;
+
+    if (!fn || !ln || !em) {
+      showSocialMsg('Could not get all your info. Complete the fields below and click "Let\'s Play".', 'warn');
+      resetSocialBtn(btnId, provider);
+      return;
+    }
+
+    try {
+      const res  = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first_name: fn, last_name: ln, email: em })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        sessionStorage.setItem('player_name',  fn + ' ' + ln);
+        sessionStorage.setItem('player_email', em);
+        sessionStorage.setItem('player_id',    data.id);
+        showSuccess(fn + ' ' + ln, data.total);
+      } else {
+        showSocialMsg(data.error || 'Something went wrong.', 'err');
+        resetSocialBtn(btnId, provider);
+      }
+    } catch {
+      sessionStorage.setItem('player_name',  fn + ' ' + ln);
+      sessionStorage.setItem('player_email', em);
+      showSuccess(fn + ' ' + ln, null);
+    }
+  }
+
+  function showSocialMsg(text, type) {
+    const el = document.getElementById('player-msg');
+    el.textContent = text;
+    el.className = 'msg ' + type;
+  }
+
+  const _GOOGLE_SVG = `<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
+  const _MS_SVG    = `<svg width="20" height="20" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>`;
+
+  function resetSocialBtn(btnId, provider) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = false;
+    if (provider === 'google') btn.innerHTML = _GOOGLE_SVG + ' Sign in with Google';
+    else btn.innerHTML = _MS_SVG + ' Sign in with Microsoft';
+  }
+
   /* Particles */
   (function() {
     const c = document.getElementById('particles');
