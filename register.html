@@ -4,7 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Survive the Month — Register</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"></noscript>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --orange: #ff9a42; --orange-dark: #ff6b00; }
@@ -531,7 +534,8 @@
   // Get yours free at: https://console.cloud.google.com
   // Create a project → APIs & Services → Credentials → OAuth 2.0 Client ID (Web)
   // Add your domain to "Authorized JavaScript origins"
-  const GOOGLE_CLIENT_ID = '1003822131398-h0v9427prbnm3jljbbsre5t3dn9jakbp.apps.googleusercontent.com';
+  const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+
   function signInWithGoogle() {
     const btn = document.getElementById('google-btn');
     btn.disabled = true;
@@ -543,10 +547,21 @@
       return;
     }
 
+    // If user closes the popup, Google never fires the callback — detect with timeout
+    let callbackFired = false;
+    const cancelTimeout = setTimeout(() => {
+      if (!callbackFired) resetSocialBtn('google-btn', 'google');
+    }, 120000); // 2 min max, but popup close detection below handles it faster
+
+    // Detect popup close by polling
+    let popupCheckInterval = null;
     const client = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: 'openid email profile',
       callback: async (tokenResponse) => {
+        callbackFired = true;
+        clearTimeout(cancelTimeout);
+        if (popupCheckInterval) clearInterval(popupCheckInterval);
         if (tokenResponse.error) {
           showSocialMsg('Google sign-in was cancelled or failed.', 'err');
           resetSocialBtn('google-btn', 'google');
@@ -568,6 +583,18 @@
       }
     });
     client.requestAccessToken();
+
+    // Poll every 500ms to detect if the popup was closed without signing in
+    let popupOpenedAt = Date.now();
+    popupCheckInterval = setInterval(() => {
+      if (callbackFired) { clearInterval(popupCheckInterval); return; }
+      // After 1.5s (popup had time to open), if focus returns to main window = popup closed
+      if (Date.now() - popupOpenedAt > 1500 && document.hasFocus()) {
+        clearInterval(popupCheckInterval);
+        clearTimeout(cancelTimeout);
+        if (!callbackFired) resetSocialBtn('google-btn', 'google');
+      }
+    }, 500);
   }
 
   // ── Shared: fill form + auto-submit to /api/register ──
@@ -622,7 +649,8 @@
   /* Particles */
   (function() {
     const c = document.getElementById('particles');
-    for (let i = 0; i < 20; i++) {
+    const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 12;
+    for (let i = 0; i < count; i++) {
       const p = document.createElement('div');
       p.className = 'particle';
       const sz = 4 + Math.random() * 9;
