@@ -254,13 +254,6 @@ class GameHandler(SimpleHTTPRequestHandler):
             self.send_header("Location", "/register.html")
             self.end_headers()
         else:
-            # Cache static assets aggressively — images/fonts don't change
-            if path.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico')):
-                self.send_response(200)
-                self.send_header("Cache-Control", "public, max-age=86400")
-                self.end_headers()
-                super().do_GET()
-                return
             super().do_GET()
 
 if __name__ == "__main__":
