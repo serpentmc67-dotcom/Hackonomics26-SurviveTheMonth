@@ -1670,9 +1670,76 @@ img[src*="Bills.png"] {
     </div>
   </div>
 
-  <div style="display:flex;gap:8px;width:100%;flex-shrink:0;">
-    <button class="help-btn" style="flex:1;justify-content:center;" onclick="openWork()">💼 WORK</button>
-    <button class="help-btn" style="flex:1;justify-content:center;border-color:#4caf50;color:#81c784;" onclick="openLoan()">🏦 LOAN</button>
+  <!-- Action Buttons Grid -->
+  <div style="width:100%;flex-shrink:0;">
+    <div style="font-family:'Fredoka One',cursive;font-size:11px;color:rgba(255,154,66,0.55);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;text-align:center;">⚡ Quick Actions</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;">
+
+      <!-- WORK -->
+      <button id="action-work-btn" onclick="openWork()" style="
+        position:relative;overflow:hidden;
+        padding:14px 8px 10px;border-radius:14px;border:2px solid rgba(255,154,66,0.5);
+        background:linear-gradient(135deg,rgba(255,154,66,0.14),rgba(255,107,0,0.08));
+        color:#ff9a42;font-family:'Fredoka One',cursive;cursor:pointer;
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        transition:all 0.18s ease;
+      "
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(255,154,66,0.32),rgba(255,107,0,0.2))';this.style.borderColor='#ff9a42';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,120,0,0.3)'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(255,154,66,0.14),rgba(255,107,0,0.08))';this.style.borderColor='rgba(255,154,66,0.5)';this.style.transform='';this.style.boxShadow=''">
+        <span style="font-size:22px;line-height:1;">💼</span>
+        <span style="font-size:13px;letter-spacing:0.5px;">WORK</span>
+        <span id="work-btn-sub" style="font-size:9px;opacity:0.6;font-family:'Nunito',sans-serif;font-weight:700;">0 / 10 today</span>
+      </button>
+
+      <!-- GAMING -->
+      <button id="action-game-btn" onclick="openMiniGame()" style="
+        position:relative;overflow:hidden;
+        padding:14px 8px 10px;border-radius:14px;border:2px solid rgba(156,39,176,0.5);
+        background:linear-gradient(135deg,rgba(156,39,176,0.14),rgba(100,0,180,0.08));
+        color:#ce93d8;font-family:'Fredoka One',cursive;cursor:pointer;
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        transition:all 0.18s ease;
+      "
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(156,39,176,0.32),rgba(100,0,180,0.2))';this.style.borderColor='#ce93d8';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(156,39,176,0.3)'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(156,39,176,0.14),rgba(100,0,180,0.08))';this.style.borderColor='rgba(156,39,176,0.5)';this.style.transform='';this.style.boxShadow=''">
+        <span style="font-size:22px;line-height:1;">🎮</span>
+        <span style="font-size:13px;letter-spacing:0.5px;">GAME</span>
+        <span id="game-btn-sub" style="font-size:9px;opacity:0.6;font-family:'Nunito',sans-serif;font-weight:700;">0 / 2 today</span>
+      </button>
+
+      <!-- CHORES -->
+      <button id="action-chores-btn" onclick="openChores()" style="
+        position:relative;overflow:hidden;
+        padding:14px 8px 10px;border-radius:14px;border:2px solid rgba(255,193,7,0.5);
+        background:linear-gradient(135deg,rgba(255,193,7,0.14),rgba(200,130,0,0.08));
+        color:#ffd54f;font-family:'Fredoka One',cursive;cursor:pointer;
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        transition:all 0.18s ease;
+      "
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(255,193,7,0.32),rgba(200,130,0,0.2))';this.style.borderColor='#ffd54f';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,193,7,0.3)'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(255,193,7,0.14),rgba(200,130,0,0.08))';this.style.borderColor='rgba(255,193,7,0.5)';this.style.transform='';this.style.boxShadow=''">
+        <span style="font-size:22px;line-height:1;">🧹</span>
+        <span style="font-size:13px;letter-spacing:0.5px;">CHORES</span>
+        <span id="chores-btn-sub" style="font-size:9px;opacity:0.6;font-family:'Nunito',sans-serif;font-weight:700;">dirt: 0%</span>
+      </button>
+
+      <!-- LOAN -->
+      <button id="action-loan-btn" onclick="openLoan()" style="
+        position:relative;overflow:hidden;
+        padding:14px 8px 10px;border-radius:14px;border:2px solid rgba(76,175,80,0.5);
+        background:linear-gradient(135deg,rgba(76,175,80,0.14),rgba(27,94,32,0.08));
+        color:#81c784;font-family:'Fredoka One',cursive;cursor:pointer;
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        transition:all 0.18s ease;
+      "
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(76,175,80,0.32),rgba(27,94,32,0.2))';this.style.borderColor='#81c784';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(76,175,80,0.3)'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(76,175,80,0.14),rgba(27,94,32,0.08))';this.style.borderColor='rgba(76,175,80,0.5)';this.style.transform='';this.style.boxShadow=''">
+        <span style="font-size:22px;line-height:1;">🏦</span>
+        <span style="font-size:13px;letter-spacing:0.5px;">LOAN</span>
+        <span id="loan-btn-sub" style="font-size:9px;opacity:0.6;font-family:'Nunito',sans-serif;font-weight:700;">no active loans</span>
+      </button>
+
+    </div>
   </div>
 
 </div>
@@ -2858,10 +2925,67 @@ function updateLimits() {
     el.className = 'lc-val' + (val >= max ? ' full' : val > 0 ? ' used' : '');
   });
   document.getElementById('sanity-cap-val').textContent = Math.round(state.sanityCap) + '%';
+  // keep action buttons in sync
+  if (typeof updateActionButtons === 'function') updateActionButtons();
 }
 function updateDayLabel() {
   document.getElementById('day-number').textContent = state.day;
   document.getElementById('week-label').textContent = 'Week ' + state.week;
+}
+
+function updateActionButtons() {
+  // WORK
+  const workSub = document.getElementById('work-btn-sub');
+  const workBtn = document.getElementById('action-work-btn');
+  if (workSub) workSub.textContent = state.workToday + ' / 10 today';
+  if (workBtn) {
+    const maxed = state.workToday >= 10;
+    workBtn.style.opacity = maxed ? '0.45' : '1';
+    workBtn.title = maxed ? 'Max work tasks for today' : 'Open Jeopardy work board (R)';
+  }
+  // GAME
+  const gameSub = document.getElementById('game-btn-sub');
+  const gameBtn = document.getElementById('action-game-btn');
+  if (gameSub) gameSub.textContent = state.gamingToday + ' / 2 today';
+  if (gameBtn) {
+    const maxed = state.gamingToday >= 2;
+    gameBtn.style.opacity = maxed ? '0.45' : '1';
+    gameBtn.title = maxed ? 'Max gaming sessions for today' : 'Play Color Match mini-game (T)';
+  }
+  // CHORES
+  const choresSub = document.getElementById('chores-btn-sub');
+  const choresBtn = document.getElementById('action-chores-btn');
+  if (choresSub) choresSub.textContent = 'dirt: ' + Math.round(state.dirt) + '%';
+  if (choresBtn) {
+    const maxed = state.choresToday >= 1;
+    choresBtn.style.opacity = maxed ? '0.45' : '1';
+    choresBtn.title = maxed ? 'Already cleaned today' : 'Do chores to reduce dirt (Y)';
+    // Warn when dirt is high
+    if (state.dirt >= 70 && !maxed) {
+      choresBtn.style.borderColor = 'rgba(229,57,53,0.7)';
+      choresBtn.style.color = '#ef9a9a';
+    } else if (!maxed) {
+      choresBtn.style.borderColor = 'rgba(255,193,7,0.5)';
+      choresBtn.style.color = '#ffd54f';
+    }
+  }
+  // LOAN
+  const loanSub = document.getElementById('loan-btn-sub');
+  const loanBtn = document.getElementById('action-loan-btn');
+  if (loanSub && loanBtn) {
+    if (state.activeLoans && state.activeLoans.length > 0) {
+      const totalOwed = state.activeLoans.reduce((s, l) => s + Math.round(l.balance), 0);
+      loanSub.textContent = '$' + totalOwed + ' owed';
+      loanSub.style.color = '#ef9a9a';
+      loanBtn.style.borderColor = 'rgba(229,57,53,0.6)';
+      loanBtn.style.color = '#ef9a9a';
+    } else {
+      loanSub.textContent = 'no active loans';
+      loanSub.style.color = '';
+      loanBtn.style.borderColor = 'rgba(76,175,80,0.5)';
+      loanBtn.style.color = '#81c784';
+    }
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -4014,7 +4138,7 @@ function nextDay() {
   }
   closeAllOverlays();
   updateDayLabel(); buildCalendar(); startDayTimer();
-  updateBars(); updateMoney(); updateLimits();
+  updateBars(); updateMoney(); updateLimits(); updateActionButtons();
   addLog('🌅', `Day ${state.day} begins`, 'event');
   showToast('🌅', `Day ${state.day} — ${DAYS_IN_MONTH - state.day} days left`, '', 3000);
   checkGameOver();
@@ -4700,7 +4824,7 @@ function processLoans() {
 function bootGame() {
   if (_gameBooted) return;
   _gameBooted = true;
-  initState(); buildCalendar(); updateBars(); updateMoney(); updateLimits(); updateDayLabel();
+  initState(); buildCalendar(); updateBars(); updateMoney(); updateLimits(); updateDayLabel(); updateActionButtons();
   addLog('🌅', 'Day 1 begins — survive the month!', 'event');
   trackStartSession();
   document.getElementById('go-outside-btn').style.display = 'flex';
