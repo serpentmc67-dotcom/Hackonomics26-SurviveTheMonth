@@ -136,17 +136,34 @@ export default function RegistrationPage() {
     >
       {/* HEADER */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 className={fredoka.className} style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem' }}>
-          SURVIVE THE MONTH
+        <h1 className={fredoka.className} style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
+          Survive The Month
         </h1>
-        <p style={{ color: 'rgb(173, 101, 13)', letterSpacing: '4.5px', textTransform: 'uppercase', fontSize: '1rem', marginTop: '-0.5rem', fontWeight: '700' }}>
+        <p style={{ color: 'rgb(173, 101, 13)', letterSpacing: '4.5px', textTransform: 'uppercase', fontSize: '1rem', marginTop: '-0.5rem', fontWeight: '700', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
           Take Control of Your Finances Before They <strong> Take Control of You </strong>
         </p>
 
-        <div style={{ display: 'inlineflex', alignItems: 'center', gap: '-10rem', width: '100%', marginTop: '1.2rem', marginBottom: '2rem'}}>
-      <div style={{ flex: 1, height: '1px', background: 'rgba(251, 143, 10, 0.97)' }} />
+        <div style={{ display: 'inlineflex', alignItems: 'center', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '0rem', marginLeft: '-10px'}}>
+      <div style={{ flex: 1, height: '2px', background: 'rgba(251, 143, 10, 0.97)', borderRadius: '999px' }} />
         </div>
       </section>
+
+      <section style={{textAlign: 'left', marginBottom: '1rem'}}>
+        <div style={{    
+          background: 'rgba(255, 238, 0, 0.33)',
+          borderRadius: '24px',
+          border: '2px dashed rgb(255, 251, 0)',
+          padding: '2.5rem',
+          width: '100%',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(10px)' }}>
+          <h2 style={subheadingStyle}>Create Your Player</h2>
+          <p style={{ color: '#888', fontSize: '0.95rem', marginBottom: '2rem' }}>
+            Enter your details to begin your 30-day survival journey.
+          </p>
+        </div>
+      </section>
+
 
       {/* FORM CARD */}
       <section style={sectionStyle}>
