@@ -247,7 +247,7 @@ export default function RegistrationPage() {
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_50%_40%,#0a0a22_0%,#000_100%)] flex flex-col items-center justify-center font-['Nunito',sans-serif] overflow-hidden text-white">
       <Head>
         <title>Survive the Month — Register</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=deevice-width, initial-scale=1.0" />
         <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
       </Head>
       
