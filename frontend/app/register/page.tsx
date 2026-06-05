@@ -1,11 +1,12 @@
 'use client';
 
-import { Nunito, Fredoka } from "next/font/google";
+import { Nunito, Fredoka, Poppins } from "next/font/google";
 import { useState } from "react";
 import { User, Mail, Shield, AlertCircle, ArrowRight, Maximize2 } from "lucide-react";
 
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
+const poppins = Poppins({ subsets: ["latin"], weight: ["500", "600", "700"] });
 
 export default function RegistrationPage() {
   const [firstName, setFirstName] = useState("");
@@ -137,10 +138,11 @@ export default function RegistrationPage() {
       {/* HEADER */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 className={fredoka.className} style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
-          Survive The Month
+          Register
         </h1>
+        
         <p style={{ color: 'rgb(173, 101, 13)', letterSpacing: '4.5px', textTransform: 'uppercase', fontSize: '1rem', marginTop: '-0.5rem', fontWeight: '700', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
-          Take Control of Your Finances Before They <strong> Take Control of You </strong>
+          Already Have An Account? <strong> Sign In. </strong>
         </p>
 
         <div style={{ display: 'inlineflex', alignItems: 'center', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '0rem', marginLeft: '-10px'}}>
@@ -148,16 +150,24 @@ export default function RegistrationPage() {
         </div>
       </section>
 
-      <section style={{textAlign: 'left', marginBottom: '1rem'}}>
+      <section style={{textAlign: 'left', marginBottom: '1rem', marginTop: '-1rem'}}>
         <div style={{    
           background: 'rgba(255, 238, 0, 0.33)',
           borderRadius: '24px',
-          border: '2px dashed rgb(255, 251, 0)',
+          border: '2px solid rgb(255, 251, 0)',
           padding: '2.5rem',
           width: '100%',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+          boxShadow: 'inset 0 0 40px rgba(255, 230, 0, 0.35)',
           backdropFilter: 'blur(10px)' }}>
-          <h2 style={subheadingStyle}>Create Your Player</h2>
+            <h2 style={{
+              fontSize: '1.4rem',
+              color: '#ff8c00',
+              fontWeight: '600',
+              marginBottom: '0.5rem',
+              fontKerning: 'none',
+              }}>
+              IMPORTANT
+            </h2>
           <p style={{ color: '#888', fontSize: '0.95rem', marginBottom: '2rem' }}>
             Enter your details to begin your 30-day survival journey.
           </p>
