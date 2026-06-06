@@ -1,17 +1,20 @@
 'use client';
 
-import { Nunito, Fredoka, Poppins } from "next/font/google";
+import { Nunito, Fredoka, Poppins, Montserrat } from "next/font/google";
 import { useState } from "react";
 import { User, Mail, Shield, AlertCircle, ArrowRight, Maximize2 } from "lucide-react";
 
-const nunito = Nunito({ subsets: ['latin'], weight: ['400', '700', '900'] });
+const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
 const poppins = Poppins({ subsets: ["latin"], weight: ["500", "600", "700"] });
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["500", "600", "700"] });
 
 export default function RegistrationPage() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [school, setSchool] = useState("");
+  const [schoolOpen, setSchoolOpen] = useState(false);
+  const schools = [{ value: "cox-mill", label: "Cox Mill High School", disabled: true }, { value: "ecot", label: "Early College of Technology", disabled: true }, { value: "ec", label: "Early College", disabled: true }, { value: "beta-testers", label: "Beta Testers", disabled: false }];
   const [adminCode, setAdminCode] = useState("");
   const [error, setError] = useState("");
 
@@ -137,7 +140,7 @@ export default function RegistrationPage() {
     >
       {/* HEADER */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 className={fredoka.className} style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
+        <h1 className={fredoka.className} style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)', marginTop: '-1rem' }}>
           Register
         </h1>
         
@@ -145,11 +148,12 @@ export default function RegistrationPage() {
           Already Have An Account? <strong> Sign In. </strong>
         </p>
 
-        <div style={{ display: 'inlineflex', alignItems: 'center', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '0rem', marginLeft: '-10px'}}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '-0.5rem', marginLeft: '-10px'}}>
       <div style={{ flex: 1, height: '2px', background: 'rgba(251, 143, 10, 0.97)', borderRadius: '999px' }} />
         </div>
       </section>
 
+{/*
       <section style={{textAlign: 'left', marginBottom: '1rem', marginTop: '-1rem'}}>
         <div style={{    
           background: 'rgba(255, 238, 0, 0.33)',
@@ -159,12 +163,12 @@ export default function RegistrationPage() {
           width: '100%',
           boxShadow: 'inset 0 0 40px rgba(255, 230, 0, 0.35)',
           backdropFilter: 'blur(10px)' }}>
-            <h2 style={{
-              fontSize: '1.4rem',
-              color: '#ff8c00',
+           <h2 className={montserrat.className}
+            style={{
+              fontSize: '1.2rem',
+              color: '#f5f50c',
               fontWeight: '600',
               marginBottom: '0.5rem',
-              fontKerning: 'none',
               }}>
               IMPORTANT
             </h2>
@@ -174,45 +178,92 @@ export default function RegistrationPage() {
         </div>
       </section>
 
+*/}
 
       {/* FORM CARD */}
       <section style={sectionStyle}>
         <div style={cardStyle}>
-          <h2 style={subheadingStyle}>Create Your Player</h2>
+          <h2 style={subheadingStyle}>Create Your Account</h2>
           <p style={{ color: '#888', fontSize: '0.95rem', marginBottom: '2rem' }}>
-            Enter your details to begin your 30-day survival journey.
+            Create your account to begin a 30-day financial simulation where every decision matters.
           </p>
 
           <form onSubmit={handleRegister}>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1 }}>
-                <label style={labelStyle}><User size={14} /> First Name</label>
+                <label style={labelStyle}><User size={14} /> Username</label>
                 <input 
                   style={inputStyle} 
-                  placeholder="Jane" 
-                  value={firstName} 
-                  onChange={(e) => setFirstName(e.target.value)} 
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={labelStyle}><User size={14} /> Last Name</label>
-                <input 
-                  style={inputStyle} 
-                  placeholder="Smith" 
-                  value={lastName} 
-                  onChange={(e) => setLastName(e.target.value)} 
+                  placeholder="FinanceMaster42" 
+                  value={username} 
+                  onChange={(e) => setUsername(e.target.value)} 
                 />
               </div>
             </div>
 
-            <label style={labelStyle}><Mail size={14} /> Email Address</label>
+            <label style={labelStyle}><Mail size={14} /> Password</label>
             <input 
               style={inputStyle} 
-              type="email" 
-              placeholder="jane@example.com" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
+              type="password" 
+              placeholder="Enter Your Password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
             />
+
+            <label style={labelStyle}><Shield size={14} /> School</label>
+            <div style={{ position: "relative", width: "100%" }}>
+            <div
+              onClick={() => setSchoolOpen(!schoolOpen)}
+              style={{
+                ...inputStyle,
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                color: school ? "white" : "rgba(255,255,255,0.5)",
+              }}
+            >
+              {schools.find(s => s.value === school)?.label || "Select Your School"}
+
+              <span style={{ color: "#ff8c00" }}>▼</span>
+            </div>
+
+            {/* Dropdown */}
+            {schoolOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "110%",
+                  left: 0,
+                  width: "100%",
+                  background: "#111",
+                  border: "1px solid rgba(255,140,0,0.3)",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  zIndex: 1000,
+                }}
+              >
+                {schools.map((s) => (
+                  <div
+                    key={s.value}
+                    onClick={() => {
+                      if (s.disabled) return;
+                      setSchool(s.value);
+                      setSchoolOpen(false);
+                    }}
+                    style={{
+                      padding: "0.9rem",
+                      color: s.disabled ? "#666" : "white",
+                      cursor: s.disabled ? "not-allowed" : "pointer",
+                      opacity: s.disabled ? 0.5 : 1,
+                    }}
+                  >
+                    {s.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
             {error && (
               <div style={{ 
@@ -228,26 +279,10 @@ export default function RegistrationPage() {
               LET'S PLAY <ArrowRight size={20} />
             </button>
           </form>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '2rem 0' }}>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.05)' }} />
-            <span style={{ fontSize: '0.75rem', color: '#444' }}>OR</span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.05)' }} />
-          </div>
-
-          <button style={secondaryButtonStyle} onClick={handleGoogleLogin}>
-            <svg width="18" height="18" viewBox="0 0 48 48" style={{ marginRight: '8px' }}>
-              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
-            Sign in with Google
-          </button>
         </div>
       </section>
 
-      {/* ADMIN ACCESS */}
+      {/* ADMIN ACCESS
       <section style={{ width: '100%', maxWidth: '550px', marginTop: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <div style={{ flex: 1, position: 'relative' }}>
@@ -265,14 +300,16 @@ export default function RegistrationPage() {
           </button>
         </div>
       </section>
+      */}
 
-      {/* FOOTER ACTION */}
+      {/* FOOTER ACTION
       <button 
         onClick={() => {}} 
         style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}
       >
         <Maximize2 size={20} />
       </button>
+      */}
 
     </main>
   );
