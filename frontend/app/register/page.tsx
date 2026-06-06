@@ -14,7 +14,7 @@ export default function RegistrationPage() {
   const [password, setPassword] = useState("");
   const [school, setSchool] = useState("");
   const [schoolOpen, setSchoolOpen] = useState(false);
-  const schools = [{ value: "cox-mill", label: "Cox Mill High School", disabled: true }, { value: "ecot", label: "Early College of Technology", disabled: true }, { value: "ec", label: "Early College", disabled: true }, { value: "beta-testers", label: "Beta Testers", disabled: false }];
+  const schools = [{ value: "beta-testers", label: "Beta Testers", disabled: false }, { value: "cox-mill", label: "Cox Mill High School", disabled: true }, { value: "ecot", label: "Early College of Technology", disabled: true }, { value: "ec", label: "Early College", disabled: true }, { value: "ecohs", label: "Early College Of Health Sciences", disabled: true }];
   const [adminCode, setAdminCode] = useState("");
   const [error, setError] = useState("");
   
