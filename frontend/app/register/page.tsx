@@ -2,6 +2,7 @@
 
 import { Nunito, Fredoka, Poppins, Montserrat } from "next/font/google";
 import { useState } from "react";
+import { Info } from "lucide-react";
 import { User, Mail, Shield, AlertCircle, ArrowRight, Maximize2 } from "lucide-react";
 
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
@@ -167,12 +168,73 @@ export default function RegistrationPage() {
 */}
 
       {/* FORM CARD */}
-      <section style={sectionStyle}>
+      <section style={{...sectionStyle, marginTop: "-2rem"}}>
         <div style={cardStyle}>
           <h2 style={subheadingStyle}>Create Your Account</h2>
           <p style={{ color: '#888', fontSize: '0.95rem', marginBottom: '2rem' }}>
             Create your account to begin a 30-day financial simulation where every decision matters.
           </p>
+
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          padding: "1rem 1.2rem",
+          marginBottom: "1.3rem",
+          marginTop: "-1rem",
+          marginLeft: "-1.2rem",
+          marginRight: "-1.2rem",
+          borderRadius: "14px",
+          maxWidth: '750px',
+          border: "1px solid rgba(255, 200, 0, 0.45)",
+          background: "rgba(120, 90, 0, 0.25)",
+          boxShadow: "0 0 15px rgba(255, 200, 0, 0.15)",
+        }}
+      >
+        {/* Info icon (top-right) */}
+        <Info
+          size={16}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            color: "rgba(255, 208, 0, 0.55)",
+            filter: "drop-shadow(0 0 6px rgba(255,255,255,0.15))",
+            cursor: "default",
+          }}
+        />
+
+        {/* Text block */}
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          
+          {/* Header */}
+          <div
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: "800",
+              letterSpacing: "2px",
+              color: "rgba(255, 220, 120, 0.9)",
+              marginBottom: "0.3rem",
+              textTransform: "uppercase",
+            }}
+          >
+            IMPORTANT NOTE
+          </div>
+
+          {/* Message */}
+          <div
+            style={{
+              fontSize: "0.85rem",
+              color: "rgba(255, 200, 90, 0.85)",
+              lineHeight: "1.4",
+            }}
+          >
+            To enhance user privacy, we advise using a nickname rather than your real name. Although we implement security measures to protect user data, this additional step helps minimize exposure of personal information in the rare event of a security incident.
+          </div>
+        </div>
+      </div>
 
           <form onSubmit={handleRegister}>
             <div style={{ display: 'flex', gap: '1rem' }}>
@@ -263,7 +325,7 @@ export default function RegistrationPage() {
               </div>
             )}
 
-            <button type="submit" style={primaryButtonStyle}>
+            <button type="submit" style={{...primaryButtonStyle, marginTop: '2rem'}}>
               LET'S PLAY <ArrowRight size={20} />
             </button>
           </form>
