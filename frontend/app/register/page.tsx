@@ -17,26 +17,12 @@ export default function RegistrationPage() {
   const schools = [{ value: "cox-mill", label: "Cox Mill High School", disabled: true }, { value: "ecot", label: "Early College of Technology", disabled: true }, { value: "ec", label: "Early College", disabled: true }, { value: "beta-testers", label: "Beta Testers", disabled: false }];
   const [adminCode, setAdminCode] = useState("");
   const [error, setError] = useState("");
-
-  // --- Handlers ---
   
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     // Logic missing: Trigger 502 error
     setError("502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist.");
   };
-
-  const handleGoogleLogin = () => {
-    // Logic missing: Trigger 502 error
-    setError("502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist.");
-  };
-
-  const handleAdminSubmit = () => {
-    // Logic missing: Trigger 502 error
-    setError("502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist.");
-  };
-
-  // --- STYLE CONSTANTS ---
   
   const sectionStyle = {
     marginBottom: '2.5rem',
