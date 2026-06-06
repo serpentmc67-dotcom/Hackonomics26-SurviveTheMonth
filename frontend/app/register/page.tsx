@@ -168,7 +168,7 @@ export default function RegistrationPage() {
 */}
 
       {/* FORM CARD */}
-      <section style={{...sectionStyle, marginTop: "-2rem"}}>
+      <section style={{...sectionStyle, marginTop: "-2rem", boxShadow: '0 10px 30px rgba(0,0,0,0.55)'}}>
         <div style={cardStyle}>
           <h2 style={subheadingStyle}>Create Your Account</h2>
           <p style={{ color: '#888', fontSize: '0.95rem', marginBottom: '2rem' }}>
