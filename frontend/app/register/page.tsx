@@ -116,7 +116,6 @@ export default function RegistrationPage() {
       className={nunito.className}
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(circle at 50% 40%, #0a0a22 0%, #000 100%)',
         color: 'white',
         padding: '3rem 1.5rem',
         display: 'flex',
@@ -124,7 +123,7 @@ export default function RegistrationPage() {
         alignItems: 'center',
         justifyContent: 'center'
       }}
-    >
+    >      
       {/* HEADER */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 className={fredoka.className} style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)', marginTop: '-1rem' }}>
