@@ -226,6 +226,8 @@ export default function RegistrationPage() {
                   border: "1px solid rgba(255,140,0,0.3)",
                   borderRadius: "12px",
                   overflow: "hidden",
+                  overflowY: "auto",
+                  maxHeight: "160px",
                   zIndex: 1000,
                 }}
               >
