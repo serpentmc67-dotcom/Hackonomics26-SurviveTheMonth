@@ -220,7 +220,7 @@ export default function RegistrationPage() {
               textTransform: "uppercase",
             }}
           >
-            IMPORTANT NOTE
+            USER ADVISORY NOTICE
           </div>
 
           {/* Message */}
