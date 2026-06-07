@@ -29,9 +29,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full">
         {/* This div is what gets fullscreened — id="fullscreen-root" */}
-        <div className="page-bg" style={{ minHeight: "100vh", width: "100%"}}>
+        <div id="fullscreen-root" className="page-bg">
           {children}
         </div>
         <FullscreenPrompt />

@@ -18,21 +18,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
-  scrollbar-gutter: stable;
 }
 
-/* Ensure html is never transparent */
 html {
   background: #000;
-}
-
-/* Fullscreen safety (prevents white fullscreen canvas in Chrome) */
-html:fullscreen,
-body:fullscreen,
-html:-webkit-full-screen,
-body:-webkit-full-screen {
-  background: #000 !important;
-  overflow: hidden;
 }
 
 /* =========================
@@ -40,14 +29,10 @@ body:-webkit-full-screen {
 ========================= */
 
 .page-bg {
-  min-height: 100vh;
   width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-
-  /* IMPORTANT: this is now the ONLY scroll container */
-  overflow-y: auto;
-  overflow-x: hidden;
 
   background: radial-gradient(
     circle at 50% 40%,
@@ -57,7 +42,7 @@ body:-webkit-full-screen {
 }
 
 /* =========================
-   SCROLLBAR (STABLE)
+   SCROLLBAR
 ========================= */
 
 ::-webkit-scrollbar {
@@ -65,7 +50,7 @@ body:-webkit-full-screen {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: transparent !important;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -81,11 +66,65 @@ body:-webkit-full-screen {
 ::-webkit-scrollbar-corner,
 ::-webkit-scrollbar-track-piece,
 ::-webkit-resizer {
-  background: transparent;
+  background: transparent !important;
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: #ff8c00 transparent;
+}
+
+/* =========================
+   FULLSCREEN ROOT
+========================= */
+
+html:fullscreen,
+html:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+html:fullscreen body,
+html:-webkit-full-screen body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+html:fullscreen #fullscreen-root,
+html:-webkit-full-screen #fullscreen-root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fullscreen scrollbar */
+
+#fullscreen-root:fullscreen::-webkit-scrollbar,
+#fullscreen-root:-webkit-full-screen::-webkit-scrollbar {
+  width: 8px;
+}
+
+#fullscreen-root:fullscreen::-webkit-scrollbar-track,
+#fullscreen-root:-webkit-full-screen::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+#fullscreen-root:fullscreen::-webkit-scrollbar-thumb,
+#fullscreen-root:-webkit-full-screen::-webkit-scrollbar-thumb {
+  background: #ff8c00 !important;
+  border-radius: 999px;
+}
+
+#fullscreen-root:fullscreen::-webkit-scrollbar-thumb:hover,
+#fullscreen-root:-webkit-full-screen::-webkit-scrollbar-thumb:hover {
+  background: #ffa333 !important;
 }
