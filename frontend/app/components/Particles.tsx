@@ -23,7 +23,7 @@ export default function Particles() {
         left: ${Math.random() * 100}%;
         background: ${color};
         box-shadow: 0 0 ${size * 2}px ${size}px ${color}88;
-        animation: particleFloat ${8 + Math.random() * 14}s ${Math.random() * 10}s linear infinite;
+        animation: particleFloat ${3 + Math.random() * 4}s ${Math.random() * 5}s linear infinite;
         pointer-events: none;
       `;
       container.appendChild(p);
