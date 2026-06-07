@@ -30,38 +30,6 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <div className="page-bg">
           {children}
-
-          {/* Top indicator */}
-          <div
-            style={{
-              position: "fixed",
-              top: "8px",
-              right: "-8px",
-              color: "rgba(255,140,0,0.8)",
-              textShadow: "0 0 8px rgba(255,140,0,0.6)",
-              pointerEvents: "none",
-              zIndex: 9999,
-              fontSize: "0.75rem",
-            }}
-          >
-            ▲
-          </div>
-
-          {/* Bottom indicator */}
-          <div
-            style={{
-              position: "fixed",
-              bottom: "8px",
-              right: "2px",
-              color: "rgba(255,140,0,0.8)",
-              textShadow: "0 0 8px rgba(255,140,0,0.6)",
-              pointerEvents: "none",
-              zIndex: 9999,
-              fontSize: "0.75rem",
-            }}
-          >
-            ▼
-          </div>
         </div>
       </body>
     </html>
