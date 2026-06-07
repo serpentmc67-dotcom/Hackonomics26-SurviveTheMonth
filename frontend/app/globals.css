@@ -1,26 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
 /* =========================
-   BASE PAGE
+   BASE RESET
 ========================= */
 
 html,
@@ -29,76 +15,77 @@ body {
   padding: 0;
   min-height: 100%;
   background: #000;
-}
-
-body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
 }
 
-/* =========================
-   SCROLLBAR (PAGE + DROPDOWNS + FULLSCREEN)
-========================= */
-
-*::-webkit-scrollbar,
-:fullscreen *::-webkit-scrollbar,
-:-webkit-full-screen *::-webkit-scrollbar {
-  width: 8px;
+/* Ensure html is never transparent */
+html {
+  background: #000;
 }
 
-*::-webkit-scrollbar-track,
-:fullscreen *::-webkit-scrollbar-track,
-:-webkit-full-screen *::-webkit-scrollbar-track {
-  background: transparent;
-  margin: 6px 0;
-}
-
-*::-webkit-scrollbar-thumb,
-:fullscreen *::-webkit-scrollbar-thumb,
-:-webkit-full-screen *::-webkit-scrollbar-thumb {
-  background: #ff8c00;
-  border-radius: 999px;
-}
-
-*::-webkit-scrollbar-thumb:hover,
-:fullscreen *::-webkit-scrollbar-thumb:hover,
-:-webkit-full-screen *::-webkit-scrollbar-thumb:hover {
-  background: #ffa333;
-}
-
-/* Firefox */
-*,
-:fullscreen *,
-:-moz-full-screen * {
-  scrollbar-width: thin;
-  scrollbar-color: #ff8c00 transparent;
+/* Fullscreen safety (prevents white fullscreen canvas in Chrome) */
+html:fullscreen,
+body:fullscreen,
+html:-webkit-full-screen,
+body:-webkit-full-screen {
+  background: #000 !important;
+  overflow: hidden;
 }
 
 /* =========================
    BACKGROUND LAYER
-=========================*/
+========================= */
 
 .page-bg {
   min-height: 100vh;
-  background: radial-gradient(circle at 50% 40%, #0a0a22 0%, #000 100%);
+  width: 100%;
   display: flex;
   flex-direction: column;
+
+  /* IMPORTANT: this is now the ONLY scroll container */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background: radial-gradient(
+    circle at 50% 40%,
+    #0a0a22 0%,
+    #000 100%
+  );
 }
 
 /* =========================
-   FULLSCREEN ROOT
+   SCROLLBAR (STABLE)
 ========================= */
-#fullscreen-root:fullscreen {
-  width: 100vw;
-  height: 100vh;
-  overflow-y: auto;
-  min-height: 100vh;
+
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-#fullscreen-root:-webkit-full-screen {
-  width: 100vw;
-  height: 100vh;
-  overflow-y: auto;
-  min-height: 100vh;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff8c00;
+  border-radius: 999px;
+  border: 2px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffa333;
+}
+
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-track-piece,
+::-webkit-resizer {
+  background: transparent;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ff8c00 transparent;
 }

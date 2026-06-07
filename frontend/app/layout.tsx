@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode;  
 }>) {
   return (
     <html
@@ -31,7 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {/* This div is what gets fullscreened — id="fullscreen-root" */}
-        <div id="fullscreen-root" className="page-bg" style={{ minHeight: "100vh", overflowY: "auto" }}>
+        <div className="page-bg" style={{ minHeight: "100vh", width: "100%"}}>
           {children}
         </div>
         <FullscreenPrompt />

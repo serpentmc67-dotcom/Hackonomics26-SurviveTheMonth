@@ -19,7 +19,7 @@ export default function FullscreenPrompt() {
   const goFullscreen = () => {
     setRetracting(true);
     setTimeout(() => {
-      document.getElementById("fullscreen-root")?.requestFullscreen?.();
+      document.documentElement.requestFullscreen();
     }, 400); // slight delay so retract animation plays first
   };
 

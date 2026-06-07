@@ -5,12 +5,15 @@ export default function FullscreenScrollbar() {
   useEffect(() => {
     const styleId = "fs-scrollbar-override";
 
-    const inject = () => {
-      document.getElementById(styleId)?.remove();
-      if (!document.fullscreenElement) return;
+    const applyStyles = () => {
+      let style = document.getElementById(styleId) as HTMLStyleElement | null;
 
-      const style = document.createElement("style");
-      style.id = styleId;
+      if (!style) {
+        style = document.createElement("style");
+        style.id = styleId;
+        document.head.appendChild(style);
+      }
+
       style.textContent = `
         ::-webkit-scrollbar { width: 8px !important; }
         ::-webkit-scrollbar-track { background: transparent !important; }
@@ -20,20 +23,14 @@ export default function FullscreenScrollbar() {
         ::-webkit-scrollbar-corner { background: transparent !important; }
         * { scrollbar-width: thin !important; scrollbar-color: #ff8c00 transparent !important; }
       `;
-      document.fullscreenElement.appendChild(style);
     };
 
-    const cleanup = () => document.getElementById(styleId)?.remove();
+    applyStyles();
 
-    const handler = () => {
-      if (document.fullscreenElement) inject();
-      else cleanup();
-    };
+    document.addEventListener("fullscreenchange", applyStyles);
 
-    document.addEventListener("fullscreenchange", handler);
     return () => {
-      document.removeEventListener("fullscreenchange", handler);
-      cleanup();
+      document.removeEventListener("fullscreenchange", applyStyles);
     };
   }, []);
 
