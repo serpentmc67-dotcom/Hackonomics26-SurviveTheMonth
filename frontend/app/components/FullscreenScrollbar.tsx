@@ -3,38 +3,36 @@ import { useEffect } from "react";
 
 export default function FullscreenScrollbar() {
   useEffect(() => {
-    const styleId = "fullscreen-scrollbar-style";
+    const styleId = "fs-scrollbar-override";
 
     const inject = () => {
       document.getElementById(styleId)?.remove();
-
       if (!document.fullscreenElement) return;
 
-      // Inject into <head> so it applies to everything inside fullscreen
       const style = document.createElement("style");
       style.id = styleId;
       style.textContent = `
         ::-webkit-scrollbar { width: 8px !important; }
-        ::-webkit-scrollbar-track { background: transparent !important; margin: 6px 0 !important; }
-        ::-webkit-scrollbar-thumb { background: #ff8c00 !important; border-radius: 999px !important; border: none !important; }
+        ::-webkit-scrollbar-track { background: transparent !important; }
+        ::-webkit-scrollbar-thumb { background: #ff8c00 !important; border-radius: 999px !important; }
         ::-webkit-scrollbar-thumb:hover { background: #ffa333 !important; }
-        ::-webkit-scrollbar-button { display: none !important; width: 0 !important; height: 0 !important; }
+        ::-webkit-scrollbar-button { display: none !important; }
         ::-webkit-scrollbar-corner { background: transparent !important; }
         * { scrollbar-width: thin !important; scrollbar-color: #ff8c00 transparent !important; }
       `;
-      document.head.appendChild(style);
+      document.fullscreenElement.appendChild(style);
     };
 
-    const cleanup = () => {
-      document.getElementById(styleId)?.remove();
-    };
+    const cleanup = () => document.getElementById(styleId)?.remove();
 
-    document.addEventListener("fullscreenchange", () => {
+    const handler = () => {
       if (document.fullscreenElement) inject();
       else cleanup();
-    });
+    };
 
+    document.addEventListener("fullscreenchange", handler);
     return () => {
+      document.removeEventListener("fullscreenchange", handler);
       cleanup();
     };
   }, []);
