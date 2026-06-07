@@ -4,6 +4,7 @@ import { Nunito, Fredoka, Poppins, Montserrat } from "next/font/google";
 import { useState } from "react";
 import { Info } from "lucide-react";
 import { User, Mail, Shield, AlertCircle, ArrowRight, Maximize2 } from "lucide-react";
+import Particles from "../components/Particles";
 
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
@@ -123,7 +124,10 @@ export default function RegistrationPage() {
         alignItems: 'center',
         justifyContent: 'center'
       }}
-    >      
+    >   
+
+    <Particles />   
+    
       {/* HEADER */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 className={fredoka.className} style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)', marginTop: '-1rem' }}>
