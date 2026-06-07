@@ -47,8 +47,8 @@ export default function FullscreenPrompt() {
           50% { transform: scale(1.07); }
         }
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateX(-40px); }
-          to { opacity: 1; transform: translateX(0); }
+          from { opacity: 0; transform: translateY(-50%) translateX(-40px); }
+          to { opacity: 1; transform: translateY(-50%) translateX(0); }
         }
         @keyframes retract {
           from { opacity: 1; transform: translateY(-50%) translateX(0); }
@@ -72,7 +72,6 @@ export default function FullscreenPrompt() {
           position: "fixed",
           left: "0",
           top: "50%",
-          transform: "translateY(-50%)",
           zIndex: 99998,
           cursor: "pointer",
           background: "linear-gradient(165deg, #ff9a2e 0%, #ff6500 55%, #e04d00 100%)",

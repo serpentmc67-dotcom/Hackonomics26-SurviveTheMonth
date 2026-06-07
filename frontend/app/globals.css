@@ -38,26 +38,41 @@ body {
 }
 
 /* =========================
-   SCROLLBAR (PAGE + DROPDOWNS)
+   SCROLLBAR (PAGE + DROPDOWNS + FULLSCREEN)
 ========================= */
 
-*::-webkit-scrollbar {
+*::-webkit-scrollbar,
+:fullscreen *::-webkit-scrollbar,
+:-webkit-full-screen *::-webkit-scrollbar {
   width: 8px;
 }
 
-/* Fake “triangle space” effect */
-*::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track,
+:fullscreen *::-webkit-scrollbar-track,
+:-webkit-full-screen *::-webkit-scrollbar-track {
   background: transparent;
-  margin: 6px 0; /* creates top + bottom spacing illusion */
+  margin: 6px 0;
 }
 
-*::-webkit-scrollbar-thumb {
-  background: rgba(255, 140, 0, 0.65);
+*::-webkit-scrollbar-thumb,
+:fullscreen *::-webkit-scrollbar-thumb,
+:-webkit-full-screen *::-webkit-scrollbar-thumb {
+  background: #ff8c00;
   border-radius: 999px;
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 140, 0, 0.85);
+*::-webkit-scrollbar-thumb:hover,
+:fullscreen *::-webkit-scrollbar-thumb:hover,
+:-webkit-full-screen *::-webkit-scrollbar-thumb:hover {
+  background: #ffa333;
+}
+
+/* Firefox */
+*,
+:fullscreen *,
+:-moz-full-screen * {
+  scrollbar-width: thin;
+  scrollbar-color: #ff8c00 transparent;
 }
 
 /* =========================
