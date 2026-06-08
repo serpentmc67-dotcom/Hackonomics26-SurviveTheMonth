@@ -6,36 +6,46 @@
 }
 
 /* =========================
-   1. CRITICAL ROOT LOCK
-   ========================= */
+   BASE RESET
+========================= */
 
-html {
-  /* Prevent the window itself from ever scrolling */
-  overflow: hidden !important; 
-  height: 100%;
-  background: #000;
-  /* Reserve scrollbar space to prevent layout shift "flicker" */
-  scrollbar-gutter: stable; 
-}
-
+html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
   background: #000;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  /* Only the body is allowed to scroll */
-  overflow-y: auto !important;
   overflow-x: hidden;
-  /* Smooth out font-related layout shifts */
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure solid background always exists */
+html {
+  background: #000;
+  scrollbar-gutter: auto;
 }
 
 /* =========================
-   2. UNIFIED SCROLLBAR STYLING
-   ========================= */
+   PAGE BACKGROUND
+========================= */
+
+.page-bg {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  background: radial-gradient(
+    circle at 50% 40%,
+    #0a0a22 0%,
+    #000 100%
+  );
+}
+
+/* =========================
+   SCROLLBAR (STABLE + NO FLASH)
+========================= */
 
 /* Firefox */
 * {
@@ -43,54 +53,119 @@ body {
   scrollbar-color: #ff8c00 transparent;
 }
 
-/* Webkit (Chrome, Safari, Edge) */
-/* We target ONLY the body to prevent ghost scrollbars on other elements */
-body::-webkit-scrollbar {
+/* Webkit Base Styles */
+::-webkit-scrollbar {
   width: 8px;
-}
-
-body::-webkit-scrollbar-track {
   background: transparent;
 }
 
-body::-webkit-scrollbar-thumb {
-  background: #ff8c00;
-  border-radius: 10px;
-  border: 2px solid #000; /* Creates a small gap around the thumb */
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-body::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb {
+  background: #ff8c00;
+  border-radius: 999px;
+  border: 2px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
   background: #ffa333;
 }
 
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-track-piece,
+::-webkit-scrollbar-resizer {
+  background: transparent;
+}
+
 /* =========================
-   3. FULLSCREEN & APP STABILITY
-   ========================= */
+   FULLSCREEN SCROLLBAR OVERRIDES
+   (Moved here to prevent flicker)
+========================= */
 
-.page-bg {
-  width: 100%;
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: radial-gradient(circle at 50% 40%, #0a0a22 0%, #000 100%);
+html:fullscreen::-webkit-scrollbar,
+body:fullscreen::-webkit-scrollbar,
+html:-webkit-full-screen::-webkit-scrollbar,
+body:-webkit-full-screen::-webkit-scrollbar {
+  width: 8px !important;
 }
 
-#fullscreen-root {
-  width: 100%;
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  /* Ensure this container doesn't create its own scrollbar */
-  overflow: visible; 
+html:fullscreen::-webkit-scrollbar-track,
+body:fullscreen::-webkit-scrollbar-track,
+html:-webkit-full-screen::-webkit-scrollbar-track,
+body:-webkit-full-screen::-webkit-scrollbar-track {
+  background: transparent !important;
 }
 
-/* Fullscreen API specific fixes */
-html:fullscreen, 
+html:fullscreen::-webkit-scrollbar-thumb,
+body:fullscreen::-webkit-scrollbar-thumb,
+html:-webkit-full-screen::-webkit-scrollbar-thumb,
+body:-webkit-full-screen::-webkit-scrollbar-thumb {
+  background: #ff8c00 !important;
+  border-radius: 999px !important;
+}
+
+html:fullscreen::-webkit-scrollbar-corner,
+body:fullscreen::-webkit-scrollbar-corner,
+html:-webkit-full-screen::-webkit-scrollbar-corner,
+body:-webkit-full-screen::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+
+/* =========================
+   FULLSCREEN STABILITY
+========================= */
+
+/* Fullscreen root */
+html:fullscreen,
 html:-webkit-full-screen {
-  overflow: hidden !important;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
 }
 
-html:fullscreen body, 
+/* Allow scrolling inside fullscreen */
+html:fullscreen body,
 html:-webkit-full-screen body {
-  overflow-y: auto !important;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #000;
+}
+
+/* Your app container */
+html:fullscreen #fullscreen-root,
+html:-webkit-full-screen #fullscreen-root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar inside specific fullscreen container */
+#fullscreen-root::-webkit-scrollbar {
+  width: 8px;
+}
+
+#fullscreen-root::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#fullscreen-root::-webkit-scrollbar-thumb {
+  background: #ff8c00;
+  border-radius: 999px;
+}
+
+#fullscreen-root::-webkit-scrollbar-thumb:hover {
+  background: #ffa333;
 }
