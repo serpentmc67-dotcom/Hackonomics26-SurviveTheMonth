@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import FullscreenPrompt from "./components/FullscreenPrompt";
-import FullscreenScrollbar from "./components/FullscreenScrollbar";
+//import FullscreenScrollbar from "./components/FullscreenScrollbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,13 +29,13 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full">
+      <body className="min-h-full overflow-hidden">
         {/* This div is what gets fullscreened — id="fullscreen-root" */}
         <div id="fullscreen-root" className="page-bg">
           {children}
         </div>
         <FullscreenPrompt />
-        <FullscreenScrollbar />
+        {/*<FullscreenScrollbar />*/}
       </body>
     </html>
   );

@@ -6,68 +6,36 @@
 }
 
 /* =========================
-   BASE RESET
-========================= */
+   1. CRITICAL ROOT LOCK
+   ========================= */
 
-html,
+html {
+  /* Prevent the window itself from ever scrolling */
+  overflow: hidden !important; 
+  height: 100%;
+  background: #000;
+  /* Reserve scrollbar space to prevent layout shift "flicker" */
+  scrollbar-gutter: stable; 
+}
+
 body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  height: 100%;
   background: #000;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Only the body is allowed to scroll */
+  overflow-y: auto !important;
   overflow-x: hidden;
-}
-
-html {
-  background: #000;
-}
-
-/* =========================
-   BACKGROUND LAYER
-========================= */
-
-.page-bg {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-
-  background: radial-gradient(
-    circle at 50% 40%,
-    #0a0a22 0%,
-    #000 100%
-  );
+  /* Smooth out font-related layout shifts */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* =========================
-   SCROLLBAR
-========================= */
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent !important;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #ff8c00;
-  border-radius: 999px;
-  border: 2px solid transparent;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ffa333;
-}
-
-::-webkit-scrollbar-corner,
-::-webkit-scrollbar-track-piece,
-::-webkit-resizer {
-  background: transparent !important;
-}
+   2. UNIFIED SCROLLBAR STYLING
+   ========================= */
 
 /* Firefox */
 * {
@@ -75,56 +43,54 @@ html {
   scrollbar-color: #ff8c00 transparent;
 }
 
-/* =========================
-   FULLSCREEN ROOT
-========================= */
-
-html:fullscreen,
-html:-webkit-full-screen {
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-html:fullscreen body,
-html:-webkit-full-screen body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-html:fullscreen #fullscreen-root,
-html:-webkit-full-screen #fullscreen-root {
-  width: 100%;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-/* Fullscreen scrollbar */
-
-#fullscreen-root:fullscreen::-webkit-scrollbar,
-#fullscreen-root:-webkit-full-screen::-webkit-scrollbar {
+/* Webkit (Chrome, Safari, Edge) */
+/* We target ONLY the body to prevent ghost scrollbars on other elements */
+body::-webkit-scrollbar {
   width: 8px;
 }
 
-#fullscreen-root:fullscreen::-webkit-scrollbar-track,
-#fullscreen-root:-webkit-full-screen::-webkit-scrollbar-track {
-  background: transparent !important;
+body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-#fullscreen-root:fullscreen::-webkit-scrollbar-thumb,
-#fullscreen-root:-webkit-full-screen::-webkit-scrollbar-thumb {
-  background: #ff8c00 !important;
-  border-radius: 999px;
+body::-webkit-scrollbar-thumb {
+  background: #ff8c00;
+  border-radius: 10px;
+  border: 2px solid #000; /* Creates a small gap around the thumb */
 }
 
-#fullscreen-root:fullscreen::-webkit-scrollbar-thumb:hover,
-#fullscreen-root:-webkit-full-screen::-webkit-scrollbar-thumb:hover {
-  background: #ffa333 !important;
+body::-webkit-scrollbar-thumb:hover {
+  background: #ffa333;
+}
+
+/* =========================
+   3. FULLSCREEN & APP STABILITY
+   ========================= */
+
+.page-bg {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% 40%, #0a0a22 0%, #000 100%);
+}
+
+#fullscreen-root {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* Ensure this container doesn't create its own scrollbar */
+  overflow: visible; 
+}
+
+/* Fullscreen API specific fixes */
+html:fullscreen, 
+html:-webkit-full-screen {
+  overflow: hidden !important;
+}
+
+html:fullscreen body, 
+html:-webkit-full-screen body {
+  overflow-y: auto !important;
 }
