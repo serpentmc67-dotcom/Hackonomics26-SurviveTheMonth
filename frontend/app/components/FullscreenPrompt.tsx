@@ -6,21 +6,49 @@ export default function FullscreenPrompt() {
   const [retracting, setRetracting] = useState(false);
 
   useEffect(() => {
+    let hideTimeout: ReturnType<typeof setTimeout>;
+
     const check = () => {
-      const full = !!document.fullscreenElement;
-      setIsFullscreen(full);
-      if (!full) setRetracting(false); // reset so button slides back in
+      const browserFullscreen =
+        window.innerHeight >= screen.height - 2 &&
+        window.innerWidth >= screen.width - 2;
+
+      const apiFullscreen = !!document.fullscreenElement;
+
+      const full = browserFullscreen || apiFullscreen;
+
+      if (full) {
+        setRetracting(true);
+
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+          setIsFullscreen(true);
+        }, 300);
+      } else {
+        clearTimeout(hideTimeout);
+        setIsFullscreen(false);
+        setRetracting(false);
+      }
     };
-    setIsFullscreen(!!document.fullscreenElement);
+
+    check();
+
+    window.addEventListener("resize", check);
     document.addEventListener("fullscreenchange", check);
-    return () => document.removeEventListener("fullscreenchange", check);
+
+    return () => {
+      clearTimeout(hideTimeout);
+      window.removeEventListener("resize", check);
+      document.removeEventListener("fullscreenchange", check);
+    };
   }, []);
 
   const goFullscreen = () => {
     setRetracting(true);
+
     setTimeout(() => {
       document.documentElement.requestFullscreen?.();
-    }, 400); // slight delay so retract animation plays first
+    }, 300);
   };
 
   if (isFullscreen && !retracting) return null;
@@ -42,30 +70,49 @@ export default function FullscreenPrompt() {
               0 0 90px 35px rgba(255,80,0,0.15);
           }
         }
+
         @keyframes popPulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.07); }
         }
+
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(-50%) translateX(-40px); }
-          to { opacity: 1; transform: translateY(-50%) translateX(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-50%) translateX(-40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+          }
         }
+
         @keyframes retract {
-          from { opacity: 1; transform: translateY(-50%) translateX(0); }
-          to { opacity: 0; transform: translateY(-50%) translateX(-60px); }
+          from {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-50%) translateX(-60px);
+          }
         }
+
         .fs-pill {
           animation:
             fadeSlideIn 0.7s cubic-bezier(0.22,1,0.36,1) forwards,
             pulseGlow 2.5s ease-in-out 0.7s infinite;
         }
+
         .fs-pill-retract {
-          animation: retract 0.4s cubic-bezier(0.4,0,1,1) forwards !important;
+          animation: retract 0.3s cubic-bezier(0.4,0,1,1) forwards !important;
         }
-        .fs-pop { animation: popPulse 2s ease-in-out infinite; }
+
+        .fs-pop {
+          animation: popPulse 2s ease-in-out infinite;
+        }
       `}</style>
 
-      {/* Button — vertically centered, this is the priority */}
       <div
         className={`fs-pill${retracting ? " fs-pill-retract" : ""}`}
         style={{
@@ -74,7 +121,8 @@ export default function FullscreenPrompt() {
           top: "50%",
           zIndex: 99998,
           cursor: "pointer",
-          background: "linear-gradient(165deg, #ff9a2e 0%, #ff6500 55%, #e04d00 100%)",
+          background:
+            "linear-gradient(165deg, #ff9a2e 0%, #ff6500 55%, #e04d00 100%)",
           borderRadius: "0 18px 18px 0",
           width: "52px",
           padding: "18px 0",
@@ -121,7 +169,6 @@ export default function FullscreenPrompt() {
           Go Fullscreen
         </div>
       </div>
-
     </>
   );
 }
