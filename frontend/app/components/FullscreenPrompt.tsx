@@ -1,54 +1,77 @@
 'use client';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function FullscreenPrompt() {
-  const [isFullscreen, setIsFullscreen] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [retracting, setRetracting] = useState(false);
 
-  useEffect(() => {
-    let hideTimeout: ReturnType<typeof setTimeout>;
+  const wasFullscreen = useRef(false);
 
-    const check = () => {
-      const browserFullscreen =
+  useEffect(() => {
+    let enterTimeout: NodeJS.Timeout | null = null;
+    let animTimeout: NodeJS.Timeout | null = null;
+
+    const isBrowserFullscreen = () => {
+      const api =
+        !!document.fullscreenElement ||
+        !!(document as any).webkitFullscreenElement;
+
+      const f11 =
         window.innerHeight >= screen.height - 2 &&
         window.innerWidth >= screen.width - 2;
 
-      const apiFullscreen = !!document.fullscreenElement;
+      return api || f11;
+    };
 
-      const full = browserFullscreen || apiFullscreen;
+    const update = () => {
+      const now = isBrowserFullscreen();
+      const prev = wasFullscreen.current;
 
-      if (full) {
-        setRetracting(true);
+      if (!prev && now) {
+        enterTimeout = setTimeout(() => {
+          setRetracting(true);
 
-        clearTimeout(hideTimeout);
-        hideTimeout = setTimeout(() => {
-          setIsFullscreen(true);
+          animTimeout = setTimeout(() => {
+            setIsFullscreen(true);
+            setRetracting(false);
+          }, 250);
         }, 300);
-      } else {
-        clearTimeout(hideTimeout);
+      }
+
+      if (prev && !now) {
+        if (enterTimeout) clearTimeout(enterTimeout);
+        if (animTimeout) clearTimeout(animTimeout);
+
         setIsFullscreen(false);
         setRetracting(false);
       }
+
+      if (!prev && !now) {
+        setIsFullscreen(false);
+      }
+
+      wasFullscreen.current = now;
     };
 
-    check();
+    update();
 
-    window.addEventListener("resize", check);
-    document.addEventListener("fullscreenchange", check);
+    document.addEventListener("fullscreenchange", update);
+    window.addEventListener("resize", update);
 
     return () => {
-      clearTimeout(hideTimeout);
-      window.removeEventListener("resize", check);
-      document.removeEventListener("fullscreenchange", check);
+      document.removeEventListener("fullscreenchange", update);
+      window.removeEventListener("resize", update);
+
+      if (enterTimeout) clearTimeout(enterTimeout);
+      if (animTimeout) clearTimeout(animTimeout);
     };
   }, []);
 
   const goFullscreen = () => {
-    setRetracting(true);
+    // ❌ REMOVED: setRetracting(true)
+    // ❌ REMOVED: all timers that fake animation timing
 
-    setTimeout(() => {
-      document.documentElement.requestFullscreen?.();
-    }, 300);
+    document.documentElement.requestFullscreen?.();
   };
 
   if (isFullscreen && !retracting) return null;
@@ -77,35 +100,23 @@ export default function FullscreenPrompt() {
         }
 
         @keyframes fadeSlideIn {
-          from {
-            opacity: 0;
-            transform: translateY(-50%) translateX(-40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(-50%) translateX(0);
-          }
+          from { opacity: 0; transform: translateY(-50%) translateX(-40px); }
+          to { opacity: 1; transform: translateY(-50%) translateX(0); }
         }
 
         @keyframes retract {
-          from {
-            opacity: 1;
-            transform: translateY(-50%) translateX(0);
-          }
-          to {
-            opacity: 0;
-            transform: translateY(-50%) translateX(-60px);
-          }
+          from { opacity: 1; transform: translateY(-50%) translateX(0); }
+          to { opacity: 0; transform: translateY(-50%) translateX(-60px); }
         }
 
         .fs-pill {
           animation:
-            fadeSlideIn 0.7s cubic-bezier(0.22,1,0.36,1) forwards,
-            pulseGlow 2.5s ease-in-out 0.7s infinite;
+            fadeSlideIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards,
+            pulseGlow 2.5s ease-in-out 0.6s infinite;
         }
 
         .fs-pill-retract {
-          animation: retract 0.3s cubic-bezier(0.4,0,1,1) forwards !important;
+          animation: retract 0.25s cubic-bezier(0.4,0,1,1) forwards !important;
         }
 
         .fs-pop {
@@ -121,8 +132,7 @@ export default function FullscreenPrompt() {
           top: "50%",
           zIndex: 99998,
           cursor: "pointer",
-          background:
-            "linear-gradient(165deg, #ff9a2e 0%, #ff6500 55%, #e04d00 100%)",
+          background: "linear-gradient(165deg, #ff9a2e 0%, #ff6500 55%, #e04d00 100%)",
           borderRadius: "0 18px 18px 0",
           width: "52px",
           padding: "18px 0",
