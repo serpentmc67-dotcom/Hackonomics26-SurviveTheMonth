@@ -22,6 +22,24 @@ export default function RegistrationPage() {
   
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+
+      if (username.length < 6) {
+    setError("Username must be at least 3 characters.");
+    return;
+  }
+  if (username.length > 20) {
+    setError("Username must be 20 characters or less.");
+    return;
+  }
+  if (password.length < 8) {
+    setError("Password must be at least 8 characters.");
+    return;
+  }
+  if (password.length > 20) {
+    setError("Password must be 64 characters or less.");
+    return;
+  }
+
     setError("502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist.");
   };
   
@@ -254,6 +272,8 @@ export default function RegistrationPage() {
                   style={inputStyle}
                   placeholder="FinanceMaster42"
                   value={username}
+                  minLength={6}
+                  maxLength={20}
                   onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
@@ -266,6 +286,8 @@ export default function RegistrationPage() {
               type="password"
               placeholder="Enter Your Password"
               value={password}
+              minLength={8}
+              maxLength={20}
               onChange={(e) => setPassword(e.target.value)}
             />
 
