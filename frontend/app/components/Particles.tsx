@@ -23,7 +23,7 @@ export default function Particles() {
         left: ${Math.random() * 100}%;
         background: ${color};
         box-shadow: 0 0 ${size * 2}px ${size}px ${color}88;
-        animation: particleFloat ${3 + Math.random() * 4}s ${Math.random() * 5}s linear infinite;
+        animation: particleFloat ${3 + Math.random() * 4}s ${Math.random() * 5}s linear  infinite;
         pointer-events: none;
       `;
       container.appendChild(p);
@@ -44,7 +44,7 @@ export default function Particles() {
       <div
         id="particles-container"
         style={{
-          position: "fixed",
+          position: "absolute",
           inset: 0,
           pointerEvents: "none",
           zIndex: 0,
