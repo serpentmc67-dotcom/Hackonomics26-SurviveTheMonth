@@ -1,10 +1,16 @@
 'use client';
 
 import { Nunito, Fredoka, Poppins, Montserrat } from "next/font/google";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Info } from "lucide-react";
 import { User, Mail, Shield, AlertCircle, ArrowRight, Maximize2 } from "lucide-react";
 import Particles from "../components/Particles";
+import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from "obscenity";
+
+const matcher = new RegExpMatcher({
+  ...englishDataset.build(),
+  ...englishRecommendedTransformers,
+});
 
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
@@ -23,10 +29,35 @@ export default function RegistrationPage() {
     password: [] as string[],
     school: [] as string[],
     server: [] as string[],
-  }); 
+  });
+  const [showProfanityToast, setShowProfanityToast] = useState(false);
+  // Lock scroll and capture viewport center when toast opens
+  useEffect(() => {
+    if (showProfanityToast) {
+      const scrollY = window.scrollY;
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    } else {
+      // Restore scroll position
+      const scrollY = parseInt(document.body.style.top || "0") * -1;
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollY);
+    }
+  }, [showProfanityToast]);
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check profanity first — show toast and block immediately
+    if (matcher.hasMatch(username)) {
+      setShowProfanityToast(true);
+      return;
+    }
 
     const newErrors = {
       username: [] as string[],
@@ -35,42 +66,17 @@ export default function RegistrationPage() {
       server: [] as string[],
     };
 
-    // Username validation
-    if (username.length < 6)
-      newErrors.username.push("Must be at least 6 characters.");
+    if (username.length < 6) newErrors.username.push("Must be at least 6 characters.");
+    if (username.length > 20) newErrors.username.push("Must be 20 characters or less.");
+    if (password.length < 8) newErrors.password.push("Must be at least 8 characters.");
+    if (password.length > 20) newErrors.password.push("Must be 20 characters or less.");
+    if (!/[A-Z]/.test(password)) newErrors.password.push("Must contain at least 1 uppercase letter.");
+    if (!/[a-z]/.test(password)) newErrors.password.push("Must contain at least 1 lowercase letter.");
+    if (!/[0-9]/.test(password)) newErrors.password.push("Must contain at least 1 number.");
+    if (!/[^A-Za-z0-9]/.test(password)) newErrors.password.push("Must contain at least 1 special character (e.g. !@#$%).");
+    if (!school) newErrors.school.push("Please select your school.");
 
-    if (username.length > 20)
-      newErrors.username.push("Must be 20 characters or less.");
-
-    // Password validation
-    if (password.length < 8)
-      newErrors.password.push("Must be at least 8 characters.");
-
-    if (password.length > 20)
-      newErrors.password.push("Must be 20 characters or less.");
-
-    if (!/[A-Z]/.test(password))
-      newErrors.password.push("Must contain at least 1 uppercase letter.");
-
-    if (!/[a-z]/.test(password))
-      newErrors.password.push("Must contain at least 1 lowercase letter.");
-
-    if (!/[0-9]/.test(password))
-      newErrors.password.push("Must contain at least 1 number.");
-
-    if (!/[^A-Za-z0-9]/.test(password))
-      newErrors.password.push(
-        "Must contain at least 1 special character (e.g. !@#$%)."
-      );
-
-    // School validation
-    if (!school)
-      newErrors.school.push("Please select your school.");
-
-    const hasErrors = Object.values(newErrors).some(
-      arr => arr.length > 0
-    );
-
+    const hasErrors = Object.values(newErrors).some(arr => arr.length > 0);
     if (hasErrors) {
       setErrors(newErrors);
       return;
@@ -80,12 +86,10 @@ export default function RegistrationPage() {
       username: [],
       password: [],
       school: [],
-      server: [
-        "502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist."
-      ],
+      server: ["502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist."],
     });
   };
-  
+
   const sectionStyle = {
     marginBottom: '2.5rem',
     width: '100%',
@@ -157,7 +161,7 @@ export default function RegistrationPage() {
   };
 
   return (
-  <main 
+  <main
     className={`${nunito.className} register-page`}
     style={{
       minHeight: '100vh',
@@ -206,6 +210,11 @@ export default function RegistrationPage() {
         70%  { transform: scale(1.08) translateY(-4px); }
         100% { opacity: 1; transform: scale(1) translateY(0); }
       }
+      @keyframes toastPop {
+        0%   { opacity: 0; transform: scale(0.85); }
+        70%  { transform: scale(1.03); }
+        100% { opacity: 1; transform: scale(1); }
+      }
       .anim-title    { animation: registerPop 0.9s 0.1s cubic-bezier(.4,2,.6,1) both; }
       .anim-glow     { animation: glowPulse 2.5s 1s ease infinite; }
       .anim-subtitle { animation: fadeDown 0.8s 0.35s ease both; }
@@ -226,9 +235,114 @@ export default function RegistrationPage() {
         z-index: 0;
       }
       .shimmer-card > * { position: relative; z-index: 1; }
+      .profanity-toast {
+        animation: toastPop 0.4s cubic-bezier(.4,2,.6,1) both;
+      }
+      ${showProfanityToast ? `
+        ::-webkit-scrollbar-thumb { background: #555 !important; }
+        ::-webkit-scrollbar-thumb:hover { background: #666 !important; }
+        * { scrollbar-color: #555 transparent !important; }
+        .fs-pill { filter: grayscale(100%) brightness(0.5) !important; pointer-events: none !important; }
+      ` : ''}
     `}</style>
 
     <Particles />
+
+    {/* PROFANITY TOAST OVERLAY */}
+    {showProfanityToast && (
+      <div
+        onClick={() => setShowProfanityToast(false)}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 99999,
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          background: 'rgba(0, 0, 0, 0.72)',
+        }}
+      >
+        <div
+          className="profanity-toast"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: 'fixed',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(255, 40, 40, 0.12)',
+            border: '1px solid rgba(255, 80, 80, 0.35)',
+            boxShadow: `
+              0 0 18px rgba(255, 60, 60, 0.25),
+              0 0 35px rgba(255, 0, 0, 0.15),
+              0 20px 60px rgba(0,0,0,0.6)
+            `,
+            borderRadius: '20px',
+            padding: '2rem 2.5rem',
+            maxWidth: '420px',
+            width: '90vw',
+            textAlign: 'center',
+            color: '#ff6b6b',
+          }}
+        >
+          {/* Error code label */}
+          <div style={{
+            fontSize: '0.7rem',
+            fontWeight: '800',
+            letterSpacing: '2.5px',
+            textTransform: 'uppercase',
+            color: '#ff9a9a',
+            textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
+            marginBottom: '0.6rem',
+          }}>
+            Error Code 420
+          </div>
+
+          {/* Icon */}
+          <div style={{ fontSize: '2.8rem', marginBottom: '0.75rem', lineHeight: 1 }}>🚫</div>
+
+          {/* Main message */}
+          <div style={{
+            fontSize: '1.3rem',
+            fontWeight: '800',
+            color: '#ff9a9a',
+            textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
+            marginBottom: '0.5rem',
+            letterSpacing: '0.5px',
+          }}>
+            No Profanity.
+          </div>
+
+          <div style={{
+            fontSize: '0.9rem',
+            color: 'rgba(255, 150, 150, 0.8)',
+            lineHeight: '1.5',
+            marginBottom: '1.5rem',
+          }}>
+            Your username contains inappropriate language. Please choose a different username.
+          </div>
+
+          {/* Dismiss button */}
+          <button
+            onClick={() => setShowProfanityToast(false)}
+            style={{
+              background: 'rgba(255, 80, 80, 0.2)',
+              border: '1px solid rgba(255, 80, 80, 0.4)',
+              borderRadius: '12px',
+              padding: '0.7rem 2rem',
+              color: '#ff9a9a',
+              fontSize: '0.9rem',
+              fontWeight: '700',
+              cursor: 'pointer',
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              transition: 'background 0.2s',
+            }}
+          >
+            Got It
+          </button>
+        </div>
+      </div>
+    )}
 
       {/* HEADER */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -238,7 +352,7 @@ export default function RegistrationPage() {
         >
           Register
         </h1>
-        
+
         <p className="anim-subtitle" style={{ color: 'rgb(173, 101, 13)', letterSpacing: '4.5px', textTransform: 'uppercase', fontSize: '1rem', marginTop: '-0.5rem', fontWeight: '700', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
           Already Have An Account? <strong> Sign In. </strong>
         </p>
@@ -385,10 +499,7 @@ export default function RegistrationPage() {
                   gap: "0.8rem",
                   background: "rgba(255, 40, 40, 0.12)",
                   border: "1px solid rgba(255, 80, 80, 0.35)",
-                  boxShadow: `
-                    0 0 18px rgba(255, 60, 60, 0.25),
-                    0 0 35px rgba(255, 0, 0, 0.15)
-                  `,
+                  boxShadow: `0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15)`,
                   padding: "1rem",
                   borderRadius: "12px",
                   color: "#ff6b6b",
@@ -396,108 +507,46 @@ export default function RegistrationPage() {
                   marginBottom: "1.25rem",
                 }}
               >
-
                 {errors.username.length > 0 && (
                   <div>
-                    <strong
-                      style={{
-                        color: "#ff9a9a",
-                        textShadow: `
-                          0 0 8px rgba(255, 80, 80, 0.8),
-                          0 0 18px rgba(255, 0, 0, 0.45)
-                        `,
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      USERNAME
-                    </strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>USERNAME</strong>
                     {errors.username.map((err, i) => (
-                      <div key={i} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        marginTop: "0.35rem"
-                      }}>
-                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                        {err}
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
                       </div>
                     ))}
                   </div>
                 )}
-
                 {errors.password.length > 0 && (
                   <div>
-                    <strong
-                      style={{
-                        color: "#ff9a9a",
-                        textShadow: `
-                          0 0 8px rgba(255, 80, 80, 0.8),
-                          0 0 18px rgba(255, 0, 0, 0.45)
-                        `,
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      PASSWORD
-                    </strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>PASSWORD</strong>
                     {errors.password.map((err, i) => (
-                      <div key={i} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        marginTop: "0.35rem"
-                      }}>
-                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                        {err}
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
                       </div>
                     ))}
                   </div>
                 )}
-
                 {errors.school.length > 0 && (
                   <div>
-                    <strong
-                      style={{
-                        color: "#ff9a9a",
-                        textShadow: `
-                          0 0 8px rgba(255, 80, 80, 0.8),
-                          0 0 18px rgba(255, 0, 0, 0.45)
-                        `,
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      SCHOOL
-                    </strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>SCHOOL</strong>
                     {errors.school.map((err, i) => (
-                      <div key={i} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        marginTop: "0.35rem"
-                      }}>
-                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                        {err}
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
                       </div>
                     ))}
                   </div>
                 )}
-
                 {errors.server.length > 0 && (
                   <div>
-                    <strong>SERVER</strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>SERVER</strong>
                     {errors.server.map((err, i) => (
-                      <div key={i} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        marginTop: "0.35rem"
-                      }}>
-                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                        {err}
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
                       </div>
                     ))}
                   </div>
                 )}
-
               </div>
             )}
 
