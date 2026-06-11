@@ -18,29 +18,25 @@ export default function RegistrationPage() {
   const [schoolOpen, setSchoolOpen] = useState(false);
   const schools = [{ value: "beta-testers", label: "Beta Testers", disabled: false }, { value: "cox-mill", label: "Cox Mill High School", disabled: true }, { value: "ecot", label: "Early College of Technology", disabled: true }, { value: "ec", label: "Early College", disabled: true }, { value: "ecohs", label: "Early College Of Health Sciences", disabled: true }];
   const [adminCode, setAdminCode] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
   
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
 
-      if (username.length < 6) {
-    setError("Username must be at least 3 characters.");
-    return;
-  }
-  if (username.length > 20) {
-    setError("Username must be 20 characters or less.");
-    return;
-  }
-  if (password.length < 8) {
-    setError("Password must be at least 8 characters.");
-    return;
-  }
-  if (password.length > 20) {
-    setError("Password must be 64 characters or less.");
-    return;
-  }
+    const newErrors: string[] = [];
 
-    setError("502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist.");
+    if (username.length < 6) newErrors.push("Username must be at least 6 characters.");
+    if (username.length > 20) newErrors.push("Username must be 20 characters or less.");
+    if (password.length < 8) newErrors.push("Password must be at least 8 characters.");
+    if (password.length > 20) newErrors.push("Password must be 20 characters or less.");
+    if (!school) newErrors.push("Please select your school.");
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors(["502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist."]);
   };
   
   const sectionStyle = {
@@ -129,18 +125,10 @@ export default function RegistrationPage() {
 
     <style>{`
       @keyframes pageFadeIn {
-        from {
-      opacity: 0;
-      transform: translateY(18px);
-        }
-        to {
-      opacity: 1;
-      transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
       }
-      .register-page {
-        animation: pageFadeIn 0.8s ease-out both;
-      }
+      .register-page { animation: pageFadeIn 0.8s ease-out both; }
       @keyframes fadeDown {
         from { opacity: 0; transform: translateY(20px); }
         to   { opacity: 1; transform: translateY(0); }
@@ -166,7 +154,6 @@ export default function RegistrationPage() {
         from { opacity: 0; transform: scaleX(0); transform-origin: left; }
         to   { opacity: 1; transform: scaleX(1); transform-origin: left; }
       }
-
       @keyframes registerPop {
         0%   { opacity: 0; transform: scale(0.6) translateY(30px); }
         70%  { transform: scale(1.08) translateY(-4px); }
@@ -179,7 +166,6 @@ export default function RegistrationPage() {
       .anim-card     { animation: cardUp  0.8s 0.65s ease both; }
       .anim-warn     { animation: warnFade 0.7s 0.85s ease both; }
       .anim-btn      { animation: fadeDown 0.7s 1.05s ease both; }
-
       .shimmer-card  { position: relative; overflow: hidden; }
       .shimmer-card::before {
         content: '';
@@ -192,7 +178,7 @@ export default function RegistrationPage() {
         border-radius: 24px;
         z-index: 0;
       }
-      .shimmer-card > * { position: relative; z-index: 1; } 
+      .shimmer-card > * { position: relative; z-index: 1; }
     `}</style>
 
     <Particles />
@@ -263,7 +249,7 @@ export default function RegistrationPage() {
             </div>
           </div>
 
-          <form onSubmit={handleRegister}>
+          <form onSubmit={handleRegister} noValidate>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}><User size={14} /> Username</label>
@@ -272,7 +258,6 @@ export default function RegistrationPage() {
                   style={inputStyle}
                   placeholder="FinanceMaster42"
                   value={username}
-                  minLength={6}
                   maxLength={20}
                   onChange={(e) => setUsername(e.target.value)}
                 />
@@ -286,7 +271,6 @@ export default function RegistrationPage() {
               type="password"
               placeholder="Enter Your Password"
               value={password}
-              minLength={8}
               maxLength={20}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -346,20 +330,24 @@ export default function RegistrationPage() {
               )}
             </div>
 
-            {error && (
+            {errors.length > 0 && (
               <div style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                display: 'flex', flexDirection: 'column', gap: '0.4rem',
                 background: 'rgba(255, 82, 82, 0.1)', border: '1px solid rgba(255, 82, 82, 0.3)',
                 padding: '1rem', borderRadius: '12px', color: '#ff5252', fontSize: '0.9rem', marginBottom: '1.25rem'
               }}>
-                <AlertCircle size={16} style={{ flexShrink: 0 }} /> {error}
+                {errors.map((err, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
+                  </div>
+                ))}
               </div>
             )}
 
             <button
               type="submit"
               className="register-btn anim-btn"
-              style={{...primaryButtonStyle, marginTop: '2rem'}}
+              style={{...primaryButtonStyle, marginTop: '0'}}
             >
               LET'S PLAY <ArrowRight size={20} />
             </button>
