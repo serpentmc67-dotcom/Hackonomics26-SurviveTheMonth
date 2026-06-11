@@ -18,25 +18,72 @@ export default function RegistrationPage() {
   const [schoolOpen, setSchoolOpen] = useState(false);
   const schools = [{ value: "beta-testers", label: "Beta Testers", disabled: false }, { value: "cox-mill", label: "Cox Mill High School", disabled: true }, { value: "ecot", label: "Early College of Technology", disabled: true }, { value: "ec", label: "Early College", disabled: true }, { value: "ecohs", label: "Early College Of Health Sciences", disabled: true }];
   const [adminCode, setAdminCode] = useState("");
-  const [errors, setErrors] = useState<string[]>([]);
-  
+  const [errors, setErrors] = useState({
+    username: [] as string[],
+    password: [] as string[],
+    school: [] as string[],
+    server: [] as string[],
+  }); 
+
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newErrors: string[] = [];
+    const newErrors = {
+      username: [] as string[],
+      password: [] as string[],
+      school: [] as string[],
+      server: [] as string[],
+    };
 
-    if (username.length < 6) newErrors.push("Username must be at least 6 characters.");
-    if (username.length > 20) newErrors.push("Username must be 20 characters or less.");
-    if (password.length < 8) newErrors.push("Password must be at least 8 characters.");
-    if (password.length > 20) newErrors.push("Password must be 20 characters or less.");
-    if (!school) newErrors.push("Please select your school.");
+    // Username validation
+    if (username.length < 6)
+      newErrors.username.push("Must be at least 6 characters.");
 
-    if (newErrors.length > 0) {
+    if (username.length > 20)
+      newErrors.username.push("Must be 20 characters or less.");
+
+    // Password validation
+    if (password.length < 8)
+      newErrors.password.push("Must be at least 8 characters.");
+
+    if (password.length > 20)
+      newErrors.password.push("Must be 20 characters or less.");
+
+    if (!/[A-Z]/.test(password))
+      newErrors.password.push("Must contain at least 1 uppercase letter.");
+
+    if (!/[a-z]/.test(password))
+      newErrors.password.push("Must contain at least 1 lowercase letter.");
+
+    if (!/[0-9]/.test(password))
+      newErrors.password.push("Must contain at least 1 number.");
+
+    if (!/[^A-Za-z0-9]/.test(password))
+      newErrors.password.push(
+        "Must contain at least 1 special character (e.g. !@#$%)."
+      );
+
+    // School validation
+    if (!school)
+      newErrors.school.push("Please select your school.");
+
+    const hasErrors = Object.values(newErrors).some(
+      arr => arr.length > 0
+    );
+
+    if (hasErrors) {
       setErrors(newErrors);
       return;
     }
 
-    setErrors(["502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist."]);
+    setErrors({
+      username: [],
+      password: [],
+      school: [],
+      server: [
+        "502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist."
+      ],
+    });
   };
   
   const sectionStyle = {
@@ -330,17 +377,127 @@ export default function RegistrationPage() {
               )}
             </div>
 
-            {errors.length > 0 && (
-              <div style={{
-                display: 'flex', flexDirection: 'column', gap: '0.4rem',
-                background: 'rgba(255, 82, 82, 0.1)', border: '1px solid rgba(255, 82, 82, 0.3)',
-                padding: '1rem', borderRadius: '12px', color: '#ff5252', fontSize: '0.9rem', marginBottom: '1.25rem'
-              }}>
-                {errors.map((err, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
+            {Object.values(errors).some(arr => arr.length > 0) && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.8rem",
+                  background: "rgba(255, 40, 40, 0.12)",
+                  border: "1px solid rgba(255, 80, 80, 0.35)",
+                  boxShadow: `
+                    0 0 18px rgba(255, 60, 60, 0.25),
+                    0 0 35px rgba(255, 0, 0, 0.15)
+                  `,
+                  padding: "1rem",
+                  borderRadius: "12px",
+                  color: "#ff6b6b",
+                  fontSize: "0.9rem",
+                  marginBottom: "1.25rem",
+                }}
+              >
+
+                {errors.username.length > 0 && (
+                  <div>
+                    <strong
+                      style={{
+                        color: "#ff9a9a",
+                        textShadow: `
+                          0 0 8px rgba(255, 80, 80, 0.8),
+                          0 0 18px rgba(255, 0, 0, 0.45)
+                        `,
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      USERNAME
+                    </strong>
+                    {errors.username.map((err, i) => (
+                      <div key={i} style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        marginTop: "0.35rem"
+                      }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        {err}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {errors.password.length > 0 && (
+                  <div>
+                    <strong
+                      style={{
+                        color: "#ff9a9a",
+                        textShadow: `
+                          0 0 8px rgba(255, 80, 80, 0.8),
+                          0 0 18px rgba(255, 0, 0, 0.45)
+                        `,
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      PASSWORD
+                    </strong>
+                    {errors.password.map((err, i) => (
+                      <div key={i} style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        marginTop: "0.35rem"
+                      }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        {err}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {errors.school.length > 0 && (
+                  <div>
+                    <strong
+                      style={{
+                        color: "#ff9a9a",
+                        textShadow: `
+                          0 0 8px rgba(255, 80, 80, 0.8),
+                          0 0 18px rgba(255, 0, 0, 0.45)
+                        `,
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      SCHOOL
+                    </strong>
+                    {errors.school.map((err, i) => (
+                      <div key={i} style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        marginTop: "0.35rem"
+                      }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        {err}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {errors.server.length > 0 && (
+                  <div>
+                    <strong>SERVER</strong>
+                    {errors.server.map((err, i) => (
+                      <div key={i} style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        marginTop: "0.35rem"
+                      }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        {err}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
               </div>
             )}
 
