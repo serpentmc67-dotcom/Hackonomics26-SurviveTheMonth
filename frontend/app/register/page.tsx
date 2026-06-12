@@ -1,9 +1,8 @@
 'use client';
 
 import { Nunito, Fredoka, Poppins, Montserrat } from "next/font/google";
-import { useState, useEffect, useRef } from "react";
-import { Info } from "lucide-react";
-import { User, Mail, Shield, AlertCircle, ArrowRight, Maximize2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Info, User, Mail, Shield, AlertCircle, ArrowRight } from "lucide-react";
 import Particles from "../components/Particles";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from "obscenity";
 
@@ -14,23 +13,35 @@ const matcher = new RegExpMatcher({
 
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
-const poppins = Poppins({ subsets: ["latin"], weight: ["500", "600", "700"] });
-const montserrat = Montserrat({ subsets: ["latin"], weight: ["500", "600", "700"] });
 
 export default function RegistrationPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [school, setSchool] = useState("");
   const [schoolOpen, setSchoolOpen] = useState(false);
-  const schools = [{ value: "beta-testers", label: "Beta Testers", disabled: false }, { value: "cox-mill", label: "Cox Mill High School", disabled: true }, { value: "ecot", label: "Early College of Technology", disabled: true }, { value: "ec", label: "Early College", disabled: true }, { value: "ecohs", label: "Early College Of Health Sciences", disabled: true }];
   const [adminCode, setAdminCode] = useState("");
+  
+  // States for tracking admin logs and the modal view
+  const [logs, setLogs] = useState<any[]>([]);
+  const [showLogsModal, setShowLogsModal] = useState(false);
+
+  const schools = [
+    { value: "beta-testers", label: "Beta Testers", disabled: false }, 
+    { value: "cox-mill", label: "Cox Mill High School", disabled: true }, 
+    { value: "ecot", label: "Early College of Technology", disabled: true }, 
+    { value: "ec", label: "Early College", disabled: true }, 
+    { value: "ecohs", label: "Early College Of Health Sciences", disabled: true }
+  ];
+
   const [errors, setErrors] = useState({
     username: [] as string[],
     password: [] as string[],
     school: [] as string[],
     server: [] as string[],
   });
+
   const [showProfanityToast, setShowProfanityToast] = useState(false);
+
   // Lock scroll and capture viewport center when toast opens
   useEffect(() => {
     if (showProfanityToast) {
@@ -50,7 +61,8 @@ export default function RegistrationPage() {
     }
   }, [showProfanityToast]);
 
-  const handleRegister = (e: React.FormEvent) => {
+  // Handle actual backend registration submission
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Check profanity first — show toast and block immediately
@@ -82,14 +94,62 @@ export default function RegistrationPage() {
       return;
     }
 
-    setErrors({
-      username: [],
-      password: [],
-      school: [],
-      server: ["502 Bad Gateway. The Backend Isn't Connected/Doesn't Exist."],
-    });
+    try {
+      // Connect to Node/Express backend
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, school }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors({
+          username: [], password: [], school: [],
+          server: [data.message || "Registration failed."],
+        });
+      } else {
+        setErrors({ username: [], password: [], school: [], server: [] });
+        alert("Registration successful! Welcome to the Financial Simulation.");
+        // Optional: Redirect user to game screen here
+      }
+    } catch (err) {
+      setErrors({
+        username: [], password: [], school: [],
+        server: ["Could not connect to the backend. Please check if your Express server is running on port 5000."],
+      });
+    }
   };
 
+  // Pull system logs from server using the secret access key
+  const handleFetchLogs = async () => {
+    if (!adminCode) {
+      alert("Please enter an access code.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/admin/logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secretCode: adminCode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Access Denied.");
+      } else {
+        setLogs(data.logs);
+        setShowLogsModal(true);
+      }
+    } catch (err) {
+      alert("Error reaching the backend administration route.");
+    }
+  };
+
+  // UI Styles object maps
   const sectionStyle = {
     marginBottom: '2.5rem',
     width: '100%',
@@ -161,188 +221,177 @@ export default function RegistrationPage() {
   };
 
   return (
-  <main
-    className={`${nunito.className} register-page`}
-    style={{
-      minHeight: '100vh',
-      color: 'white',
-      padding: '3rem 1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}
-  >
+    <main
+      className={`${nunito.className} register-page`}
+      style={{
+        minHeight: '100vh',
+        color: 'white',
+        padding: '3rem 1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <style>{`
+        @keyframes pageFadeIn {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .register-page { animation: pageFadeIn 0.8s ease-out both; }
+        @keyframes fadeDown {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes cardUp {
+          from { opacity: 0; transform: translateY(36px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+          0%   { transform: translateX(-100%); }
+          60%  { transform: translateX(220%); }
+          100% { transform: translateX(220%); }
+        }
+        @keyframes warnFade {
+          from { opacity: 0; transform: translateY(10px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes glowPulse {
+          0%, 100% { text-shadow: 5px 10px 30px rgba(255,140,0,0.4); }
+          50%       { text-shadow: 5px 10px 55px rgba(255,140,0,1); }
+        }
+        @keyframes lineDraw {
+          from { opacity: 0; transform: scaleX(0); transform-origin: left; }
+          to   { opacity: 1; transform: scaleX(1); transform-origin: left; }
+        }
+        @keyframes registerPop {
+          0%   { opacity: 0; transform: scale(0.6) translateY(30px); }
+          70%  { transform: scale(1.08) translateY(-4px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes toastPop {
+          0%   { opacity: 0; transform: scale(0.85); }
+          70%  { transform: scale(1.03); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        .anim-title    { animation: registerPop 0.9s 0.1s cubic-bezier(.4,2,.6,1) both; }
+        .anim-glow     { animation: glowPulse 2.5s 1s ease infinite; }
+        .anim-subtitle { animation: fadeDown 0.8s 0.35s ease both; }
+        .anim-line     { animation: lineDraw 0.7s 0.5s ease both; }
+        .anim-card     { animation: cardUp  0.8s 0.65s ease both; }
+        .anim-warn     { animation: warnFade 0.7s 0.85s ease both; }
+        .anim-btn      { animation: fadeDown 0.7s 1.05s ease both; }
+        .shimmer-card  { position: relative; overflow: hidden; }
+        .shimmer-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.055) 50%, transparent 70%);
+          transform: translateX(-100%);
+          animation: shimmer 3.5s ease infinite;
+          pointer-events: none;
+          border-radius: 24px;
+          z-index: 0;
+        }
+        .shimmer-card > * { position: relative; z-index: 1; }
+        .profanity-toast { animation: toastPop 0.4s cubic-bezier(.4,2,.6,1) both; }
+        ${showProfanityToast ? `
+          ::-webkit-scrollbar-thumb { background: #555 !important; }
+          ::-webkit-scrollbar-thumb:hover { background: #666 !important; }
+          * { scrollbar-color: #555 transparent !important; }
+          .fs-pill { filter: grayscale(100%) brightness(0.5) !important; pointer-events: none !important; }
+        ` : ''}
+      `}</style>
 
-    <style>{`
-      @keyframes pageFadeIn {
-        from { opacity: 0; transform: translateY(18px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
-      .register-page { animation: pageFadeIn 0.8s ease-out both; }
-      @keyframes fadeDown {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes cardUp {
-        from { opacity: 0; transform: translateY(36px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes shimmer {
-        0%   { transform: translateX(-100%); }
-        60%  { transform: translateX(220%); }
-        100% { transform: translateX(220%); }
-      }
-      @keyframes warnFade {
-        from { opacity: 0; transform: translateY(10px) scale(0.97); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-      }
-      @keyframes glowPulse {
-        0%, 100% { text-shadow: 5px 10px 30px rgba(255,140,0,0.4); }
-        50%       { text-shadow: 5px 10px 55px rgba(255,140,0,1); }
-      }
-      @keyframes lineDraw {
-        from { opacity: 0; transform: scaleX(0); transform-origin: left; }
-        to   { opacity: 1; transform: scaleX(1); transform-origin: left; }
-      }
-      @keyframes registerPop {
-        0%   { opacity: 0; transform: scale(0.6) translateY(30px); }
-        70%  { transform: scale(1.08) translateY(-4px); }
-        100% { opacity: 1; transform: scale(1) translateY(0); }
-      }
-      @keyframes toastPop {
-        0%   { opacity: 0; transform: scale(0.85); }
-        70%  { transform: scale(1.03); }
-        100% { opacity: 1; transform: scale(1); }
-      }
-      .anim-title    { animation: registerPop 0.9s 0.1s cubic-bezier(.4,2,.6,1) both; }
-      .anim-glow     { animation: glowPulse 2.5s 1s ease infinite; }
-      .anim-subtitle { animation: fadeDown 0.8s 0.35s ease both; }
-      .anim-line     { animation: lineDraw 0.7s 0.5s ease both; }
-      .anim-card     { animation: cardUp  0.8s 0.65s ease both; }
-      .anim-warn     { animation: warnFade 0.7s 0.85s ease both; }
-      .anim-btn      { animation: fadeDown 0.7s 1.05s ease both; }
-      .shimmer-card  { position: relative; overflow: hidden; }
-      .shimmer-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.055) 50%, transparent 70%);
-        transform: translateX(-100%);
-        animation: shimmer 3.5s ease infinite;
-        pointer-events: none;
-        border-radius: 24px;
-        z-index: 0;
-      }
-      .shimmer-card > * { position: relative; z-index: 1; }
-      .profanity-toast {
-        animation: toastPop 0.4s cubic-bezier(.4,2,.6,1) both;
-      }
-      ${showProfanityToast ? `
-        ::-webkit-scrollbar-thumb { background: #555 !important; }
-        ::-webkit-scrollbar-thumb:hover { background: #666 !important; }
-        * { scrollbar-color: #555 transparent !important; }
-        .fs-pill { filter: grayscale(100%) brightness(0.5) !important; pointer-events: none !important; }
-      ` : ''}
-    `}</style>
+      <Particles />
 
-    <Particles />
-
-    {/* PROFANITY TOAST OVERLAY */}
-    {showProfanityToast && (
-      <div
-        onClick={() => setShowProfanityToast(false)}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 99999,
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          background: 'rgba(0, 0, 0, 0.72)',
-        }}
-      >
+      {/* PROFANITY TOAST OVERLAY */}
+      {showProfanityToast && (
         <div
-          className="profanity-toast"
-          onClick={(e) => e.stopPropagation()}
+          onClick={() => setShowProfanityToast(false)}
           style={{
             position: 'fixed',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'rgba(255, 40, 40, 0.12)',
-            border: '1px solid rgba(255, 80, 80, 0.35)',
-            boxShadow: `
-              0 0 18px rgba(255, 60, 60, 0.25),
-              0 0 35px rgba(255, 0, 0, 0.15),
-              0 20px 60px rgba(0,0,0,0.6)
-            `,
-            borderRadius: '20px',
-            padding: '2rem 2.5rem',
-            maxWidth: '420px',
-            width: '90vw',
-            textAlign: 'center',
-            color: '#ff6b6b',
+            inset: 0,
+            zIndex: 99999,
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            background: 'rgba(0, 0, 0, 0.72)',
           }}
         >
-          {/* Error code label */}
-          <div style={{
-            fontSize: '0.7rem',
-            fontWeight: '800',
-            letterSpacing: '2.5px',
-            textTransform: 'uppercase',
-            color: '#ff9a9a',
-            textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
-            marginBottom: '0.6rem',
-          }}>
-            Error Code 420
-          </div>
-
-          {/* Icon */}
-          <div style={{ fontSize: '2.8rem', marginBottom: '0.75rem', lineHeight: 1 }}>🚫</div>
-
-          {/* Main message */}
-          <div style={{
-            fontSize: '1.3rem',
-            fontWeight: '800',
-            color: '#ff9a9a',
-            textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
-            marginBottom: '0.5rem',
-            letterSpacing: '0.5px',
-          }}>
-            No Profanity.
-          </div>
-
-          <div style={{
-            fontSize: '0.9rem',
-            color: 'rgba(255, 150, 150, 0.8)',
-            lineHeight: '1.5',
-            marginBottom: '1.5rem',
-          }}>
-            Your username contains inappropriate language. Please choose a different username.
-          </div>
-
-          {/* Dismiss button */}
-          <button
-            onClick={() => setShowProfanityToast(false)}
+          <div
+            className="profanity-toast"
+            onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'rgba(255, 80, 80, 0.2)',
-              border: '1px solid rgba(255, 80, 80, 0.4)',
-              borderRadius: '12px',
-              padding: '0.7rem 2rem',
-              color: '#ff9a9a',
-              fontSize: '0.9rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              transition: 'background 0.2s',
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'rgba(255, 40, 40, 0.12)',
+              border: '1px solid rgba(255, 80, 80, 0.35)',
+              boxShadow: '0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15), 0 20px 60px rgba(0,0,0,0.6)',
+              borderRadius: '20px',
+              padding: '2rem 2.5rem',
+              maxWidth: '420px',
+              width: '90vw',
+              textAlign: 'center',
+              color: '#ff6b6b',
             }}
           >
-            Got It
-          </button>
+            <div style={{
+              fontSize: '0.7rem',
+              fontWeight: '800',
+              letterSpacing: '2.5px',
+              textTransform: 'uppercase',
+              color: '#ff9a9a',
+              textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
+              marginBottom: '0.6rem',
+            }}>
+              Error Code 420
+            </div>
+
+            <div style={{ fontSize: '2.8rem', marginBottom: '0.75rem', lineHeight: 1 }}>🚫</div>
+
+            <div style={{
+              fontSize: '1.3rem',
+              fontWeight: '800',
+              color: '#ff9a9a',
+              textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
+              marginBottom: '0.5rem',
+              letterSpacing: '0.5px',
+            }}>
+              No Profanity.
+            </div>
+
+            <div style={{
+              fontSize: '0.9rem',
+              color: 'rgba(255, 150, 150, 0.8)',
+              lineHeight: '1.5',
+              marginBottom: '1.5rem',
+            }}>
+              Your username contains inappropriate language. Please choose a different username.
+            </div>
+
+            <button
+              onClick={() => setShowProfanityToast(false)}
+              style={{
+                background: 'rgba(255, 80, 80, 0.2)',
+                border: '1px solid rgba(255, 80, 80, 0.4)',
+                borderRadius: '12px',
+                padding: '0.7rem 2rem',
+                color: '#ff9a9a',
+                fontSize: '0.9rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                transition: 'background 0.2s',
+              }}
+            >
+              Got It
+            </button>
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
       {/* HEADER */}
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -499,7 +548,7 @@ export default function RegistrationPage() {
                   gap: "0.8rem",
                   background: "rgba(255, 40, 40, 0.12)",
                   border: "1px solid rgba(255, 80, 80, 0.35)",
-                  boxShadow: `0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15)`,
+                  boxShadow: '0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15)',
                   padding: "1rem",
                   borderRadius: "12px",
                   color: "#ff6b6b",
@@ -509,7 +558,7 @@ export default function RegistrationPage() {
               >
                 {errors.username.length > 0 && (
                   <div>
-                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>USERNAME</strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)', letterSpacing: "1px" }}>USERNAME</strong>
                     {errors.username.map((err, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
                         <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
@@ -519,7 +568,7 @@ export default function RegistrationPage() {
                 )}
                 {errors.password.length > 0 && (
                   <div>
-                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>PASSWORD</strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)', letterSpacing: "1px" }}>PASSWORD</strong>
                     {errors.password.map((err, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
                         <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
@@ -529,7 +578,7 @@ export default function RegistrationPage() {
                 )}
                 {errors.school.length > 0 && (
                   <div>
-                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>SCHOOL</strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)', letterSpacing: "1px" }}>SCHOOL</strong>
                     {errors.school.map((err, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
                         <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
@@ -539,7 +588,7 @@ export default function RegistrationPage() {
                 )}
                 {errors.server.length > 0 && (
                   <div>
-                    <strong style={{ color: "#ff9a9a", textShadow: `0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)`, letterSpacing: "1px" }}>SERVER</strong>
+                    <strong style={{ color: "#ff9a9a", textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)', letterSpacing: "1px" }}>SERVER ERROR</strong>
                     {errors.server.map((err, i) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
                         <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
@@ -561,7 +610,7 @@ export default function RegistrationPage() {
         </div>
       </section>
 
-      {/* ADMIN ACCESS 
+      {/* UNCOMMENTED & CONNECTED ADMIN ACCESS UNIT */}
       <section className="anim-btn" style={{ width: '100%', maxWidth: '550px', marginTop: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <div style={{ flex: 1, position: 'relative' }}>
@@ -576,12 +625,55 @@ export default function RegistrationPage() {
           </div>
           <button
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', width: 'auto', padding: '0.9rem 1.5rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: 'white', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.3s ease' }}
-            onClick={() => {}}
+            onClick={handleFetchLogs}
           >
             ENTER
           </button>
         </div>
-      </section> */}
+      </section>
+
+      {/* INTERACTIVE ADMIN SYSTEM LOGS MODAL MODIFIER */}
+      {showLogsModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 99999,
+          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
+        }}>
+          <div style={{
+            background: '#111', border: '1px solid #ff8c00', borderRadius: '16px',
+            padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: '80vh', overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <h3 style={{ color: '#ff8c00', margin: 0, fontFamily: fredoka.style.fontFamily, fontSize: '1.25rem' }}>Security & System Logs</h3>
+              <button 
+                onClick={() => setShowLogsModal(false)} 
+                style={{ color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}
+              >
+                ✕ Close
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              {logs.length === 0 ? (
+                <p style={{ color: '#666', fontSize: '0.9rem' }}>No logged infrastructure events found.</p>
+              ) : (
+                logs.map((log) => (
+                  <div key={log._id} style={{ fontSize: '0.85rem', background: 'rgba(255,255,255,0.02)', padding: '0.6rem 0.8rem', borderRadius: '8px', borderLeft: '3px solid #ff8c00', lineHeight: '1.4' }}>
+                    <span style={{ color: '#666', marginRight: '0.5rem' }}>
+                      [{new Date(log.timestamp).toLocaleTimeString()}]
+                    </span>
+                    <strong style={{ color: '#eee' }}>{log.event}</strong>
+                    {log.meta && (
+                      <div style={{ color: '#a8600c', fontSize: '0.75rem', marginTop: '0.2rem', fontFamily: 'monospace' }}>
+                        Metadata: {JSON.stringify(log.meta)}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
