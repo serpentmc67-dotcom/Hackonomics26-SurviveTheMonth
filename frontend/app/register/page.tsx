@@ -1,7 +1,8 @@
 'use client';
 
-import { Nunito, Fredoka, Poppins, Montserrat } from "next/font/google";
+import { Nunito, Fredoka } from "next/font/google";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Import the router for automatic redirection
 import { Info, User, Mail, Shield, AlertCircle, ArrowRight } from "lucide-react";
 import Particles from "../components/Particles";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from "obscenity";
@@ -14,16 +15,24 @@ const matcher = new RegExpMatcher({
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
 
+interface SystemLog {
+  _id: string;
+  timestamp: string;
+  event: string;
+  meta?: Record<string, unknown>;
+}
+
 export default function RegistrationPage() {
+  const router = useRouter(); // Initialize the router hook
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [school, setSchool] = useState("");
   const [schoolOpen, setSchoolOpen] = useState(false);
   const [adminCode, setAdminCode] = useState("");
   
-  // States for tracking admin logs and the modal view
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<SystemLog[]>([]);
   const [showLogsModal, setShowLogsModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const schools = [
     { value: "beta-testers", label: "Beta Testers", disabled: false }, 
@@ -42,7 +51,6 @@ export default function RegistrationPage() {
 
   const [showProfanityToast, setShowProfanityToast] = useState(false);
 
-  // Lock scroll and capture viewport center when toast opens
   useEffect(() => {
     if (showProfanityToast) {
       const scrollY = window.scrollY;
@@ -51,7 +59,6 @@ export default function RegistrationPage() {
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = "100%";
     } else {
-      // Restore scroll position
       const scrollY = parseInt(document.body.style.top || "0") * -1;
       document.body.style.overflow = "";
       document.body.style.position = "";
@@ -61,11 +68,9 @@ export default function RegistrationPage() {
     }
   }, [showProfanityToast]);
 
-  // Handle actual backend registration submission
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRegister = async () => {
+    if (isSubmitting) return;
 
-    // Check profanity first — show toast and block immediately
     if (matcher.hasMatch(username)) {
       setShowProfanityToast(true);
       return;
@@ -94,8 +99,9 @@ export default function RegistrationPage() {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      // Connect to Node/Express backend
       const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,20 +115,26 @@ export default function RegistrationPage() {
           username: [], password: [], school: [],
           server: [data.message || "Registration failed."],
         });
+        setIsSubmitting(false);
       } else {
         setErrors({ username: [], password: [], school: [], server: [] });
-        alert("Registration successful! Welcome to the Financial Simulation.");
-        // Optional: Redirect user to game screen here
+        
+        // Save user state locally so the dashboard knows who is playing
+        localStorage.setItem("username", username);
+        localStorage.setItem("school", school);
+        
+        // Fixed: Points to the root page layout where your game code lives
+        router.push("/");
       }
-    } catch (err) {
+    } catch {
       setErrors({
         username: [], password: [], school: [],
         server: ["Could not connect to the backend. Please check if your Express server is running on port 5000."],
       });
+      setIsSubmitting(false);
     }
   };
 
-  // Pull system logs from server using the secret access key
   const handleFetchLogs = async () => {
     if (!adminCode) {
       alert("Please enter an access code.");
@@ -144,12 +156,11 @@ export default function RegistrationPage() {
         setLogs(data.logs);
         setShowLogsModal(true);
       }
-    } catch (err) {
+    } catch {
       alert("Error reaching the backend administration route.");
     }
   };
 
-  // UI Styles object maps
   const sectionStyle = {
     marginBottom: '2.5rem',
     width: '100%',
@@ -406,7 +417,7 @@ export default function RegistrationPage() {
           Already Have An Account? <strong> Sign In. </strong>
         </p>
 
-        <div className="anim-line" style={{ display: 'inline-flex', alignItems: 'center', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '-0.5rem', marginLeft: '-10px' }}>
+        <div className="anim-line" style={{ display: 'inline-flex', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '-0.5rem', marginLeft: '-10px' }}>
           <div style={{ flex: 1, height: '2px', background: 'rgba(251, 143, 10, 0.97)', borderRadius: '999px' }} />
         </div>
       </section>
@@ -459,11 +470,12 @@ export default function RegistrationPage() {
             </div>
           </div>
 
-          <form onSubmit={handleRegister} noValidate>
+          <form onSubmit={(e) => e.preventDefault()} noValidate>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}><User size={14} /> Username</label>
                 <input
+                  type="text"
                   className="register-input"
                   style={inputStyle}
                   placeholder="FinanceMaster42"
@@ -476,9 +488,9 @@ export default function RegistrationPage() {
 
             <label style={labelStyle}><Mail size={14} /> Password</label>
             <input
+              type="password"
               className="register-input"
               style={inputStyle}
-              type="password"
               placeholder="Enter Your Password"
               value={password}
               maxLength={20}
@@ -600,17 +612,24 @@ export default function RegistrationPage() {
             )}
 
             <button
-              type="submit"
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleRegister}
               className="register-btn anim-btn"
-              style={{...primaryButtonStyle, marginTop: '0'}}
+              style={{
+                ...primaryButtonStyle, 
+                marginTop: '0',
+                opacity: isSubmitting ? 0.6 : 1,
+                cursor: isSubmitting ? 'not-allowed' : 'pointer'
+              }}
             >
-              LET'S PLAY <ArrowRight size={20} />
+              {isSubmitting ? "ENTERING SIMULATION..." : "LET'S PLAY"} <ArrowRight size={20} />
             </button>
           </form>
         </div>
       </section>
 
-      {/* UNCOMMENTED & CONNECTED ADMIN ACCESS UNIT 
+      {/* ADMIN ACCESS */}
       <section className="anim-btn" style={{ width: '100%', maxWidth: '550px', marginTop: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <div style={{ flex: 1, position: 'relative' }}>
@@ -630,9 +649,9 @@ export default function RegistrationPage() {
             ENTER
           </button>
         </div>
-      </section>*/}
+      </section>
 
-      {/* INTERACTIVE ADMIN SYSTEM LOGS MODAL MODIFIER 
+      {/* SYSTEM LOGS MODAL */}
       {showLogsModal && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 99999,
@@ -673,7 +692,7 @@ export default function RegistrationPage() {
             </div>
           </div>
         </div>
-      )}*/}
+      )}
     </main>
   );
 }
