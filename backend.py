@@ -2,15 +2,17 @@
 Survive the Month — Player Registration + Scoring Server
 """
 
-import sqlite3, re, os, json
+import sqlite3, re, os, json, hashlib
 from datetime import datetime, timezone, timedelta
 from http.server import SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn, TCPServer
 from urllib.parse import urlparse
-from functools import lru_cache
 
-DB_PATH = os.environ.get("DB_PATH", "/data/players.db")
+DB_PATH = os.environ.get("DB_PATH", "./data/players.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
+# Secret key that the admin code form checks against
+ADMIN_SECRET_CODE = os.environ.get("ADMIN_SECRET_CODE", "MySuperSecretCode123")
 
 def get_conn():
     conn = sqlite3.connect(DB_PATH, timeout=15, check_same_thread=False)
@@ -18,37 +20,32 @@ def get_conn():
     conn.execute("PRAGMA synchronous=NORMAL") # faster writes, still safe
     conn.execute("PRAGMA cache_size=10000")
     return conn
+
 class ThreadedHTTPServer(ThreadingMixIn, TCPServer):
     allow_reuse_address = True
 
 def init_db():
     conn = get_conn()
+    # Updated to match the frontend registration data structure
     conn.execute("""
         CREATE TABLE IF NOT EXISTS players (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            first_name TEXT NOT NULL,
-            last_name  TEXT NOT NULL,
-            email      TEXT NOT NULL,
-            registered TEXT NOT NULL
+            username   TEXT NOT NULL UNIQUE,
+            password   TEXT NOT NULL,
+            school     TEXT NOT NULL,
+            registered TEXT NOT NULL,
+            score      INTEGER DEFAULT 0,
+            play_seconds INTEGER DEFAULT 0,
+            last_played  TEXT
         )
     """)
-    for col_def in [
-        ("score",        "INTEGER DEFAULT 0"),
-        ("play_seconds", "INTEGER DEFAULT 0"),
-        ("last_played",  "TEXT"),
-    ]:
-        try:
-            conn.execute(f"ALTER TABLE players ADD COLUMN {col_def[0]} {col_def[1]}")
-        except sqlite3.OperationalError:
-            pass
-
+    # System logs infrastructure needed for the admin view features
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS score_events (
+        CREATE TABLE IF NOT EXISTS system_logs (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id INTEGER NOT NULL,
-            delta     INTEGER NOT NULL,
-            reason    TEXT,
-            ts        TEXT NOT NULL
+            event     TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
+            meta      TEXT
         )
     """)
     conn.execute("""
@@ -68,117 +65,72 @@ def get_et():
     ET = timezone(timedelta(hours=-4))
     return datetime.now(ET).strftime("%Y-%m-%d %H:%M:%S")
 
-def register_player(first_name, last_name, email):
-    first_name = first_name.strip()
-    last_name  = last_name.strip()
-    email      = email.strip().lower()
-    if not first_name or not last_name:
-        return {"ok": False, "error": "First and last name are required."}
-    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-        return {"ok": False, "error": "Please enter a valid email address."}
+def create_system_log(event, meta=None):
+    ts = get_et()
+    conn = get_conn()
+    meta_str = json.dumps(meta) if meta else None
+    try:
+        conn.execute("INSERT INTO system_logs (event, timestamp, meta) VALUES (?, ?, ?)", (event, ts, meta_str))
+        conn.commit()
+    except Exception as e:
+        print(f"[LOG ERROR] {e}")
+    finally:
+        conn.close()
+
+# Secure standard SHA-256 password hashing helper function
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+def register_player(username, password, school):
+    username = username.strip()
+    school = school.strip()
+    
+    if not username or not password or not school:
+        return {"ok": False, "message": "All fields are required."}
+        
     ts = get_et()
     conn = get_conn()
     try:
+        # Check if username exists
+        existing = conn.execute("SELECT id FROM players WHERE username = ?", (username,)).fetchone()
+        if existing:
+            create_system_log("Registration Failed: Username taken", {"username": username})
+            return {"ok": False, "message": "Username is already taken."}
+            
+        hashed = hash_password(password)
         cur = conn.execute(
-            "INSERT INTO players (first_name, last_name, email, registered, score, play_seconds) VALUES (?,?,?,?,0,0)",
-            (first_name, last_name, email, ts)
+            "INSERT INTO players (username, password, school, registered) VALUES (?, ?, ?, ?)",
+            (username, hashed, school, ts)
         )
         conn.commit()
-        pid   = cur.lastrowid
-        total = conn.execute("SELECT COUNT(*) FROM players").fetchone()[0]
-        print(f"[DB] #{pid} — {first_name} {last_name} <{email}>")
-        return {"ok": True, "id": pid, "total": total}
+        pid = cur.lastrowid
+        
+        create_system_log("User Registered", {"username": username, "school": school})
+        print(f"[DB] Registered User #{pid} — {username} ({school})")
+        return {"ok": True, "message": "User registered successfully!"}
     except Exception as e:
         print(f"[DB] Error: {e}")
-        return {"ok": False, "error": "Database error. Please try again."}
+        return {"ok": False, "message": "Database error during registration."}
     finally:
         conn.close()
 
-def list_players():
+def get_logs():
     conn = get_conn()
     conn.row_factory = sqlite3.Row
-    rows = conn.execute(
-        "SELECT id, first_name, last_name, email, registered, score, play_seconds, last_played FROM players ORDER BY score DESC, id DESC"
-    ).fetchall()
+    rows = conn.execute("SELECT id as _id, event, timestamp, meta FROM system_logs ORDER BY id DESC LIMIT 100").fetchall()
     conn.close()
-    return [dict(r) for r in rows]
-
-def start_session(player_id):
-    ts = get_et()
-    conn = get_conn()
-    try:
-        conn.execute(
-            "UPDATE play_sessions SET ended_at=?, seconds=CAST((julianday(?) - julianday(started_at))*86400 AS INTEGER) WHERE player_id=? AND ended_at IS NULL",
-            (ts, ts, player_id)
-        )
-        cur = conn.execute(
-            "INSERT INTO play_sessions (player_id, started_at) VALUES (?,?)",
-            (player_id, ts)
-        )
-        session_id = cur.lastrowid
-        conn.commit()
-        return {"ok": True, "session_id": session_id}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-    finally:
-        conn.close()
-
-def end_session(player_id, session_id, seconds):
-    ts = get_et()
-    conn = get_conn()
-    try:
-        conn.execute(
-            "UPDATE play_sessions SET ended_at=?, seconds=? WHERE id=? AND player_id=?",
-            (ts, seconds, session_id, player_id)
-        )
-        time_bonus = seconds // 30
-        conn.execute(
-            "UPDATE players SET play_seconds = play_seconds + ?, score = score + ?, last_played=? WHERE id=?",
-            (seconds, time_bonus, ts, player_id)
-        )
-        if time_bonus > 0:
-            conn.execute(
-                "INSERT INTO score_events (player_id, delta, reason, ts) VALUES (?,?,?,?)",
-                (player_id, time_bonus, f"Time bonus ({seconds}s played)", ts)
-            )
-        conn.commit()
-        return {"ok": True, "time_bonus": time_bonus}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-    finally:
-        conn.close()
-
-def add_score(player_id, delta, reason):
-    ts = get_et()
-    conn = get_conn()
-    try:
-        conn.execute(
-            "UPDATE players SET score = MAX(0, score + ?), last_played=? WHERE id=?",
-            (delta, ts, player_id)
-        )
-        conn.execute(
-            "INSERT INTO score_events (player_id, delta, reason, ts) VALUES (?,?,?,?)",
-            (player_id, delta, reason, ts)
-        )
-        conn.commit()
-        row = conn.execute("SELECT score FROM players WHERE id=?", (player_id,)).fetchone()
-        new_score = row[0] if row else 0
-        return {"ok": True, "new_score": new_score}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-    finally:
-        conn.close()
-
-def get_player_score(player_id):
-    conn = get_conn()
-    conn.row_factory = sqlite3.Row
-    row = conn.execute(
-        "SELECT score, play_seconds FROM players WHERE id=?", (player_id,)
-    ).fetchone()
-    conn.close()
-    if row:
-        return {"ok": True, "score": row["score"], "play_seconds": row["play_seconds"]}
-    return {"ok": False, "error": "Player not found"}
+    
+    formatted_logs = []
+    for r in rows:
+        d = dict(r)
+        # Parse metadata back into object for frontend JSON processing loop
+        if d["meta"]:
+            try:
+                d["meta"] = json.loads(d["meta"])
+            except:
+                pass
+        formatted_logs.append(d)
+    return formatted_logs
 
 class GameHandler(SimpleHTTPRequestHandler):
     def log_message(self, fmt, *args):
@@ -190,16 +142,15 @@ class GameHandler(SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
+        # Configured for standard React/Next.js client handshakes
         self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
         self.wfile.write(body)
 
     def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
+        self._json({"cors": "ok"})
 
     def do_POST(self):
         path = urlparse(self.path).path
@@ -207,60 +158,46 @@ class GameHandler(SimpleHTTPRequestHandler):
         try:
             data = json.loads(self.rfile.read(n)) if n else {}
         except Exception:
-            self._json({"ok": False, "error": "Invalid JSON."}, 400); return
+            self._json({"ok": False, "message": "Invalid JSON."}, 400)
+            return
 
-        if path == "/api/register":
+        # Matches frontend registration request target
+        if path == "/api/auth/register":
             result = register_player(
-                data.get("first_name", ""),
-                data.get("last_name",  ""),
-                data.get("email",      "")
+                data.get("username", ""),
+                data.get("password", ""),
+                data.get("school", "")
             )
             self._json(result, 200 if result["ok"] else 400)
-        elif path == "/api/session/start":
-            pid = data.get("player_id")
-            if not pid:
-                self._json({"ok": False, "error": "player_id required"}, 400); return
-            self._json(start_session(int(pid)))
-        elif path == "/api/session/end":
-            pid     = data.get("player_id")
-            sid     = data.get("session_id")
-            seconds = data.get("seconds", 0)
-            if not pid or not sid:
-                self._json({"ok": False, "error": "player_id and session_id required"}, 400); return
-            self._json(end_session(int(pid), int(sid), int(seconds)))
-        elif path == "/api/score/add":
-            pid    = data.get("player_id")
-            delta  = data.get("delta", 0)
-            reason = data.get("reason", "")
-            if not pid:
-                self._json({"ok": False, "error": "player_id required"}, 400); return
-            self._json(add_score(int(pid), int(delta), reason))
+            
+        # Matches frontend log auditing system pathing
+        elif path == "/api/admin/logs":
+            secret_code = data.get("secretCode", "")
+            if not secret_code or secret_code != ADMIN_SECRET_CODE:
+                create_system_log("Unauthorized Admin View Attempt")
+                self._json({"ok": False, "message": "Access Denied."}, 403)
+                return
+                
+            logs_list = get_logs()
+            create_system_log("Admin Logs Viewed Successfully")
+            self._json({"ok": True, "logs": logs_list}, 200)
+            
         else:
-            self._json({"ok": False, "error": "Not found."}, 404)
+            self._json({"ok": False, "message": "Endpoint not found."}, 404)
 
     def do_GET(self):
         path = urlparse(self.path).path
-        if path == "/api/players":
-            players = list_players()
-            self._json({"ok": True, "count": len(players), "players": players})
-        elif path.startswith("/api/score/"):
-            pid = path.split("/")[-1]
-            try:
-                self._json(get_player_score(int(pid)))
-            except ValueError:
-                self._json({"ok": False, "error": "Invalid player id"}, 400)
-        elif path == "/":
-            self.send_response(302)
-            self.send_header("Location", "/register.html")
-            self.end_headers()
+        if path == "/api/admin/logs":
+            self._json({"ok": False, "message": "Method Not Allowed. Use POST."}, 405)
         else:
-            super().do_GET()
+            self._json({"ok": False, "message": "Endpoint not found."}, 404)
 
 if __name__ == "__main__":
     init_db()
-    port = int(os.environ.get("PORT", 8080))
+    # Updates the port to 5000 to match the Next.js `fetch` configuration targets
+    port = int(os.environ.get("PORT", 5000))
     srv = ThreadedHTTPServer(("0.0.0.0", port), GameHandler)
-    print(f"\n[Server] Running on port {port}\n")
+    print(f"\n[Server] Python Backend running on port {port}\n")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
