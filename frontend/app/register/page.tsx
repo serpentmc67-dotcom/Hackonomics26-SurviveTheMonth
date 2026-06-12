@@ -610,7 +610,7 @@ export default function RegistrationPage() {
         </div>
       </section>
 
-      {/* UNCOMMENTED & CONNECTED ADMIN ACCESS UNIT */}
+      {/* UNCOMMENTED & CONNECTED ADMIN ACCESS UNIT 
       <section className="anim-btn" style={{ width: '100%', maxWidth: '550px', marginTop: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <div style={{ flex: 1, position: 'relative' }}>
@@ -630,9 +630,9 @@ export default function RegistrationPage() {
             ENTER
           </button>
         </div>
-      </section>
+      </section>*/}
 
-      {/* INTERACTIVE ADMIN SYSTEM LOGS MODAL MODIFIER */}
+      {/* INTERACTIVE ADMIN SYSTEM LOGS MODAL MODIFIER 
       {showLogsModal && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 99999,
@@ -673,7 +673,7 @@ export default function RegistrationPage() {
             </div>
           </div>
         </div>
-      )}
+      )}*/}
     </main>
   );
 }
