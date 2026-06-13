@@ -420,7 +420,7 @@ export default function RegistrationPage() {
         </h1>
 
         <p className="anim-subtitle" style={{ color: 'rgb(173, 101, 13)', letterSpacing: '4.5px', textTransform: 'uppercase', fontSize: '1rem', marginTop: '-0.5rem', fontWeight: '700', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
-          Already Have An Account? <strong> Sign In. </strong>
+          Already have an account? <strong style={{ cursor: 'pointer' }} onClick={() => router.push('/login')}> Sign In. </strong>
         </p>
 
         <div className="anim-line" style={{ display: 'inline-flex', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '-0.5rem', marginLeft: '-10px' }}>
