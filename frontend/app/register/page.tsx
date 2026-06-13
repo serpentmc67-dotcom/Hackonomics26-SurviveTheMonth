@@ -53,19 +53,22 @@ export default function RegistrationPage() {
 
   useEffect(() => {
     if (showProfanityToast) {
-      const scrollY = window.scrollY;
+      // Teleport the user to the top instantly
+      window.scrollTo(0, 0);
+
+      // Prevent them from scrolling while the toast is open
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
     } else {
-      const scrollY = parseInt(document.body.style.top || "0") * -1;
+      // Restore scrolling when the toast closes
+      document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
-      window.scrollTo(0, scrollY);
     }
+
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [showProfanityToast]);
 
   const handleRegister = async () => {
@@ -321,22 +324,25 @@ export default function RegistrationPage() {
         <div
           onClick={() => setShowProfanityToast(false)}
           style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 99999,
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            background: 'rgba(0, 0, 0, 0.72)',
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100dvh",
+            zIndex: 2147483647,
+
+            display: "grid",
+            placeItems: "center",
+
+            background: "rgba(0,0,0,0.72)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
           }}
         >
           <div
             className="profanity-toast"
             onClick={(e) => e.stopPropagation()}
             style={{
-              position: 'fixed',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
               background: 'rgba(255, 40, 40, 0.12)',
               border: '1px solid rgba(255, 80, 80, 0.35)',
               boxShadow: '0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15), 0 20px 60px rgba(0,0,0,0.6)',
@@ -629,13 +635,13 @@ export default function RegistrationPage() {
         </div>
       </section>
 
-      {/* ADMIN ACCESS */}
+      {/* ADMIN ACCESS 
       <section className="anim-btn" style={{ width: '100%', maxWidth: '550px', marginTop: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <div style={{ flex: 1, position: 'relative' }}>
             <input 
               style={{ ...inputStyle, marginBottom: 0, paddingLeft: '2.5rem' }} 
-              type="password" 
+              type="username" 
               placeholder="Admin Access Code" 
               value={adminCode}
               onChange={(e) => setAdminCode(e.target.value)}
@@ -649,9 +655,9 @@ export default function RegistrationPage() {
             ENTER
           </button>
         </div>
-      </section>
+      </section> */}
 
-      {/* SYSTEM LOGS MODAL */}
+      {/* SYSTEM LOGS MODAL 
       {showLogsModal && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 99999,
@@ -692,7 +698,7 @@ export default function RegistrationPage() {
             </div>
           </div>
         </div>
-      )}
+      )}*/}
     </main>
   );
 }
