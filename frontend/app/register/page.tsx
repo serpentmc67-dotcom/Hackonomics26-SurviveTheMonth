@@ -475,7 +475,7 @@ export default function RegistrationPage() {
                     borderRadius: "12px",
                     overflow: "hidden",
                     overflowY: "auto",
-                    maxHeight: "160px",
+                    maxHeight: "110px",
                     zIndex: 1000,
                   }}
                 >
