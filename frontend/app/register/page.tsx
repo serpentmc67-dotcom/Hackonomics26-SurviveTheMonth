@@ -161,6 +161,10 @@ export default function RegistrationPage() {
   };
   
   return (
+
+  <>
+   <Particles />
+
     <main
       className={`${nunito.className} register-page`}
       style={{
@@ -242,8 +246,6 @@ export default function RegistrationPage() {
           .fs-pill { filter: grayscale(100%) brightness(0.5) !important; pointer-events: none !important; }
         ` : ''}
       `}</style>
-
-      <Particles />
 
       {/* PROFANITY TOAST OVERLAY */}
       {showProfanityToast && (
@@ -578,5 +580,6 @@ export default function RegistrationPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

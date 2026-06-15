@@ -44,7 +44,7 @@ export default function Particles() {
       <div
         id="particles-container"
         style={{
-          position: "absolute",
+          position: "fixed",
           inset: 0,
           pointerEvents: "none",
           zIndex: 0,
