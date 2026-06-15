@@ -2,7 +2,7 @@
 
 import { Nunito, Fredoka } from "next/font/google";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Import the router for automatic redirection
+import { useRouter } from "next/navigation";
 import { Info, User, Mail, Shield, AlertCircle, ArrowRight } from "lucide-react";
 import Particles from "../components/Particles";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from "obscenity";
@@ -15,23 +15,12 @@ const matcher = new RegExpMatcher({
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
 
-interface SystemLog {
-  _id: string;
-  timestamp: string;
-  event: string;
-  meta?: Record<string, unknown>;
-}
-
 export default function RegistrationPage() {
-  const router = useRouter(); // Initialize the router hook
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [school, setSchool] = useState("");
   const [schoolOpen, setSchoolOpen] = useState(false);
-  const [adminCode, setAdminCode] = useState("");
-  
-  const [logs, setLogs] = useState<SystemLog[]>([]);
-  const [showLogsModal, setShowLogsModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const schools = [
@@ -53,14 +42,10 @@ export default function RegistrationPage() {
 
   useEffect(() => {
     if (showProfanityToast) {
-      // Teleport the user to the top instantly
       window.scrollTo(0, 0);
-
-      // Prevent them from scrolling while the toast is open
       document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      // Restore scrolling when the toast closes
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
     }
@@ -103,66 +88,7 @@ export default function RegistrationPage() {
     }
 
     setIsSubmitting(true);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, school }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setErrors({
-          username: [], password: [], school: [],
-          server: [data.message || "Registration failed."],
-        });
-        setIsSubmitting(false);
-      } else {
-        setErrors({ username: [], password: [], school: [], server: [] });
-        
-        // Save user state locally so the dashboard knows who is playing
-        localStorage.setItem("username", username);
-        localStorage.setItem("school", school);
-        
-        // Fixed: Points to the root page layout where your game code lives
-        router.push("/");
-      }
-    } catch {
-      setErrors({
-        username: [], password: [], school: [],
-        server: ["Could not connect to the backend. Please check if your Express server is running on port 5000."],
-      });
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleFetchLogs = async () => {
-    if (!adminCode) {
-      alert("Please enter an access code.");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:5000/api/admin/logs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ secretCode: adminCode }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message || "Access Denied.");
-      } else {
-        setLogs(data.logs);
-        setShowLogsModal(true);
-      }
-    } catch {
-      alert("Error reaching the backend administration route.");
-    }
-  };
+  }
 
   const sectionStyle = {
     marginBottom: '2.5rem',
@@ -233,7 +159,7 @@ export default function RegistrationPage() {
     marginBottom: '0.5rem',
     fontFamily: fredoka.style.fontFamily
   };
-
+  
   return (
     <main
       className={`${nunito.className} register-page`}
@@ -414,13 +340,29 @@ export default function RegistrationPage() {
       <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1
           className={`${fredoka.className} anim-title anim-glow`}
-          style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', color: '#ff8c00', marginBottom: '0.5rem', fontWeight: 'bold', fontKerning: 'none', letterSpacing: '0.2rem', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)', marginTop: '-1rem' }}
+          style={{ 
+            fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', 
+            color: '#ff8c00', 
+            marginBottom: '0.5rem', 
+            fontWeight: 'bold', 
+            fontKerning: 'none', 
+            letterSpacing: '0.2rem', 
+            textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)', 
+            marginTop: '-1rem' }}
         >
           Register
         </h1>
 
-        <p className="anim-subtitle" style={{ color: 'rgb(173, 101, 13)', letterSpacing: '4.5px', textTransform: 'uppercase', fontSize: '1rem', marginTop: '-0.5rem', fontWeight: '700', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
-          Already have an account? <strong style={{ cursor: 'pointer' }} onClick={() => router.push('/login')}> Sign In. </strong>
+        <p className="anim-subtitle" style={{ 
+            color: 'rgb(173, 101, 13)', 
+            letterSpacing: '4.5px', 
+            textTransform: 'uppercase', 
+            fontSize: '1rem', 
+            marginTop: '-0.5rem', 
+            fontWeight: '700', 
+            textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' 
+            }}>
+          Already have an account? <strong style={{ cursor: 'pointer', color: "#ff8c00"}} onClick={() => router.push('/login')}> Sign In. </strong>
         </p>
 
         <div className="anim-line" style={{ display: 'inline-flex', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '-0.5rem', marginLeft: '-10px' }}>
@@ -471,7 +413,8 @@ export default function RegistrationPage() {
                 USER ADVISORY NOTICE
               </div>
               <div style={{ fontSize: "0.85rem", color: "rgba(255, 200, 90, 0.85)", lineHeight: "1.4" }}>
-                To enhance user privacy, we advise using a nickname rather than your real name. Although we implement security measures to protect user data, this additional step helps minimize exposure of personal information in the rare event of a security incident.
+                To enhance user privacy, we advise using a nickname rather than your real name. Although we implement security measures to protect user data, this additional step 
+                helps minimize exposure of personal information in the rare event of a security incident.
               </div>
             </div>
           </div>
@@ -634,71 +577,6 @@ export default function RegistrationPage() {
           </form>
         </div>
       </section>
-
-      {/* ADMIN ACCESS 
-      <section className="anim-btn" style={{ width: '100%', maxWidth: '550px', marginTop: '1rem' }}>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <input 
-              style={{ ...inputStyle, marginBottom: 0, paddingLeft: '2.5rem' }} 
-              type="username" 
-              placeholder="Admin Access Code" 
-              value={adminCode}
-              onChange={(e) => setAdminCode(e.target.value)}
-            />
-            <Shield size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,140,66,0.4)' }} />
-          </div>
-          <button
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', width: 'auto', padding: '0.9rem 1.5rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: 'white', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.3s ease' }}
-            onClick={handleFetchLogs}
-          >
-            ENTER
-          </button>
-        </div>
-      </section> */}
-
-      {/* SYSTEM LOGS MODAL 
-      {showLogsModal && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 99999,
-          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
-        }}>
-          <div style={{
-            background: '#111', border: '1px solid #ff8c00', borderRadius: '16px',
-            padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: '80vh', overflowY: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              <h3 style={{ color: '#ff8c00', margin: 0, fontFamily: fredoka.style.fontFamily, fontSize: '1.25rem' }}>Security & System Logs</h3>
-              <button 
-                onClick={() => setShowLogsModal(false)} 
-                style={{ color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}
-              >
-                ✕ Close
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {logs.length === 0 ? (
-                <p style={{ color: '#666', fontSize: '0.9rem' }}>No logged infrastructure events found.</p>
-              ) : (
-                logs.map((log) => (
-                  <div key={log._id} style={{ fontSize: '0.85rem', background: 'rgba(255,255,255,0.02)', padding: '0.6rem 0.8rem', borderRadius: '8px', borderLeft: '3px solid #ff8c00', lineHeight: '1.4' }}>
-                    <span style={{ color: '#666', marginRight: '0.5rem' }}>
-                      [{new Date(log.timestamp).toLocaleTimeString()}]
-                    </span>
-                    <strong style={{ color: '#eee' }}>{log.event}</strong>
-                    {log.meta && (
-                      <div style={{ color: '#a8600c', fontSize: '0.75rem', marginTop: '0.2rem', fontFamily: 'monospace' }}>
-                        Metadata: {JSON.stringify(log.meta)}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}*/}
     </main>
   );
 }
