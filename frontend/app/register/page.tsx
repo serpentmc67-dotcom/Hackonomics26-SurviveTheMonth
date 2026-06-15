@@ -57,38 +57,75 @@ export default function RegistrationPage() {
   }, [showProfanityToast]);
 
   const handleRegister = async () => {
-    if (isSubmitting) return;
+  if (isSubmitting) return;
 
-    if (matcher.hasMatch(username)) {
-      setShowProfanityToast(true);
-      return;
-    }
-
-    const newErrors = {
-      username: [] as string[],
-      password: [] as string[],
-      school: [] as string[],
-      server: [] as string[],
-    };
-
-    if (username.length < 6) newErrors.username.push("Must be at least 6 characters.");
-    if (username.length > 20) newErrors.username.push("Must be 20 characters or less.");
-    if (password.length < 8) newErrors.password.push("Must be at least 8 characters.");
-    if (password.length > 20) newErrors.password.push("Must be 20 characters or less.");
-    if (!/[A-Z]/.test(password)) newErrors.password.push("Must contain at least 1 uppercase letter.");
-    if (!/[a-z]/.test(password)) newErrors.password.push("Must contain at least 1 lowercase letter.");
-    if (!/[0-9]/.test(password)) newErrors.password.push("Must contain at least 1 number.");
-    if (!/[^A-Za-z0-9]/.test(password)) newErrors.password.push("Must contain at least 1 special character (e.g. !@#$%).");
-    if (!school) newErrors.school.push("Please select your school.");
-
-    const hasErrors = Object.values(newErrors).some(arr => arr.length > 0);
-    if (hasErrors) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setIsSubmitting(true);
+  if (matcher.hasMatch(username)) {
+    setShowProfanityToast(true);
+    return;
   }
+
+  const newErrors = {
+    username: [] as string[],
+    password: [] as string[],
+    school: [] as string[],
+    server: [] as string[],
+  };
+
+  if (username.length < 6) newErrors.username.push("Must be at least 6 characters.");
+  if (username.length > 20) newErrors.username.push("Must be 20 characters or less.");
+  if (password.length < 8) newErrors.password.push("Must be at least 8 characters.");
+  if (password.length > 20) newErrors.password.push("Must be 20 characters or less.");
+  if (!/[A-Z]/.test(password)) newErrors.password.push("Must contain at least 1 uppercase letter.");
+  if (!/[a-z]/.test(password)) newErrors.password.push("Must contain at least 1 lowercase letter.");
+  if (!/[0-9]/.test(password)) newErrors.password.push("Must contain at least 1 number.");
+  if (!/[^A-Za-z0-9]/.test(password)) newErrors.password.push("Must contain at least 1 special character (e.g. !@#$%).");
+  if (!school) newErrors.school.push("Please select your school.");
+
+  const hasErrors = Object.values(newErrors).some(arr => arr.length > 0);
+  if (hasErrors) {
+    setErrors(newErrors);
+    return;
+  }
+
+  try {
+    setIsSubmitting(true);
+
+    const response = await fetch("http://localhost:5000/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, school }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErrors({
+        username: [],
+        password: [],
+        school: [],
+        server: [data.message || "Registration failed."],
+      });
+
+      setIsSubmitting(false);
+      return;
+    }
+
+    // SUCCESS → redirect
+    setTimeout(() => {
+      router.push("/"); // your page.tsx (app root)
+    }, 300);
+
+  } catch (err) {
+    setErrors({
+      username: [],
+      password: [],
+      school: [],
+      server: ["Server unreachable. Try again."],
+    });
+
+    setIsSubmitting(false);
+  }
+};
 
   const sectionStyle = {
     marginBottom: '2.5rem',
@@ -575,6 +612,7 @@ export default function RegistrationPage() {
               }}
             >
               {isSubmitting ? "ENTERING SIMULATION..." : "LET'S PLAY"} <ArrowRight size={20} />
+              
             </button>
           </form>
         </div>
