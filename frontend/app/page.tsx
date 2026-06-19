@@ -2,25 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 
-function ClientAuthChecker() {
+export default function RootPage() {
   const router = useRouter();
   const [savedUser, setSavedUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user = localStorage.getItem("username");
+    // 1. Double check we are executing safely inside the browser window
+    if (typeof window !== 'undefined') {
+      const user = sessionStorage.getItem("username");
+      const passedLogin = sessionStorage.getItem("passedLogin") === "true";
 
-    if (!user) {
-      router.replace('/register');
-      return;
+      if (user && passedLogin) {
+        // Safe navigation sequence confirmed
+        setSavedUser(user);
+        setLoading(false);
+      } else {
+        // Reload or jump-ahead detected: reset session entirely and force register
+        sessionStorage.clear();
+        router.replace('/register');
+      }
     }
-
-    setSavedUser(user);
-    setLoading(false);
   }, [router]);
 
+  // Keep the UI empty or matching the background while the redirect resolves instantly
   if (loading) {
     return (
       <div style={{
@@ -31,7 +37,8 @@ function ClientAuthChecker() {
         color: '#ff8c00',
         background: '#050505',
         fontFamily: 'sans-serif',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        letterSpacing: '2px'
       }}>
         LOADING SIMULATION...
       </div>
@@ -39,10 +46,10 @@ function ClientAuthChecker() {
   }
 
   return (
-    <div style={{ padding: '2rem', color: 'white', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: '2rem', color: 'white', fontFamily: 'sans-serif', minHeight: '100vh', background: '#050505' }}>
       <h1 style={{ color: '#ff8c00' }}>Survive The Month</h1>
       <p>
-        Welcome back, <strong>{savedUser}</strong>!
+        Welcome to the simulation, <strong>{savedUser}</strong>!
       </p>
 
       <div style={{
@@ -54,26 +61,25 @@ function ClientAuthChecker() {
       }}>
         [ Game Canvas / Core Interface Active ]
       </div>
+      
+      <button 
+        onClick={() => {
+          sessionStorage.clear();
+          router.replace('/register');
+        }}
+        style={{
+          marginTop: '2rem',
+          padding: '0.5rem 1rem',
+          background: '#ff8c00',
+          color: 'black',
+          border: 'none',
+          borderRadius: '4px',
+          fontWeight: 'bold',
+          cursor: 'pointer'
+        }}
+      >
+        Log Out / Reset
+      </button>
     </div>
   );
 }
-
-const RootPage = dynamic(() => Promise.resolve(ClientAuthChecker), {
-  ssr: false,
-  loading: () => (
-    <div style={{
-      display: 'flex',
-      height: '100vh',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#ff8c00',
-      background: '#050505',
-      fontFamily: 'sans-serif',
-      fontWeight: 'bold'
-    }}>
-      LOADING SIMULATION...
-    </div>
-  )
-});
-
-export default RootPage;

@@ -2,11 +2,13 @@
 Survive the Month — Player Registration + Scoring Server
 """
 
-import sqlite3, re, os, json, hashlib
+import sqlite3, re, os, json
 from datetime import datetime, timezone, timedelta
 from http.server import SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn, TCPServer
 from urllib.parse import urlparse
+# Replacing hashlib with Werkzeug helpers
+from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.environ.get("DB_PATH", "./data/players.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -26,7 +28,6 @@ class ThreadedHTTPServer(ThreadingMixIn, TCPServer):
 
 def init_db():
     conn = get_conn()
-    # Updated to match the frontend registration data structure
     conn.execute("""
         CREATE TABLE IF NOT EXISTS players (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +40,6 @@ def init_db():
             last_played  TEXT
         )
     """)
-    # System logs infrastructure needed for the admin view features
     conn.execute("""
         CREATE TABLE IF NOT EXISTS system_logs (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,9 +77,10 @@ def create_system_log(event, meta=None):
     finally:
         conn.close()
 
-# Secure standard SHA-256 password hashing helper function
+# --- REPLACED HASHLIB WITH WERKZEUG ---
 def hash_password(password):
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    # Generates a secure, salted cryptographic hash string
+    return generate_password_hash(password)
 
 def register_player(username, password, school):
     username = username.strip()
@@ -91,7 +92,6 @@ def register_player(username, password, school):
     ts = get_et()
     conn = get_conn()
     try:
-        # Check if username exists
         existing = conn.execute("SELECT id FROM players WHERE username = ?", (username,)).fetchone()
         if existing:
             create_system_log("Registration Failed: Username taken", {"username": username})
@@ -121,17 +121,16 @@ def login_player(username, password):
         
     conn = get_conn()
     try:
-        # Look up user by username
         user = conn.execute("SELECT id, password, school FROM players WHERE username = ?", (username,)).fetchone()
         if not user:
             create_system_log("Login Failed: User not found", {"username": username})
             return {"ok": False, "message": "Invalid username or password."}
             
         pid, db_hashed_password, school = user
-        # Hash the incoming password attempt to see if it matches the DB
-        incoming_hash = hash_password(password)
         
-        if incoming_hash == db_hashed_password:
+        # --- REPLACED MANUAL COMPARE WITH WERKZEUG CHECK ---
+        # Werkzeug extracts the salt right out of db_hashed_password automatically
+        if check_password_hash(db_hashed_password, password):
             create_system_log("User Logged In", {"username": username, "school": school})
             print(f"[DB] User Logged In — {username}")
             return {"ok": True, "message": "Logged in successfully!", "user": {"id": pid, "username": username, "school": school}}
@@ -191,7 +190,6 @@ class GameHandler(SimpleHTTPRequestHandler):
 
         clean_path = path.rstrip('/')
 
-        # Handle user registration
         if clean_path == "/api/auth/register":
             result = register_player(
                 data.get("username", ""),
@@ -200,7 +198,6 @@ class GameHandler(SimpleHTTPRequestHandler):
             )
             self._json(result, 200 if result["ok"] else 400)
             
-        # Handle user login
         elif clean_path == "/api/auth/login":
             result = login_player(
                 data.get("username", ""),
@@ -208,7 +205,6 @@ class GameHandler(SimpleHTTPRequestHandler):
             )
             self._json(result, 200 if result["ok"] else 400)
             
-        # Matches frontend log auditing system pathing
         elif clean_path == "/api/admin/logs":
             secret_code = data.get("secretCode", "")
             if not secret_code or secret_code != ADMIN_SECRET_CODE:

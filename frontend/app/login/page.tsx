@@ -1,7 +1,7 @@
 'use client';
 
 import { Nunito, Fredoka } from "next/font/google";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Mail, Shield, AlertCircle, ArrowRight } from "lucide-react";
 import Particles from "../components/Particles";
@@ -68,7 +68,11 @@ export default function LoginPage() {
         setIsSubmitting(false);
       } else {
         setErrors({ username: [], password: [], server: [] });
-        localStorage.setItem("username", username);
+        
+        // Write securely to sessionStorage to clear out upon window reloads
+        sessionStorage.setItem("username", username);
+        sessionStorage.setItem("passedLogin", "true");
+        
         router.push("/");
       }
     } catch {
@@ -221,8 +225,8 @@ export default function LoginPage() {
           70%  { transform: scale(1.08) translateY(-4px); }
           100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .anim-title    { animation: registerPop 0.9s 0.1s cubic-bezier(.4,2,.6,1) both; }
-        .anim-glow     { animation: glowPulse 2.5s 1s ease infinite; }
+        .anim-title     { animation: registerPop 0.9s 0.1s cubic-bezier(.4,2,.6,1) both; }
+        .anim-glow      { animation: glowPulse 2.5s 1s ease infinite; }
         .anim-subtitle { animation: fadeDown 0.8s 0.35s ease both; }
         .anim-line     { animation: lineDraw 0.7s 0.5s ease both; }
         .anim-card     { animation: cardUp  0.8s 0.65s ease both; }
@@ -274,7 +278,7 @@ export default function LoginPage() {
             Sign in to continue your 30-day financial simulation.
           </p>
 
-          <form onSubmit={(e) => e.preventDefault()} noValidate>
+          <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} noValidate>
             <label style={labelStyle}><User size={14} /> Username</label>
             <input
               type="text"
@@ -304,7 +308,8 @@ export default function LoginPage() {
                 boxShadow: '0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15)',
                 padding: "1rem", borderRadius: "12px", color: "#ff6b6b",
                 fontSize: "0.9rem", marginBottom: "1.25rem",
-              }}>
+              }}
+              >
                 {errors.username.length > 0 && (
                   <div>
                     <strong style={{ color: "#ff9a9a", textShadow: '0 0 8px rgba(255,80,80,0.8)', letterSpacing: "1px" }}>USERNAME</strong>
@@ -339,9 +344,8 @@ export default function LoginPage() {
             )}
 
             <button
-              type="button"
+              type="submit"
               disabled={isSubmitting}
-              onClick={handleLogin}
               className="login-btn anim-btn"
               style={{
                 ...primaryButtonStyle,
