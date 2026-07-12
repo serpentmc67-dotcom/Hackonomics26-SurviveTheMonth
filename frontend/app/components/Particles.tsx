@@ -33,6 +33,11 @@ export default function Particles() {
     <>
 
       <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
         @keyframes particleFloat {
           0%   { opacity: 0;    transform: translateY(-20vh) scale(0.5); }
           15%  { opacity: 0.6; }
@@ -47,8 +52,10 @@ export default function Particles() {
           position: "fixed",
           inset: 0,
           pointerEvents: "none",
-          zIndex: -10000,
+          zIndex: 0,
           overflow: "hidden",
+          animation: "fadeIn 1s ease 1s forwards",
+          opacity: 0,
         }}
       />
     </>
