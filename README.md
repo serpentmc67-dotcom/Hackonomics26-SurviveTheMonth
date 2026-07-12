@@ -20,7 +20,7 @@ The game logic was developed using 100+ unique decision scenarios inspired by co
 
 ---
 ## Authors
-Built by **codersushi (SushiTheCoder)** and **hxedits35-arch (HersheyTheCoder)** for Hackonomics26!
+Built by **codersushi (SushiTheCoder)** and **hxedits35-arch (HershyTheCoder)** for Hackonomics26!
 
 ---
 ## Live Demo
