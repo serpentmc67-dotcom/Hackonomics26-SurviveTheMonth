@@ -5,8 +5,6 @@ Sushanth Dhilipvenkatesh and Harshith Haris, unless otherwise stated.
 
 This repository is publicly accessible for portfolio viewing, educational review, and version history purposes only.
 
-Permitted Use
-
 You are permitted to:
 
 - View this repository on GitHub.
@@ -14,15 +12,14 @@ You are permitted to:
 - Play and use the publicly deployed version of this project for personal, non-commercial purposes.
 - Reference the project for learning and inspiration.
 
-Viewing the Source Code
-
 Viewing the source code does not grant permission to copy, reproduce, redistribute, modify, reuse, merge, publish, sublicense, sell, or 
 incorporate any portion of the source code, designs, assets, algorithms, project structure, or implementation into another project. Any 
 such use requires prior written permission from the copyright holders.
 
-Prohibited Use
+Playing or interacting with the publicly deployed application is permitted for personal, non-commercial use only. This permission does not
+grant any ownership, license, or rights to the underlying source code, assets, or intellectual property.
 
-Without prior written permission from the copyright holders, you may **not**:
+Without prior written permission from the copyright holders, you may not:
 
 - Copy, reproduce, redistribute, or republish any portion of the source code.
 - Modify, adapt, reverse engineer, or create derivative works based on this project.
@@ -41,13 +38,6 @@ This prohibition includes, but is not limited to:
 - Project architecture and organization
 - Documentation
 - Configuration files and build scripts
-
-Gameplay License
-
-Playing or interacting with the publicly deployed application is permitted for personal, non-commercial use only. This permission does not
-grant any ownership, license, or rights to the underlying source code, assets, or intellectual property.
-
-Reservation of Rights
 
 All rights not expressly granted in this license are reserved by the copyright holders.
 
