@@ -40,7 +40,7 @@ export default function RootPage() {
         fontWeight: 'bold',
         letterSpacing: '2px'
       }}>
-        LOADING SIMULATION...
+        LOADING SIMULATION...f
       </div>
     );
   }

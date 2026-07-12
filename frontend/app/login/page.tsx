@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Mail, Shield, AlertCircle, ArrowRight } from "lucide-react";
 import Particles from "../components/Particles";
+import LoadingScreen from "@/app/components/LoadingScreen";
 
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '700', '900'] });
 const fredoka = Fredoka({ subsets: ['latin'], weight: ['400', '700'] });
@@ -262,7 +263,7 @@ export default function LoginPage() {
         </h1>
 
         <p className="anim-subtitle" style={{ color: 'rgb(173, 101, 13)', letterSpacing: '4.5px', textTransform: 'uppercase', fontSize: '1rem', marginTop: '-0.5rem', fontWeight: '700', textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' }}>
-          Don't have an account? <strong style={{ cursor: 'pointer' }} onClick={() => router.push('/register')}> Register. </strong>
+          Don't have an account? <strong style={{ cursor: 'pointer', color: "#ff8c00"}} onClick={() => router.push('/register')}> Register. </strong>
         </p>
 
         <div className="anim-line" style={{ display: 'inline-flex', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '-0.5rem', marginLeft: '-10px' }}>
@@ -278,10 +279,11 @@ export default function LoginPage() {
             Sign in to continue your 30-day financial simulation.
           </p>
 
-          <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} noValidate>
+          <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} autoComplete="off" noValidate>
             <label style={labelStyle}><User size={14} /> Username</label>
             <input
               type="text"
+              autoComplete="off"
               className="login-input"
               style={inputStyle}
               placeholder="FinanceMaster42"
@@ -293,6 +295,7 @@ export default function LoginPage() {
             <label style={labelStyle}><Mail size={14} /> Password</label>
             <input
               type="password"
+              autoComplete="current-password"
               className="login-input"
               style={inputStyle}
               placeholder="Enter Your Password"

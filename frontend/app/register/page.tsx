@@ -109,10 +109,7 @@ export default function RegistrationPage() {
         return;
       }
 
-      // SUCCESS → push directly to /login page now instead of /
-      setTimeout(() => {
-        router.push("/login"); 
-      }, 300);
+      router.push("/"); 
 
     } catch (err) {
       setErrors({
@@ -270,6 +267,10 @@ export default function RegistrationPage() {
             pointer-events: none;
             border-radius: 24px;
             z-index: 0;
+          }
+          .register-btn:hover {
+            transform: scale(1.03) !important;
+            box-shadow: 0 12px 35px rgba(255,120,0,0.55) !important;
           }
           .shimmer-card > * { position: relative; z-index: 1; }
           .profanity-toast { animation: toastPop 0.4s cubic-bezier(.4,2,.6,1) both; }
@@ -455,12 +456,12 @@ export default function RegistrationPage() {
             </div>
 
             {/* INTERCEPT NATIVE BROWSER ACTION VIA ONSUBMIT */}
-            <form onSubmit={(e) => { e.preventDefault(); handleRegister(); }} noValidate>
+            <form onSubmit={(e) => { e.preventDefault(); handleRegister(); }} autoComplete="off" noValidate>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ flex: 1 }}>
                   <label style={labelStyle}><User size={14} /> Username</label>
                   <input
-                    type="text"
+                    name="new-player-name"
                     className="register-input"
                     style={inputStyle}
                     placeholder="FinanceMaster42"
@@ -474,6 +475,8 @@ export default function RegistrationPage() {
               <label style={labelStyle}><Mail size={14} /> Password</label>
               <input
                 type="password"
+                autoComplete="new-password"
+                name="new-password"
                 className="register-input"
                 style={inputStyle}
                 placeholder="Enter Your Password"

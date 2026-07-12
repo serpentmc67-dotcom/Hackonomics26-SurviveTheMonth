@@ -6,7 +6,6 @@ export default function Particles() {
     const container = document.getElementById("particles-container");
     if (!container) return;
 
-    // Clear any existing particles (e.g. on hot reload)
     container.innerHTML = "";
 
     for (let i = 0; i < 25; i++) {
@@ -23,7 +22,7 @@ export default function Particles() {
         left: ${Math.random() * 100}%;
         background: ${color};
         box-shadow: 0 0 ${size * 2}px ${size}px ${color}88;
-        animation: particleFloat ${3 + Math.random() * 4}s ${Math.random() * 5}s linear  infinite;
+        animation: particleFloat ${3 + Math.random() * 4}s -${Math.random() * 5}s linear infinite;
         pointer-events: none;
       `;
       container.appendChild(p);
@@ -32,12 +31,13 @@ export default function Particles() {
 
   return (
     <>
+
       <style>{`
         @keyframes particleFloat {
-          0%   { opacity: 0;    transform: translateY(110vh) scale(0.5); }
+          0%   { opacity: 0;    transform: translateY(-20vh) scale(0.5); }
           15%  { opacity: 0.6; }
           85%  { opacity: 0.35; }
-          100% { opacity: 0;    transform: translateY(-20vh) scale(1.3); }
+          100% { opacity: 0;    transform: translateY(110vh) scale(1.3); }
         }
       `}</style>
 
@@ -47,7 +47,7 @@ export default function Particles() {
           position: "fixed",
           inset: 0,
           pointerEvents: "none",
-          zIndex: 0,
+          zIndex: -10000,
           overflow: "hidden",
         }}
       />
