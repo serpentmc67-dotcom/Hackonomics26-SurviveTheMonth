@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Info, User, Mail, Shield, AlertCircle, ArrowRight } from "lucide-react";
 import Particles from "../components/Particles";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from "obscenity";
+import { createPortal } from "react-dom";
 
 const matcher = new RegExpMatcher({
   ...englishDataset.build(),
@@ -283,94 +284,87 @@ export default function RegistrationPage() {
         `}</style>
 
         {/* PROFANITY TOAST OVERLAY */}
-        {showProfanityToast && (
-          <div
-            onClick={() => setShowProfanityToast(false)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100dvh",
-              zIndex: 2147483647,
-              display: "grid",
-              placeItems: "center",
-              background: "rgba(0,0,0,0.72)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-            }}
-          >
+        {showProfanityToast &&
+          createPortal(
             <div
-              className="profanity-toast"
-              onClick={(e) => e.stopPropagation()}
+              onClick={() => setShowProfanityToast(false)}
               style={{
-                background: 'rgba(255, 40, 40, 0.12)',
-                border: '1px solid rgba(255, 80, 80, 0.35)',
-                boxShadow: '0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15), 0 20px 60px rgba(0,0,0,0.6)',
-                borderRadius: '20px',
-                padding: '2rem 2.5rem',
-                maxWidth: '420px',
-                width: '90vw',
-                textAlign: 'center',
-                color: '#ff6b6b',
+                position: "fixed",
+                inset: 0,
+                zIndex: 2147483647,
+                display: "grid",
+                placeItems: "center",
+                background: "rgba(0,0,0,0.72)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                fontFamily: nunito.style.fontFamily,
               }}
             >
-              <div style={{
-                fontSize: '0.7rem',
-                fontWeight: '800',
-                letterSpacing: '2.5px',
-                textTransform: 'uppercase',
-                color: '#ff9a9a',
-                textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
-                marginBottom: '0.6rem',
-              }}>
-                Error Code 420
-              </div>
-
-              <div style={{ fontSize: '2.8rem', marginBottom: '0.75rem', lineHeight: 1 }}>🚫</div>
-
-              <div style={{
-                fontSize: '1.3rem',
-                fontWeight: '800',
-                color: '#ff9a9a',
-                textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)',
-                marginBottom: '0.5rem',
-                letterSpacing: '0.5px',
-              }}>
-                No Profanity.
-              </div>
-
-              <div style={{
-                fontSize: '0.9rem',
-                color: 'rgba(255, 150, 150, 0.8)',
-                lineHeight: '1.5',
-                marginBottom: '1.5rem',
-              }}>
-                Your username contains inappropriate language. Please choose a different username.
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowProfanityToast(false)}
+              <div
+                className="profanity-toast"
+                onClick={(e) => e.stopPropagation()}
                 style={{
-                  background: 'rgba(255, 80, 80, 0.2)',
-                  border: '1px solid rgba(255, 80, 80, 0.4)',
-                  borderRadius: '12px',
-                  padding: '0.7rem 2rem',
-                  color: '#ff9a9a',
-                  fontSize: '0.9rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  letterSpacing: '1px',
-                  textTransform: 'uppercase',
-                  transition: 'background 0.2s',
+                  background: "rgba(255, 40, 40, 0.12)",
+                  border: "1px solid rgba(255, 80, 80, 0.35)",
+                  boxShadow:
+                    "0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15), 0 20px 60px rgba(0,0,0,0.6)",
+                  borderRadius: "20px",
+                  padding: "2rem 2.5rem",
+                  maxWidth: "420px",
+                  width: "90vw",
+                  textAlign: "center",
+                  color: "#ff6b6b",
                 }}
               >
-                Got It
-              </button>
-            </div>
-          </div>
-        )}
+                <div
+                  style={{
+                    fontSize: "1.3rem",
+                    fontWeight: "800",
+                    color: "#ff9a9a",
+                    textShadow:
+                      "0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)",
+                    marginBottom: "0.5rem",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Error Code 420: No Profanity
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "0.9rem",
+                    color: "rgba(255, 150, 150, 0.8)",
+                    lineHeight: "1.5",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  Your username contains inappropriate language. Please choose a
+                  different username.
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowProfanityToast(false)}
+                  style={{
+                    background: "rgba(255, 80, 80, 0.2)",
+                    border: "1px solid rgba(255, 80, 80, 0.4)",
+                    borderRadius: "12px",
+                    padding: "0.7rem 2rem",
+                    color: "#ff9a9a",
+                    fontSize: "0.9rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    letterSpacing: "1px",
+                    textTransform: "uppercase",
+                    transition: "background 0.2s",
+                  }}
+                >
+                  Got It
+                </button>
+              </div>
+            </div>,
+            document.body
+          )}
 
         {/* HEADER */}
         <section style={{ textAlign: 'center', marginBottom: '3rem' }}>
