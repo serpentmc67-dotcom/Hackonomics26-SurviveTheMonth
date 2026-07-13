@@ -176,13 +176,14 @@ export default function RegistrationPage() {
     padding: '1.1rem',
     background: 'linear-gradient(135deg, #ff8c00, #e67300)',
     color: 'white',
-    border: 'none',
+    border: '2px solid #ff8c00',
     borderRadius: '16px',
     fontSize: '1.1rem',
     fontWeight: 'bold',
     cursor: 'pointer',
     boxShadow: '0 8px 25px rgba(255, 120, 0, 0.3)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+    position: 'relative' as const,
+    overflow: 'hidden' as const
   };
 
   const subheadingStyle = {
@@ -266,15 +267,54 @@ export default function RegistrationPage() {
             transform: translateX(-100%);
             animation: shimmer 3.5s ease infinite;
             pointer-events: none;
-            border-radius: 24px;
+            border-radius: inherit;
             z-index: 0;
+          }
+          .register-btn {
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease;
+          }
+          .register-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #ffffff;
+            opacity: 0;
+            transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: inherit;
+            z-index: 0;
+          }
+          .register-btn-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
           }
           .register-btn:hover {
             transform: scale(1.03) !important;
             box-shadow: 0 12px 35px rgba(255,120,0,0.55) !important;
           }
+          .register-btn:hover::before {
+            opacity: 1;
+          }
+          .register-btn:hover .register-btn-content {
+            color: #ff8c00;
+          }
           .shimmer-card > * { position: relative; z-index: 1; }
           .profanity-toast { animation: toastPop 0.4s cubic-bezier(.4,2,.6,1) both; }
+          @keyframes signinBreathe {
+            0%, 100% { opacity: 1; }
+            50%      { opacity: 0.55; }
+          }
+          .signin-link {
+            display: inline-block;
+            animation: signinBreathe 3.2s ease-in-out infinite;
+          }
+          .signin-link:hover {
+            color: #ffffff !important;
+            opacity: 1;
+          }
           ${showProfanityToast ? `
             ::-webkit-scrollbar-thumb { background: #555 !important; }
             ::-webkit-scrollbar-thumb:hover { background: #666 !important; }
@@ -301,66 +341,91 @@ export default function RegistrationPage() {
               }}
             >
               <div
-                className="profanity-toast"
+                className="profanity-toast shimmer-card"
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                  background: "rgba(255, 40, 40, 0.12)",
-                  border: "1px solid rgba(255, 80, 80, 0.35)",
-                  boxShadow:
-                    "0 0 18px rgba(255, 60, 60, 0.25), 0 0 35px rgba(255, 0, 0, 0.15), 0 20px 60px rgba(0,0,0,0.6)",
-                  borderRadius: "20px",
-                  padding: "2rem 2.5rem",
+                  background: "#1a1a1a",
+                  border: "2px solid #ff8c00",
+                  borderRadius: "10px",
+                  padding: 0,
                   maxWidth: "420px",
                   width: "90vw",
                   textAlign: "center",
-                  color: "#ff6b6b",
+                  color: "#fff",
+                  overflow: "hidden",
+                  boxShadow:
+                    "0 0 30px rgba(255, 140, 0, 0.35), 0 0 65px rgba(255, 140, 0, 0.2), 0 20px 60px rgba(0,0,0,0.7)",
                 }}
               >
                 <div
                   style={{
-                    fontSize: "1.3rem",
-                    fontWeight: "800",
-                    color: "#ff9a9a",
-                    textShadow:
-                      "0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)",
-                    marginBottom: "0.5rem",
-                    letterSpacing: "0.5px",
+                    background: "#ff8c00",
+                    padding: "0.75rem 1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
                   }}
                 >
-                  Error Code 420: No Profanity
+                  <AlertCircle size={18} color="#1a1a1a" />
+                  <span
+                    style={{
+                      fontSize: "0.85rem",
+                      fontWeight: "900",
+                      letterSpacing: "2px",
+                      textTransform: "uppercase",
+                      color: "#1a1a1a",
+                    }}
+                  >
+                    Registration Blocked
+                  </span>
                 </div>
 
-                <div
-                  style={{
-                    fontSize: "0.9rem",
-                    color: "rgba(255, 150, 150, 0.8)",
-                    lineHeight: "1.5",
-                    marginBottom: "1.5rem",
-                  }}
-                >
-                  Your username contains inappropriate language. Please choose a
-                  different username.
-                </div>
+                <div style={{ padding: "1.75rem 2rem 2rem" }}>
+                  <div
+                    style={{
+                      fontSize: "1.25rem",
+                      fontWeight: "800",
+                      color: "#fff",
+                      marginBottom: "0.6rem",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Inappropriate Username Detected
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={() => setShowProfanityToast(false)}
-                  style={{
-                    background: "rgba(255, 80, 80, 0.2)",
-                    border: "1px solid rgba(255, 80, 80, 0.4)",
-                    borderRadius: "12px",
-                    padding: "0.7rem 2rem",
-                    color: "#ff9a9a",
-                    fontSize: "0.9rem",
-                    fontWeight: "700",
-                    cursor: "pointer",
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
-                    transition: "background 0.2s",
-                  }}
-                >
-                  Got It
-                </button>
+                  <div
+                    style={{
+                      fontSize: "0.9rem",
+                      color: "rgba(255,255,255,0.7)",
+                      lineHeight: "1.5",
+                      marginBottom: "1.75rem",
+                    }}
+                  >
+                    Your username contains language that violates our community
+                    guidelines. Please choose a different username to continue.
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowProfanityToast(false)}
+                    style={{
+                      background: "#ff8c00",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "0.75rem 2.5rem",
+                      color: "#1a1a1a",
+                      fontSize: "0.9rem",
+                      fontWeight: "800",
+                      cursor: "pointer",
+                      letterSpacing: "1px",
+                      textTransform: "uppercase",
+                      transition: "background 0.2s",
+                    }}
+                  >
+                    Understood
+                  </button>
+                </div>
               </div>
             </div>,
             document.body
@@ -392,7 +457,7 @@ export default function RegistrationPage() {
               fontWeight: '700', 
               textShadow: '5px 10px 30px rgba(255, 140, 0, 0.6)' 
             }}>
-            Already have an account? <strong style={{ cursor: 'pointer', color: "#ff8c00"}} onClick={() => router.push('/login')}> Sign In. </strong>
+            Already have an account? <strong className="signin-link" style={{ cursor: 'pointer', color: "#ff8c00"}} onClick={() => router.push('/login')}> Sign In. </strong>
           </p>
 
           <div className="anim-line" style={{ display: 'inline-flex', width: 'calc(100% + 20px)', marginTop: '1.2rem', marginBottom: '-0.5rem', marginLeft: '-10px' }}>
@@ -605,7 +670,9 @@ export default function RegistrationPage() {
                   cursor: isSubmitting ? 'not-allowed' : 'pointer'
                 }}
               >
+                <span className="register-btn-content">
                 {isSubmitting ? "ENTERING SIMULATION..." : "REGISTER"} <ArrowRight size={20} />
+                </span>
               </button>
             </form>
           </div>
