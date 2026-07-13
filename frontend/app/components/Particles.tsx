@@ -22,7 +22,7 @@ export default function Particles() {
         left: ${Math.random() * 100}%;
         background: ${color};
         box-shadow: 0 0 ${size * 2}px ${size}px ${color}88;
-        animation: particleFloat ${3 + Math.random() * 4}s -${Math.random() * 5}s linear infinite;
+        animation: particleFloat ${3 + Math.random() * 4}s -0.1s linear infinite;
         pointer-events: none;
       `;
       container.appendChild(p);
@@ -33,11 +33,6 @@ export default function Particles() {
     <>
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
         @keyframes particleFloat {
           0%   { opacity: 0;    transform: translateY(-20vh) scale(0.5); }
           15%  { opacity: 0.6; }
@@ -54,8 +49,6 @@ export default function Particles() {
           pointerEvents: "none",
           zIndex: 0,
           overflow: "hidden",
-          animation: "fadeIn 1s ease 1s forwards",
-          opacity: 0,
         }}
       />
     </>
