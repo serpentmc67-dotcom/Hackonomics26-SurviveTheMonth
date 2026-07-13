@@ -7,19 +7,17 @@ from datetime import datetime, timezone, timedelta
 from http.server import SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn, TCPServer
 from urllib.parse import urlparse
-# Replacing hashlib with Werkzeug helpers
 from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.environ.get("DB_PATH", "./data/players.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
-# Secret key that the admin code form checks against
 ADMIN_SECRET_CODE = os.environ.get("ADMIN_SECRET_CODE", "MySuperSecretCode123")
 
 def get_conn():
     conn = sqlite3.connect(DB_PATH, timeout=15, check_same_thread=False)
-    conn.execute("PRAGMA journal_mode=WAL")   # allows concurrent reads + writes
-    conn.execute("PRAGMA synchronous=NORMAL") # faster writes, still safe
+    conn.execute("PRAGMA journal_mode=WAL")   
+    conn.execute("PRAGMA synchronous=NORMAL") 
     conn.execute("PRAGMA cache_size=10000")
     return conn
 
@@ -37,7 +35,9 @@ def init_db():
             registered TEXT NOT NULL,
             score      INTEGER DEFAULT 0,
             play_seconds INTEGER DEFAULT 0,
-            last_played  TEXT
+            last_played  TEXT,
+            status     TEXT DEFAULT 'active', -- 'active', 'banned', 'ip_banned'
+            ip_address TEXT
         )
     """)
     conn.execute("""
@@ -77,12 +77,10 @@ def create_system_log(event, meta=None):
     finally:
         conn.close()
 
-# --- REPLACED HASHLIB WITH WERKZEUG ---
 def hash_password(password):
-    # Generates a secure, salted cryptographic hash string
     return generate_password_hash(password)
 
-def register_player(username, password, school):
+def register_player(username, password, school, ip_address=""):
     username = username.strip()
     school = school.strip()
     
@@ -99,8 +97,8 @@ def register_player(username, password, school):
             
         hashed = hash_password(password)
         cur = conn.execute(
-            "INSERT INTO players (username, password, school, registered) VALUES (?, ?, ?, ?)",
-            (username, hashed, school, ts)
+            "INSERT INTO players (username, password, school, registered, ip_address) VALUES (?, ?, ?, ?, ?)",
+            (username, hashed, school, ts, ip_address)
         )
         conn.commit()
         pid = cur.lastrowid
@@ -114,23 +112,37 @@ def register_player(username, password, school):
     finally:
         conn.close()
 
-def login_player(username, password):
+def login_player(username, password, ip_address=""):
     username = username.strip()
     if not username or not password:
         return {"ok": False, "message": "Username and password are required."}
         
     conn = get_conn()
     try:
-        user = conn.execute("SELECT id, password, school FROM players WHERE username = ?", (username,)).fetchone()
+        user = conn.execute("SELECT id, password, school, status, ip_address FROM players WHERE username = ?", (username,)).fetchone()
+        
+        # 1. Explicit check if user exists
         if not user:
             create_system_log("Login Failed: User not found", {"username": username})
-            return {"ok": False, "message": "Invalid username or password."}
+            return {"ok": False, "message": "User does not exist."}
             
-        pid, db_hashed_password, school = user
+        pid, db_hashed_password, school, status, saved_ip = user
         
-        # --- REPLACED MANUAL COMPARE WITH WERKZEUG CHECK ---
-        # Werkzeug extracts the salt right out of db_hashed_password automatically
+        # Check if banned
+        if status == 'banned' or status == 'ip_banned':
+            return {"ok": False, "message": "This account or IP has been banned."}
+            
+        # Update IP tracking if it changed
+        if ip_address and ip_address != saved_ip:
+            conn.execute("UPDATE players SET ip_address = ? WHERE id = ?", (ip_address, pid))
+            conn.commit()
+
+        # 2. Check password
         if check_password_hash(db_hashed_password, password):
+            ts = get_et()
+            conn.execute("UPDATE players SET last_played = ? WHERE id = ?", (ts, pid))
+            conn.commit()
+            
             create_system_log("User Logged In", {"username": username, "school": school})
             print(f"[DB] User Logged In — {username}")
             return {"ok": True, "message": "Logged in successfully!", "user": {"id": pid, "username": username, "school": school}}
@@ -172,7 +184,7 @@ class GameHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Secret-Code")
         self.end_headers()
         self.wfile.write(body)
 
@@ -189,22 +201,100 @@ class GameHandler(SimpleHTTPRequestHandler):
             return
 
         clean_path = path.rstrip('/')
+        client_ip = self.client_address[0]
 
         if clean_path == "/api/auth/register":
             result = register_player(
                 data.get("username", ""),
                 data.get("password", ""),
-                data.get("school", "")
+                data.get("school", ""),
+                client_ip
             )
             self._json(result, 200 if result["ok"] else 400)
             
         elif clean_path == "/api/auth/login":
             result = login_player(
                 data.get("username", ""),
-                data.get("password", "")
+                data.get("password", ""),
+                client_ip
             )
             self._json(result, 200 if result["ok"] else 400)
             
+        elif clean_path == "/api/admin/stats":
+            secret_code = self.headers.get("X-Secret-Code") or data.get("secretCode", "")
+            if secret_code != ADMIN_SECRET_CODE:
+                self._json({"ok": False, "message": "Access Denied."}, 403)
+                return
+                
+            conn = get_conn()
+            total_players = conn.execute("SELECT COUNT(*) FROM players").fetchone()[0]
+            # Active within last 5 minutes is marked "Online"
+            five_mins_ago = (datetime.now(timezone(timedelta(hours=-4))) - timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
+            online_players = conn.execute("SELECT COUNT(*) FROM players WHERE last_played >= ?", (five_mins_ago,)).fetchone()[0]
+            banned_players = conn.execute("SELECT COUNT(*) FROM players WHERE status != 'active'").fetchone()[0]
+            conn.close()
+            
+            self._json({
+                "ok": True,
+                "stats": {
+                    "totalPlayers": total_players,
+                    "onlinePlayers": online_players,
+                    "bannedPlayers": banned_players
+                }
+            })
+
+        elif clean_path == "/api/admin/players":
+            secret_code = self.headers.get("X-Secret-Code") or data.get("secretCode", "")
+            if secret_code != ADMIN_SECRET_CODE:
+                self._json({"ok": False, "message": "Access Denied."}, 403)
+                return
+                
+            conn = get_conn()
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute("SELECT id, username, school, registered, score, play_seconds, last_played, status, ip_address FROM players ORDER BY id DESC").fetchall()
+            conn.close()
+            
+            players_list = [dict(r) for r in rows]
+            self._json({"ok": True, "players": players_list})
+
+        elif clean_path == "/api/admin/action":
+            secret_code = self.headers.get("X-Secret-Code") or data.get("secretCode", "")
+            if secret_code != ADMIN_SECRET_CODE:
+                self._json({"ok": False, "message": "Access Denied."}, 403)
+                return
+                
+            player_id = data.get("playerId")
+            action = data.get("action") # 'delete', 'ban', 'ip_ban', 'unban'
+            
+            if not player_id or not action:
+                self._json({"ok": False, "message": "Missing arguments."}, 400)
+                return
+                
+            conn = get_conn()
+            try:
+                if action == 'delete':
+                    conn.execute("DELETE FROM players WHERE id = ?", (player_id,))
+                    create_system_log("Admin Action: Deleted User", {"id": player_id})
+                elif action == 'ban':
+                    conn.execute("UPDATE players SET status = 'banned' WHERE id = ?", (player_id,))
+                    create_system_log("Admin Action: Banned User", {"id": player_id})
+                elif action == 'ip_ban':
+                    user_ip = conn.execute("SELECT ip_address FROM players WHERE id = ?", (player_id,)).fetchone()
+                    if user_ip and user_ip[0]:
+                        conn.execute("UPDATE players SET status = 'ip_banned' WHERE ip_address = ?", (user_ip[0],))
+                    conn.execute("UPDATE players SET status = 'ip_banned' WHERE id = ?", (player_id,))
+                    create_system_log("Admin Action: IP Banned User", {"id": player_id})
+                elif action == 'unban':
+                    conn.execute("UPDATE players SET status = 'active' WHERE id = ?", (player_id,))
+                    create_system_log("Admin Action: Unbanned User", {"id": player_id})
+                    
+                conn.commit()
+                self._json({"ok": True, "message": f"Action '{action}' executed successfully."})
+            except Exception as e:
+                self._json({"ok": False, "message": str(e)}, 500)
+            finally:
+                conn.close()
+
         elif clean_path == "/api/admin/logs":
             secret_code = data.get("secretCode", "")
             if not secret_code or secret_code != ADMIN_SECRET_CODE:

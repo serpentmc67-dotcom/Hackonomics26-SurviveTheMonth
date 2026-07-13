@@ -1,9 +1,10 @@
 'use client';
 
 import { Nunito, Fredoka } from "next/font/google";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Info, User, Mail, Shield, AlertCircle, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Info, User, AlertCircle, ArrowRight, Lock, Eye, EyeOff, HelpCircle, CheckCircle2, XCircle, Check, School, KeyRound } from "lucide-react";
 import Particles from "../components/Particles";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from "obscenity";
 import { createPortal } from "react-dom";
@@ -20,9 +21,15 @@ export default function RegistrationPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [school, setSchool] = useState("");
   const [schoolOpen, setSchoolOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "typing" | "available" | "unavailable">("idle");
+  const schoolDropdownRef = useRef<HTMLDivElement>(null);
 
   const schools = [
     { value: "beta-testers", label: "Beta Testers", disabled: false }, 
@@ -36,6 +43,7 @@ export default function RegistrationPage() {
     username: [] as string[],
     password: [] as string[],
     school: [] as string[],
+    terms: [] as string[],
     server: [] as string[],
   });
 
@@ -57,6 +65,43 @@ export default function RegistrationPage() {
     };
   }, [showProfanityToast]);
 
+  // Username availability check (debounced while the user types)
+  useEffect(() => {
+    if (!username) {
+      setUsernameStatus("idle");
+      return;
+    }
+
+    setUsernameStatus("typing");
+
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/auth/check-username?username=${encodeURIComponent(username)}`
+        );
+        const data = await response.json();
+        setUsernameStatus(data.available ? "available" : "unavailable");
+      } catch (err) {
+        // If the availability endpoint isn't reachable, don't block the user with a stuck spinner
+        setUsernameStatus("idle");
+      }
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [username]);
+
+  // Close the school dropdown when clicking outside of it
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (schoolDropdownRef.current && !schoolDropdownRef.current.contains(e.target as Node)) {
+        setSchoolOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleRegister = async () => {
     if (isSubmitting) return;
 
@@ -70,6 +115,7 @@ export default function RegistrationPage() {
       username: [] as string[],
       password: [] as string[],
       school: [] as string[],
+      terms: [] as string[],
       server: [] as string[],
     };
 
@@ -81,7 +127,9 @@ export default function RegistrationPage() {
     if (!/[a-z]/.test(password)) newErrors.password.push("Must contain at least 1 lowercase letter.");
     if (!/[0-9]/.test(password)) newErrors.password.push("Must contain at least 1 number.");
     if (!/[^A-Za-z0-9]/.test(password)) newErrors.password.push("Must contain at least 1 special character (e.g. !@#$%).");
+    if (password !== confirmPassword) newErrors.password.push("Passwords do not match.");
     if (!school) newErrors.school.push("Please select your school.");
+    if (!agreedToTerms) newErrors.terms.push("You must agree to the Terms of Service and Privacy Policy.");
 
     const hasErrors = Object.values(newErrors).some(arr => arr.length > 0);
     if (hasErrors) {
@@ -105,6 +153,7 @@ export default function RegistrationPage() {
           username: [],
           password: [],
           school: [],
+          terms: [],
           server: [data.message || "Registration failed."],
         });
         setIsSubmitting(false);
@@ -121,6 +170,7 @@ export default function RegistrationPage() {
         username: [],
         password: [],
         school: [],
+        terms: [],
         server: ["Server unreachable. Try again."],
       });
       setIsSubmitting(false);
@@ -269,7 +319,7 @@ export default function RegistrationPage() {
             inset: 0;
             background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.055) 50%, transparent 70%);
             transform: translateX(-100%);
-            animation: shimmer 3.5s ease infinite;
+            animation: shimmer 1.6s ease 3 both;
             pointer-events: none;
             border-radius: inherit;
             z-index: 0;
@@ -318,6 +368,50 @@ export default function RegistrationPage() {
           .signin-link:hover {
             color: #ffffff !important;
             opacity: 1;
+          }
+          .field-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 1.25rem;
+          }
+          .field-icon-btn {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            z-index: 2;
+          }
+          .field-icon-static {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+            z-index: 2;
+          }
+          .terms-link {
+            color: #ff8c00;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+          }
+          .terms-link:hover {
+            color: #ffffff;
+          }
+          .terms-checkbox {
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+          }
+          .terms-checkbox:hover {
+            border-color: #ff8c00 !important;
+            transform: scale(1.06);
           }
           ${showProfanityToast ? `
             ::-webkit-scrollbar-thumb { background: #555 !important; }
@@ -523,47 +617,97 @@ export default function RegistrationPage() {
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ flex: 1 }}>
                   <label style={labelStyle}><User size={14} /> Username</label>
-                  <input
-                    name="new-player-name"
-                    className="register-input"
-                    style={inputStyle}
-                    placeholder="FinanceMaster42"
-                    value={username}
-                    maxLength={20}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
+                  <div className="field-wrapper">
+                    <input
+                      name="new-player-name"
+                      className="register-input"
+                      style={{ ...inputStyle, paddingRight: '2.75rem', marginBottom: 0 }}
+                      placeholder="FinanceMaster42"
+                      value={username}
+                      maxLength={20}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                    {usernameStatus === "typing" && (
+                      <span className="field-icon-static">
+                        <HelpCircle size={18} color="#999999" />
+                      </span>
+                    )}
+                    {usernameStatus === "available" && (
+                      <span className="field-icon-static">
+                        <CheckCircle2 size={18} color="#4caf50" />
+                      </span>
+                    )}
+                    {usernameStatus === "unavailable" && (
+                      <span className="field-icon-static">
+                        <XCircle size={18} color="#ff5c5c" />
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <label style={labelStyle}><Mail size={14} /> Password</label>
-              <input
-                type="password"
-                autoComplete="new-password"
-                name="new-password"
-                className="register-input"
-                style={inputStyle}
-                placeholder="Enter Your Password"
-                value={password}
-                maxLength={20}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <label style={labelStyle}><KeyRound size={14} /> Password</label>
+              <div className="field-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  name="new-password"
+                  className="register-input"
+                  style={{ ...inputStyle, paddingRight: '2.75rem', marginBottom: 0 }}
+                  placeholder="Enter Your Password"
+                  value={password}
+                  maxLength={20}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="field-icon-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} color="#888888" /> : <Eye size={18} color="#ffffff" />}
+                </button>
+              </div>
 
-              <label style={labelStyle}><Shield size={14} /> School</label>
-              <div style={{ position: "relative", width: "100%" }}>
+              <label style={labelStyle}><Lock size={14} /> Confirm Password</label>
+              <div className="field-wrapper">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  name="confirm-password"
+                  className="register-input"
+                  style={{ ...inputStyle, paddingRight: '2.75rem', marginBottom: 0 }}
+                  placeholder="Re-enter Your Password"
+                  value={confirmPassword}
+                  maxLength={20}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="field-icon-btn"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} color="#888888" /> : <Eye size={18} color="#ffffff" />}
+                </button>
+              </div>
+
+              <label style={labelStyle}><School size={14} /> School</label>
+              <div ref={schoolDropdownRef} style={{ position: "relative", width: "100%" }}>
                 <div
                   onClick={() => setSchoolOpen(!schoolOpen)}
                   style={{
                     ...inputStyle,
+                    paddingRight: '2.75rem',
                     cursor: "pointer",
                     display: "flex",
-                    justifyContent: "space-between",
                     alignItems: "center",
                     color: school ? "white" : "rgba(255,255,255,0.5)",
                   }}
                 >
                   {schools.find(s => s.value === school)?.label || "Select Your School"}
-                  <span style={{ color: "#ff8c00" }}>▼</span>
                 </div>
+                <span className="field-icon-static" style={{ color: "#ff8c00" }}>▼</span>
 
                 {schoolOpen && (
                   <div
@@ -649,6 +793,16 @@ export default function RegistrationPage() {
                       ))}
                     </div>
                   )}
+                  {errors.terms.length > 0 && (
+                    <div>
+                      <strong style={{ color: "#ff9a9a", textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)', letterSpacing: "1px" }}>TERMS</strong>
+                      {errors.terms.map((err, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
+                          <AlertCircle size={16} style={{ flexShrink: 0 }} /> {err}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {errors.server.length > 0 && (
                     <div>
                       <strong style={{ color: "#ff9a9a", textShadow: '0 0 8px rgba(255, 80, 80, 0.8), 0 0 18px rgba(255, 0, 0, 0.45)', letterSpacing: "1px" }}>SERVER ERROR</strong>
@@ -661,6 +815,59 @@ export default function RegistrationPage() {
                   )}
                 </div>
               )}
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "0.85rem",
+                  marginBottom: "1.5rem",
+                  marginLeft: "3px",
+                }}
+              >
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={agreedToTerms}
+                  aria-label="Agree to Terms of Service and Privacy Policy"
+                  className="terms-checkbox"
+                  onClick={() => setAgreedToTerms(!agreedToTerms)}
+                  style={{
+                    width: "22px",
+                    height: "22px",
+                    borderRadius: "6px",
+                    border: agreedToTerms ? "2px solid #ff8c00" : "2px solid rgba(255, 140, 66, 0.45)",
+                    background: agreedToTerms ? "#ff8c00" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    marginTop: "0.1rem",
+                    padding: 0,
+                  }}
+                >
+                  {agreedToTerms && <Check size={15} color="#1a1a1a" strokeWidth={3} />}
+                </button>
+                <span
+                  onClick={() => setAgreedToTerms(!agreedToTerms)}
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "rgba(255,255,255,0.75)",
+                    lineHeight: "1.5",
+                    cursor: "pointer",
+                  }}
+                >
+                  I agree to the{" "}
+                  <Link href="/tos" className="terms-link" onClick={(e) => e.stopPropagation()}>
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacypolicy" className="terms-link" onClick={(e) => e.stopPropagation()}>
+                    Privacy Policy
+                  </Link>
+                </span>
+              </div>
 
               {/* CONVERTED BUTTON TO TYPE SUBMIT */}
               <button
