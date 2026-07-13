@@ -114,7 +114,7 @@ export default function RegistrationPage() {
       sessionStorage.setItem("username", username);
       sessionStorage.setItem("passedLogin", "true");    
 
-      router.push("/"); 
+      router.push("/homepage"); 
 
     } catch (err) {
       setErrors({
