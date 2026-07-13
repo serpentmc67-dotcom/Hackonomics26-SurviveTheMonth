@@ -61,6 +61,7 @@ export default function RegistrationPage() {
     if (isSubmitting) return;
 
     if (matcher.hasMatch(username)) {
+      setUsername("");
       setShowProfanityToast(true);
       return;
     }
@@ -109,6 +110,9 @@ export default function RegistrationPage() {
         setIsSubmitting(false);
         return;
       }
+
+      sessionStorage.setItem("username", username);
+      sessionStorage.setItem("passedLogin", "true");    
 
       router.push("/"); 
 
@@ -671,7 +675,7 @@ export default function RegistrationPage() {
                 }}
               >
                 <span className="register-btn-content">
-                {isSubmitting ? "ENTERING SIMULATION..." : "REGISTER"} <ArrowRight size={20} />
+                {isSubmitting ? "CREATING ACCOUNT..." : "REGISTER"} <ArrowRight size={20} />
                 </span>
               </button>
             </form>
