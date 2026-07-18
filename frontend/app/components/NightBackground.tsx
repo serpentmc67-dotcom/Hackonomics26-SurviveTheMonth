@@ -27,7 +27,7 @@ export default function NightBackground() {
       style={{
         position: 'relative',
         width: '100%',
-        aspectRatio: '1920 / 1080',
+        height: '100%',
         overflow: 'hidden',
         backgroundImage: 'url(/backgrounds/night.png)',
         backgroundSize: 'cover',

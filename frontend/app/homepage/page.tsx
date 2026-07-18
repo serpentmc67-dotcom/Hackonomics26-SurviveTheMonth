@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import NightBackground from '../components/NightBackground';
-import FallBackground from '../components/FallBackground';
-import SpringBackground from '../components/SpringBackground';
+import RotatingBackground from '/app/components/RotatingBackground';
 
 export default function RootPage() {
   const router = useRouter();
@@ -43,53 +41,48 @@ export default function RootPage() {
         fontWeight: 'bold',
         letterSpacing: '2px'
       }}>
-        LOADING SIMULATION...f
+        LOADING SIMULATION...
       </div>
     );
   }
 
   return (
-  <main>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '2rem', background: '#111' }}>
-        <h2 style={{ color: 'white', fontFamily: 'sans-serif' }}>Fall</h2>
-        <FallBackground />
-      </div>
+    <RotatingBackground>
+      <div style={{ padding: '2rem', color: 'white', fontFamily: 'sans-serif', minHeight: '100vh' }}>
+        <h1 style={{ color: '#ff8c00' }}>Survive The Month</h1>
+        <p>
+          Welcome to the simulation, <strong>{savedUser}</strong>!
+        </p>
 
-    <div style={{ padding: '2rem', color: 'white', fontFamily: 'sans-serif', minHeight: '100vh', background: '#050505' }}>
-      <h1 style={{ color: '#ff8c00' }}>Survive The Month</h1>
-      <p>
-        Welcome to the simulation, <strong>{savedUser}</strong>!
-      </p>
+        <div style={{
+          border: '1px solid #ff8c00',
+          padding: '1rem',
+          marginTop: '1rem',
+          borderRadius: '8px',
+          background: 'rgba(255,140,0,0.1)'
+        }}>
+          [ Game Canvas / Core Interface Active ]
+        </div>
 
-      <div style={{
-        border: '1px solid #ff8c00',
-        padding: '1rem',
-        marginTop: '1rem',
-        borderRadius: '8px',
-        background: 'rgba(255,140,0,0.1)'
-      }}>
-        [ Game Canvas / Core Interface Active ]
+        <button
+          onClick={() => {
+            sessionStorage.clear();
+            router.replace('/register');
+          }}
+          style={{
+            marginTop: '2rem',
+            padding: '0.5rem 1rem',
+            background: '#ff8c00',
+            color: 'black',
+            border: 'none',
+            borderRadius: '4px',
+            fontWeight: 'bold',
+            cursor: 'pointer'
+          }}
+        >
+          Log Out / Reset
+        </button>
       </div>
-      
-      <button 
-        onClick={() => {
-          sessionStorage.clear();
-          router.replace('/register');
-        }}
-        style={{
-          marginTop: '2rem',
-          padding: '0.5rem 1rem',
-          background: '#ff8c00',
-          color: 'black',
-          border: 'none',
-          borderRadius: '4px',
-          fontWeight: 'bold',
-          cursor: 'pointer'
-        }}
-      >
-        Log Out / Reset
-      </button>
-    </div>
-  </main>
+    </RotatingBackground>
   );
 }
