@@ -8,15 +8,17 @@ type WindowBox = {
   delay: number; // seconds into the 10s loop when this box starts flashing
 };
 
-// Positions are mapped from the actual window panes in /public/backgrounds/night.png
-// (1920x1080 source). Group A (top floor, left + right) flashes together with
-// almost no delay between them. Group B (2nd + 3rd floor, left) flashes with a
-// ~1.3s gap between each other, later in the loop.
+// Positions are mapped directly from the actual lit-yellow window panes in
+// /public/backgrounds/night.png (1920x1080 source), verified against the source
+// pixels. Group A (top floor, left + right) flashes together with almost no
+// delay between them. Group B (floors 2, 3, 4) flashes staggered later in the
+// loop, ~1.2-1.3s apart from each other.
 const WINDOWS: WindowBox[] = [
-  { left: 10.16, top: 23.6, width: 4.7, height: 8.3, delay: 0 },     // Group A - box 1
-  { left: 29.27, top: 23.6, width: 4.7, height: 8.3, delay: 0.15 }, // Group A - box 2
-  { left: 9.64, top: 39.35, width: 4.7, height: 8.3, delay: 4.5 },  // Group B - box 3
-  { left: 10.16, top: 52.3, width: 4.7, height: 8.3, delay: 5.9 },  // Group B - box 4
+  { left: 9.64, top: 22.41, width: 11.77, height: 6.11, delay: 0 },    // Group A - Floor 1 Left
+  { left: 23.07, top: 22.41, width: 11.04, height: 6.11, delay: 0.15 }, // Group A - Floor 1 Right
+  { left: 9.11, top: 36.20, width: 12.50, height: 7.13, delay: 4.0 },  // Group B - Floor 2 Left
+  { left: 8.80, top: 50.74, width: 13.28, height: 7.31, delay: 5.3 },  // Group B - Floor 3 Left
+  { left: 22.03, top: 65.46, width: 13.12, height: 7.04, delay: 6.5 }, // Group B - Floor 4 Right
 ];
 
 const LOOP_SECONDS = 10;

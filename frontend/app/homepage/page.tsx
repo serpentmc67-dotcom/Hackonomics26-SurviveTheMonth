@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import RotatingBackground from '/app/components/RotatingBackground';
+import RotatingBackground from '../components/RotatingBackground';
 
 export default function RootPage() {
   const router = useRouter();
